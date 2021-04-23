@@ -129,3 +129,6 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Shifter Settings
+AUTH_USER_MODEL = "shifter_auth.User"
