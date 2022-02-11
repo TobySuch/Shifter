@@ -1,0 +1,35 @@
+version: "3.9"
+
+volumes:
+  postgres_data:
+  static:
+   
+services:
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./.env
+  web:
+    build: .
+    command: gunicorn shifter.wsgi:application --bind 0.0.0.0:8000
+    restart: always
+    volumes:
+      - static:/home/app/web/static
+    expose:
+      - 8000
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+  nginx:
+    build: ./nginx
+    restart: always
+    volumes:
+      - static:/home/app/web/static
+    ports:
+      - 1337:80
+    depends_on:
+      - web
