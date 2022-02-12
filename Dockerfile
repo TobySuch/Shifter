@@ -18,7 +18,7 @@ COPY ./requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
 
 COPY ./shifter/ .
-RUN flake8 . --ignore=E501
+RUN flake8 . --exclude=migrations
 
 #########
 # FINAL #
