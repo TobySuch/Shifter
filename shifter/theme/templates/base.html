@@ -17,8 +17,8 @@
         {% endblock %}
     </head>
 
-    <body class="font-sans leading-normal tracking-normal bg-gray-100">
-        <nav class="bg-cyan-200 py-2.5 mb-3">
+    <body class="font-sans leading-normal tracking-normal bg-gray-100 h-screen">
+        <nav class="bg-cyan-300 py-2.5 mb-3 fixed inset-x-0">
             <div class="container flex flex-wrap justify-between items-center mx-auto">
                 <a href="/" class="flex">
                     <span class="self-center text-lg font-semibold whitespace-nowrap ">Shifter</span>
@@ -28,7 +28,7 @@
               </a>
             </div>
         </nav>
-        <div class="container mx-auto">
+        <div class="container h-screen mx-auto">
             {% block content %}
             <section class="flex items-center justify-center">
                 <h1 class="text-5xl">Template Page</h1>

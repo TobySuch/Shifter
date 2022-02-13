@@ -1,3 +1,8 @@
-# from django.shortcuts import render
+from django.shortcuts import render
 
-# Create your views here.
+
+def login(request):
+    if request.method == "POST":
+        pass
+    else:
+        return render(request, "shifter_auth/login.html")

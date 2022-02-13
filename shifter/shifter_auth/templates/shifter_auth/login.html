@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}<title>Login | Shifter</title>{% endblock %}
+
+{% block content %}
+<div class="flex h-screen justify-center">
+    <div class="w-1/2 bg-white rounded p-2 border-2 border-cyan-800 m-auto">
+        <form class="space-y-1">
+            <p class="font-semibold">Email:</p>
+            <input type="text" class="w-full rounded p-1 border-2 border-slate" placeholder="your@email.com">
+            <p class="font-semibold">Password:</p>
+            <input type="password" class="w-full rounded p-1 border-2 border-slate" placeholder="••••••••">
+            <div class="flex justify-center">
+                <input type="submit" value="Login" class="bg-cyan-300 cursor-pointer rounded px-10 py-2 mt-2 justify-self-center">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
