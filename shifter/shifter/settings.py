@@ -152,3 +152,5 @@ TAILWIND_APP_NAME = 'theme'
 
 # Shifter Settings
 AUTH_USER_MODEL = "shifter_auth.User"
+LOGIN_REDIRECT_URL = "index"
+LOGIN_URL = "login"
