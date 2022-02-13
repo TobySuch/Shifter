@@ -11,14 +11,14 @@
         <div class="p-2">
             <form class="space-y-1 p2" method="post">
                 {% csrf_token %}
-                {% if form.non_field_errors %}<div class="bg-red-400 rounded-full text-center font-semibold">{{ form.non_field_errors }}</div>{% endif %}
+                {% if form.non_field_errors %}<div class="bg-red rounded text-center font-semibold border border-red-600 bg-red-300">{{ form.non_field_errors }}</div>{% endif %}
 
                 <p class="font-semibold">Email:</p>
-                {% if form.email.errors %}<div class="bg-red-400 rounded-full text-center font-semibold">{{ form.email.errors }}</div>{% endif %}
-                <input name="{{ form.email.html_name }}" type="text" class="w-full rounded p-2 border-2" placeholder="your@email.com" {% if form.email.value %}value="{{ form.email.value }}"{% endif %}>
+                {% if form.username.errors %}<div class="bg-red rounded text-center font-semibold border border-red-600 bg-red-300">{{ form.username.errors }}</div>{% endif %}
+                <input name="{{ form.username.html_name }}" type="text" class="w-full rounded p-2 border-2" placeholder="your@email.com" {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
 
                 <p class="font-semibold">Password:</p>
-                {% if form.password.errors %}<div class="bg-red-400 rounded-full text-center font-semibold">{{ form.password.errors }}</div>{% endif %}
+                {% if form.password.errors %}<div class="bg-red rounded text-center font-semibold border border-red-600 bg-red-300">{{ form.password.errors }}</div>{% endif %}
                 <input name="{{ form.password.html_name }}" type="password" class="w-full rounded p-2 border-2" placeholder="••••••••">
 
                 <div class="flex justify-center">
