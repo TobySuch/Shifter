@@ -47,8 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tailwind',
     'theme',
-    'shifter_base',
     'shifter_auth',
+    'shifter_files',
 ]
 
 MIDDLEWARE = [

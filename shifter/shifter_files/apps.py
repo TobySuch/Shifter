@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ShifterBaseConfig(AppConfig):
+class ShifterFilesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'shifter_base'
+    name = 'shifter_files'
