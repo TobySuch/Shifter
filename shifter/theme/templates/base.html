@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Shifter</title>
+        {% block title %}<title>Shifter</title>{% endblock %}
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -17,7 +17,7 @@
         {% endblock %}
     </head>
 
-    <body class="font-sans leading-normal tracking-normal">
+    <body class="font-sans leading-normal tracking-normal bg-gray-100">
         <nav class="bg-cyan-200 py-2.5 mb-3">
             <div class="container flex flex-wrap justify-between items-center mx-auto">
                 <a href="/" class="flex">
@@ -29,9 +29,11 @@
             </div>
         </nav>
         <div class="container mx-auto">
+            {% block content %}
             <section class="flex items-center justify-center">
-                <h1 class="text-5xl">Django + Tailwind = ❤️</h1>
+                <h1 class="text-5xl">Template Page</h1>
             </section>
+            {% endblock %}
         </div>
     </body>
 </html>
