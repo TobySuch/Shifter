@@ -23,9 +23,13 @@
                 <a href="/" class="flex">
                     <span class="self-center text-lg font-semibold whitespace-nowrap ">Shifter</span>
                 </a>
-                <a href="#" class="flex">
-                    <span class="self-center text-lg font-semibold whitespace-nowrap ">Login | Logout</span>
-              </a>
+                {% if user.is_authenticated %}
+                {# TODO: Logout link goes here #}
+                {% else %}
+                <a href="{% url 'shifter_auth:login' %}" class="flex">
+                    <span class="self-center text-lg font-semibold whitespace-nowrap ">Login</span>
+                </a>
+                {% endif %}
             </div>
         </nav>
         <div class="container h-screen mx-auto">
