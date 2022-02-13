@@ -1,27 +1,37 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-    	<title>Shifter</title>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="ie=edge">
-		{% if DEBUG %}
-			{# Currently hitting a bug where the JIT compiler for tailwind isn't working. For now using CDN for dev work. #}
-			<script src="https://cdn.tailwindcss.com"></script>
-		{% else %}
-			{# TODO: The CSS is not set up to build in production builds yet. #}
-			{% tailwind_css %}
-		{% endif %}
-		{% block head %}
-		{% endblock %}
-	</head>
+    <head>
+        <title>Shifter</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        {% if DEBUG %}
+            {# Currently hitting a bug where the JIT compiler for tailwind isn't working. For now using CDN for dev work. #}
+            <script src="https://cdn.tailwindcss.com"></script>
+        {% else %}
+            {# TODO: The CSS is not set up to build in production builds yet. #}
+            {% tailwind_css %}
+        {% endif %}
+        {% block head %}
+        {% endblock %}
+    </head>
 
-	<body class="font-serif leading-normal tracking-normal">
-		<div class="container mx-auto">
-			<section class="flex items-center justify-center h-screen">
-				<h1 class="text-5xl">Django + Tailwind = ❤️</h1>
-			</section>
-		</div>
-	</body>
+    <body class="font-sans leading-normal tracking-normal">
+        <nav class="bg-cyan-200 py-2.5 mb-3">
+            <div class="container flex flex-wrap justify-between items-center mx-auto">
+                <a href="/" class="flex">
+                    <span class="self-center text-lg font-semibold whitespace-nowrap ">Shifter</span>
+                </a>
+                <a href="#" class="flex">
+                    <span class="self-center text-lg font-semibold whitespace-nowrap ">Login | Logout</span>
+              </a>
+            </div>
+        </nav>
+        <div class="container mx-auto">
+            <section class="flex items-center justify-center">
+                <h1 class="text-5xl">Django + Tailwind = ❤️</h1>
+            </section>
+        </div>
+    </body>
 </html>
