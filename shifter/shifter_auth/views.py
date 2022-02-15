@@ -8,4 +8,4 @@ from django.contrib.auth import logout
 @login_required
 def logoutView(request):
     logout(request)
-    return redirect("index")
+    return redirect("shifter_files:index")
