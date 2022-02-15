@@ -1,5 +1,8 @@
-from django.shortcuts import render
+from django.views.generic.edit import FormView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .forms import FileUploadForm
 
 
-def index(request):
-    return render(request, "shifter_files/index.html")
+class FileUploadView(LoginRequiredMixin, FormView):
+    template_name = "shifter_files/file_upload.html"
+    form_class = FileUploadForm
