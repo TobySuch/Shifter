@@ -17,29 +17,31 @@
         {% endblock %}
     </head>
 
-    <body class="font-sans leading-normal tracking-normal bg-gray-100 h-screen">
-        <nav class="bg-cyan-300 py-2.5 mb-3 fixed inset-x-0">
-            <div class="container flex flex-wrap justify-between items-center mx-auto">
-                <a href="/" class="flex">
-                    <span class="self-center text-lg font-semibold whitespace-nowrap ">Shifter</span>
-                </a>
-                {% if user.is_authenticated %}
-                <form method="post" action="{% url 'shifter_auth:logout' %}">
-                    {% csrf_token %}
-                    <input type="submit" value="Logout" class="cursor-pointer self-center text-lg font-semibold whitespace-nowrap">
-                </form>
-                {% else %}
-                <a href="{% url 'shifter_auth:login' %}" class="flex">
-                    <span class="self-center text-lg font-semibold whitespace-nowrap">Login</span>
-                </a>
-                {% endif %}
+    <body class="font-sans leading-normal tracking-normal bg-gray-200 h-screen">
+        <nav class="bg-gray-50 border-b-2 border-cyan-200 py-2.5 fixed w-screen top-0">
+            <div class="px-20 mx-auto">
+                <div class="flex justify-between">
+                    <a href="/" class="flex">
+                        <span class="self-center text-2xl font-semibold whitespace-nowrap ">Shifter</span>
+                    </a>
+                    {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'shifter_auth:logout' %}">
+                        {% csrf_token %}
+                        <input type="submit" value="Logout" class="cursor-pointer self-center text-lg font-semibold whitespace-nowrap">
+                    </form>
+                    {% else %}
+                    <a href="{% url 'shifter_auth:login' %}" class="flex">
+                        <span class="self-center text-lg font-semibold whitespace-nowrap">Login</span>
+                    </a>
+                    {% endif %}
+                </div>
             </div>
         </nav>
         <div class="container h-screen mx-auto">
             {% block content %}
-            <section class="flex items-center justify-center">
+            <div class="flex h-screen items-center justify-center">
                 <h1 class="text-5xl">Template Page</h1>
-            </section>
+            </div>
             {% endblock %}
         </div>
     </body>
