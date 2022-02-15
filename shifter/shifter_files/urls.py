@@ -5,5 +5,5 @@ from . import views
 
 app_name="shifter_files"
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.FileUploadView.as_view(), name='index'),
 ]
