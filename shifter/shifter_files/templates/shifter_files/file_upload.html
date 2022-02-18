@@ -1,4 +1,38 @@
 {% extends 'base.html' %}
 
-{#{% block content %}#}
-{#{% endblock %}#}
+{% block content %}
+<div class="flex h-screen justify-center">
+    <div class="w-3/5 bg-white rounded border drop-shadow-lg m-auto">
+        <div class="py-2 rounded-t">
+            <h1 class="text-xl font-semibold text-center">Upload File</h1>
+        </div>
+        <div class="p-2">
+            <form class="space-y-1 p2" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if form.non_field_errors %}<div class="bg-red rounded text-center font-semibold border border-red-600 bg-red-300">{{ form.non_field_errors }}</div>{% endif %}
+                
+                <div class="flex">
+                    {% if form.file_content.errors %}<div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.file_content.errors }}</div>{% endif %}
+                </div>
+                {{ form.file_content }}
+
+                <div class="flex">
+                    <p class="font-semibold">File Name:</p>
+                    {% if form.filename.errors %}<div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.filename.errors }}</div>{% endif %}
+                </div>
+                {{ form.filename}}
+
+                <div class="flex">
+                    <p class="font-semibold">Expiary:</p>
+                    {% if form.expiary_datetime.errors %}<div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.expiary_datetime.errors }}</div>{% endif %}
+                </div>
+                {{ form.expiary_datetime}}
+                
+                <div class="flex justify-center">
+                    <input type="submit" value="Upload" class="bg-cyan-50 border-2 border-cyan-200 cursor-pointer rounded px-10 py-2 mt-2 justify-self-center font-semibold">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
