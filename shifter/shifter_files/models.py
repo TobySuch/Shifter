@@ -7,6 +7,6 @@ class FileUpload(models.Model):
                               on_delete=models.SET_NULL, blank=False,
                               null=True)
     filename = models.CharField(max_length=255)
-    upload_time = models.DateTimeField()
-    expiary_date = models.DateTimeField()
+    upload_datetime = models.DateTimeField()
+    expiary_datetime = models.DateTimeField()
     file_content = models.FileField(upload_to='uploads/')
