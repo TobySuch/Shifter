@@ -17,13 +17,13 @@
                     <p class="font-semibold">Email:</p>
                     {% if form.username.errors %}<div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.username.errors }}</div>{% endif %}
                 </div>
-                <input name="{{ form.username.html_name }}" type="text" class="w-full rounded p-2 border-2 focus:outline-none focus:border-cyan-200" placeholder="your@email.com" {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
+                <input name="{{ form.username.html_name }}" type="text" class="w-full rounded p-2 border-2 border-slate-400 focus:outline-none focus:border-cyan-200" placeholder="your@email.com" {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
 
                 <div class="flex">
                     <p class="font-semibold">Password:</p>
                     {% if form.password.errors %}<div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.password.errors }}</div>{% endif %}
                 </div>
-                <input name="{{ form.password.html_name }}" type="password" class="w-full rounded p-2 border-2 focus:outline-none focus:border-cyan-200" placeholder="••••••••">
+                <input name="{{ form.password.html_name }}" type="password" class="w-full rounded p-2 border-2 border-slate-400 focus:outline-none focus:border-cyan-200" placeholder="••••••••">
 
                 <div class="flex justify-center">
                     <input type="submit" value="Login" class="bg-cyan-50 border-2 border-cyan-200 cursor-pointer rounded px-10 py-2 mt-2 justify-self-center font-semibold">
