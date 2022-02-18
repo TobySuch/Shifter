@@ -19,8 +19,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('filename', models.CharField(max_length=255)),
-                ('upload_time', models.DateTimeField()),
-                ('expiary_date', models.DateTimeField()),
+                ('upload_datetime', models.DateTimeField()),
+                ('expiary_datetime', models.DateTimeField()),
                 ('file_content', models.FileField(upload_to='uploads/')),
                 ('owner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
             ],
