@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -155,3 +156,8 @@ TAILWIND_APP_NAME = 'theme'
 AUTH_USER_MODEL = "shifter_auth.User"
 LOGIN_REDIRECT_URL = "shifter_files:index"
 LOGIN_URL = "shifter_auth:login"
+DATETIME_INPUT_FORMATS = [
+    '%Y-%m-%d %H:%M',     # '2006-10-25 14:30'
+]
+
+DEFAULT_EXPIARY_OFFSET = timedelta(weeks=2)
