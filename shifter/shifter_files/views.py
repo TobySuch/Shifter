@@ -6,6 +6,14 @@ from .forms import FileUploadForm
 from .models import FileUpload
 
 
+def get_file_extension(filename):
+    filename_split = filename.split(".")
+    if len(filename_split) > 1:
+        return filename_split[-1]
+    else:
+        return None
+
+
 class FileUploadView(LoginRequiredMixin, FormView):
     template_name = "shifter_files/file_upload.html"
     form_class = FileUploadForm
@@ -17,6 +25,15 @@ class FileUploadView(LoginRequiredMixin, FormView):
         filename = form.cleaned_data["filename"]
         if filename == "":
             filename = file.name
+        else:
+            extension = get_file_extension(file.name)
+            if extension:
+                if get_file_extension(filename) != extension:
+                    filename = f"{filename}.{extension}"
+                file.name = filename
+            else:
+                file.name = filename
+
         upload_datetime = timezone.now()
         expiary_datetime = form.cleaned_data["expiary_datetime"]
         file_upload = FileUpload(owner=owner, file_content=file,
