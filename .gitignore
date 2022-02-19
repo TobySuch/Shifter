@@ -136,3 +136,7 @@ dmypy.json
 
 # Env files
 .env*
+
+# Static/Media
+shifter/media/
+shifter/static/
