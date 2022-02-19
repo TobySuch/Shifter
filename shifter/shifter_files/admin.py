@@ -1,4 +1,7 @@
 from django.contrib import admin
 from .models import FileUpload
 
-admin.site.register(FileUpload)
+
+@admin.register(FileUpload)
+class FileUploadAdmin(admin.ModelAdmin):
+    list_display = ('filename', 'owner', 'upload_datetime', 'expiary_datetime')
