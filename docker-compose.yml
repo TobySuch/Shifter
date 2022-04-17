@@ -14,6 +14,7 @@ services:
       - ./.env
   web:
     build: .
+    entrypoint: /home/app/web/entrypoint.sh
     command: gunicorn shifter.wsgi:application --bind 0.0.0.0:8000
     restart: always
     volumes:

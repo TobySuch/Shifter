@@ -24,6 +24,8 @@ if [ "$DEBUG" = "1" ]
 then
   python manage.py createsuperuser --no-input --email "admin@example.com"
 else
+  python manage.py tailwind install
+  python manage.py tailwind build
   python manage.py collectstatic --no-input --clear
 fi
 exec "$@"
