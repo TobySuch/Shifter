@@ -1,4 +1,14 @@
 version: "3.9"
+
+x-app: &default-app
+  build:
+    context: .
+    dockerfile: ./Dockerfile.dev
+  volumes:
+    - ./shifter:/app
+  env_file:
+    - ./.env.dev
+  
    
 services:
   db:
@@ -6,15 +16,15 @@ services:
     env_file:
       - ./.env.dev
   web:
-    build:
-      context: .
-      dockerfile: ./Dockerfile.dev
+    <<: *default-app
+    entrypoint: /app/entrypoint.sh
     command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./shifter:/app
     ports:
       - "8000:8000"
-    env_file:
-      - ./.env.dev
     depends_on:
       - db
+  tailwind:
+    <<: *default-app
+    entrypoint: /app/entrypoint_tailwind.sh
+    command: "python manage.py tailwind start"
+    tty: true
