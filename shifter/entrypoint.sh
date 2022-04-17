@@ -19,9 +19,6 @@ fi
 
 python manage.py migrate --no-input
 
-# Install Tailwind dependencies
-python manage.py tailwind install
-
 # If debug mode, create an admin user
 if [ "$DEBUG" = "1" ]
 then
