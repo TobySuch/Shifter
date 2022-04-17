@@ -39,7 +39,7 @@ RUN mkdir $APP_HOME/static
 WORKDIR $APP_HOME
 
 # install dependencies
-RUN apk add  --update libpq
+RUN apk add --update libpq nodejs npm
 COPY --from=builder /app/wheels /wheels
 COPY --from=builder /app/requirements.txt .
 RUN pip install --no-cache /wheels/*
@@ -51,5 +51,3 @@ COPY ./shifter/ $APP_HOME
 
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME
-
-ENTRYPOINT ["/home/app/web/entrypoint.sh"]
