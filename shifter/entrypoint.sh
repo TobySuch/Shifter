@@ -22,7 +22,7 @@ python manage.py migrate --no-input
 # If debug mode, create an admin user
 if [ "$DEBUG" = "1" ]
 then
-  python manage.py createsuperuser --no-input --email "admin@example.com"
+  python manage.py createsuperuser --no-input
 else
   python manage.py tailwind install
   python manage.py tailwind build
