@@ -10,6 +10,6 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/shifter/theme/sttaic_src" # Location of package manifests
+    directory: "/shifter/theme/static_src" # Location of package manifests
     schedule:
       interval: "daily"
