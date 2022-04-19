@@ -24,6 +24,7 @@ if [ "$DEBUG" = "1" ]
 then
   python manage.py createsuperuser --no-input
 else
+# If prod mode, build and collect static files
   python manage.py tailwind install
   python manage.py tailwind build
   python manage.py collectstatic --no-input --clear

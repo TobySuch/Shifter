@@ -1,16 +1,18 @@
-DEBUG=0
+DEBUG=0    # 1 for dev, 0 for prod
 SECRET_KEY=CHANGEME
 DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
 CSRF_TRUSTED_ORIGINS=https://mydomain.com
-DJANGO_SUPERUSER_EMAIL=admin@mydomain.com
-DJANGO_SUPERUSER_PASSWORD=CHANGEME
+DJANGO_SUPERUSER_EMAIL=admin@mydomain.com  # Only used for dev
+DJANGO_SUPERUSER_PASSWORD=CHANGEME         # Only used for dev
 SQL_ENGINE=django.db.backends.postgresql
 SQL_DATABASE=CHANGEME
 SQL_USER=CHANGEME
 SQL_PASSWORD=CHANGEME
 SQL_HOST=db
 SQL_PORT=5432
-DATABASE=postgres
+DATABASE=postgres  # If you change this you will need to make other config changes elsewhere. Currently only supporting Postgres.
+
+# Config for postgres db container - should match credentials above.
 POSTGRES_DB=${SQL_DATABASE}
 POSTGRES_USER=${SQL_USER}
 POSTGRES_PASSWORD=${SQL_PASSWORD}
