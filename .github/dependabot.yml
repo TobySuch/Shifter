@@ -9,7 +9,15 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    assignees:
+      - "TobySuch"
+    reviewers:
+      - "TobySuch"
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/shifter/theme/static_src" # Location of package manifests
     schedule:
       interval: "daily"
+    assignees:
+      - "TobySuch"
+    reviewers:
+      - "TobySuch"
