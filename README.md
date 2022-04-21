@@ -5,9 +5,9 @@ Simple Firefox Send replacement built using Django and Tailwind. Quickly and eas
 The project is currently in early development and not all features are implemented yet. Pretty much everything is subject to change at this point in time.
 
 ## Built using:
-- Django 4
-- Tailwind CSS
-- Docker
+- [Django 4](https://github.com/django/django)
+- [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) (With help from [Django-Tailwind](https://github.com/timonweb/django-tailwind))
+- [Docker](https://github.com/docker)
 - [FilePond](https://github.com/pqina/filepond)
 
 ## Installation Instructions (development):
