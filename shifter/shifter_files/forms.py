@@ -9,14 +9,8 @@ from .widgets import ShifterDateTimeInput
 class FileUploadForm(forms.ModelForm):
     class Meta:
         model = FileUpload
-        fields = ['filename', 'expiary_datetime', 'file_content']
+        fields = ['expiary_datetime', 'file_content']
         widgets = {
-            'filename': forms.TextInput(attrs={
-                'class': ("w-full rounded p-2 border-2 border-slate-400 "
-                          "focus:outline-none focus:border-cyan-200 "
-                          "focus:ring-0"),
-                'placeholder': "(Given Filename)"
-            }),
             'expiary_datetime': ShifterDateTimeInput(attrs={
                 'class': ("w-full rounded p-2 border-2 border-slate-400 "
                           "focus:outline-none focus:border-cyan-200 "
@@ -26,7 +20,6 @@ class FileUploadForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(FileUploadForm, self).__init__(*args, **kwargs)
-        self.fields['filename'].required = False
         exp_date = timezone.now() + settings.DEFAULT_EXPIARY_OFFSET
         exp_date_str = exp_date.strftime(settings.DATETIME_INPUT_FORMATS[0])
         self.fields['expiary_datetime'].initial = exp_date_str
