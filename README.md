@@ -8,6 +8,7 @@ The project is currently in early development and not all features are implement
 - Django 4
 - Tailwind CSS
 - Docker
+- [FilePond](https://github.com/pqina/filepond)
 
 ## Installation Instructions (development):
 1. Install docker and docker compose
