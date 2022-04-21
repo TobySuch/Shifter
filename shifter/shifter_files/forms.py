@@ -21,12 +21,6 @@ class FileUploadForm(forms.ModelForm):
                 'class': ("w-full rounded p-2 border-2 border-slate-400 "
                           "focus:outline-none focus:border-cyan-200 "
                           "focus:ring-0"),
-            }),
-            'file_content': forms.FileInput(attrs={
-                'class': ("block w-full bg-gray-50 "
-                          "rounded border-2 border-slate-400 cursor-pointer "
-                          "focus:outline-none focus:border-cyan-200 "
-                          "focus:ring-0"),
             })
         }
 
