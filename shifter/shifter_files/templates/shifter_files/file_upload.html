@@ -2,7 +2,8 @@
 
 {% block head %}
 {% load static %}
-<script src="{% static 'shifter_files/js/showMoreOptions.js' %}"></script>  
+<link href="{% static 'shifter_files/css/filepond.min.css' %}" rel="stylesheet">
+<script src="{% static 'shifter_files/js/showMoreOptions.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -16,9 +17,11 @@
                 {% csrf_token %}
                 {% if form.non_field_errors %}<div class="bg-red rounded text-center font-semibold border border-red-600 bg-red-300">{{ form.non_field_errors }}</div>{% endif %}
                 
+                {% if form.file_content.errors %}
                 <div class="flex">
-                    {% if form.file_content.errors %}<div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.file_content.errors }}</div>{% endif %}
+                    <div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.file_content.errors }}</div>
                 </div>
+                {% endif %}
                 {{ form.file_content }}
 
                 <div id="show-more-options" class="flex justify-center">
@@ -66,4 +69,14 @@
         </div>
     </div>
 </div>
+
+<script src="{% static 'shifter_files/js/filepond.min.js' %}"></script>
+<script>
+    const inputElement = document.getElementsByName("{{ form.file_content.name }}")[0];
+
+    const pond = FilePond.create(inputElement, {
+        name: "{{ form.file_content.name }}",
+        storeAsFile: true
+    });
+</script>
 {% endblock %}
