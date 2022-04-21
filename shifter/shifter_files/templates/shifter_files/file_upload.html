@@ -3,7 +3,6 @@
 {% block head %}
 {% load static %}
 <link href="{% static 'shifter_files/css/filepond.min.css' %}" rel="stylesheet">
-<script src="{% static 'shifter_files/js/showMoreOptions.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -24,43 +23,11 @@
                 {% endif %}
                 {{ form.file_content }}
 
-                <div id="show-more-options" class="flex justify-center">
-                    <div class="flex cursor-pointer select-none" onclick="showMoreOptions()">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                        Show More Options
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
+                <div class="flex">
+                    <p class="font-semibold">Expiary:</p>
+                    {% if form.expiary_datetime.errors %}<div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.expiary_datetime.errors }}</div>{% endif %}
                 </div>
-
-                <div id="more-options" class="hidden">
-                    <div class="flex justify-center">
-                        <div class="flex cursor-pointer select-none" onclick="hideMoreOptions()">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                            </svg>
-                            Hide Options
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="flex">
-                        <p class="font-semibold">File Name:</p>
-                        {% if form.filename.errors %}<div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.filename.errors }}</div>{% endif %}
-                    </div>
-                    {{ form.filename}}
-
-                    <div class="flex">
-                        <p class="font-semibold">Expiary:</p>
-                        {% if form.expiary_datetime.errors %}<div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.expiary_datetime.errors }}</div>{% endif %}
-                    </div>
-                    {{ form.expiary_datetime}}
-                </div>
+                {{ form.expiary_datetime}}
                 
                 <div class="flex justify-center">
                     <input type="submit" value="Upload" class="bg-cyan-50 border-2 border-cyan-200 cursor-pointer rounded px-10 py-2 mt-2 justify-self-center font-semibold">
