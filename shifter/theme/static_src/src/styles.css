@@ -13,3 +13,7 @@
 .filepond--panel-root {
   @apply bg-gray-200;
 }
+
+h1.title {
+  @apply text-5xl text-center text-gray-700
+}
