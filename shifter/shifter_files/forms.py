@@ -12,9 +12,7 @@ class FileUploadForm(forms.ModelForm):
         fields = ['expiary_datetime', 'file_content']
         widgets = {
             'expiary_datetime': ShifterDateTimeInput(attrs={
-                'class': ("w-full rounded p-2 border-2 border-slate-400 "
-                          "focus:outline-none focus:border-cyan-200 "
-                          "focus:ring-0"),
+                'class': ("input-primary"),
             })
         }
 
