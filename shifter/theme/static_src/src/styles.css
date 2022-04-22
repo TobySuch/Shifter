@@ -19,5 +19,5 @@ h1.title {
 }
 
 div.standard-page-width {
-  @apply w-11/12 md:w-2/3 m-auto
+  @apply w-11/12 sm:w-2/3 m-auto
 }
