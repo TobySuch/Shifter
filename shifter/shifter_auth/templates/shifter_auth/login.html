@@ -17,13 +17,13 @@
                     <p class="text-gray-800">Email:</p>
                     {% if form.username.errors %}<div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.username.errors }}</div>{% endif %}
                 </div>
-                <input name="{{ form.username.html_name }}" type="text" class="input-primary" placeholder="your@email.com" {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
+                <input name="{{ form.username.html_name }}" type="text" class="w-full input-primary" placeholder="your@email.com" {% if form.username.value %}value="{{ form.username.value }}"{% endif %}>
 
                 <div class="flex">
                     <p class="text-gray-800">Password:</p>
                     {% if form.password.errors %}<div class="ml-2 bg-red rounded text-center font-semibold border border-red-600 bg-red-300 grow">{{ form.password.errors }}</div>{% endif %}
                 </div>
-                <input name="{{ form.password.html_name }}" type="password" class="input-primary" placeholder="••••••••">
+                <input name="{{ form.password.html_name }}" type="password" class="w-full input-primary" placeholder="••••••••">
 
                 <div class="flex justify-end py-2">
                     <input type="submit" value="Login" class="btn-primary">

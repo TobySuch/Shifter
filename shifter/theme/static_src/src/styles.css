@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 .btn-primary {
-  @apply self-center text-gray-100 whitespace-nowrap bg-primary px-3 py-1 rounded-lg cursor-pointer
+  @apply self-center text-gray-100 whitespace-nowrap bg-primary px-5 py-2 rounded-lg cursor-pointer
 }
 
 .input-primary {
-  @apply w-full rounded-lg p-2 border-2 border-white bg-white focus:outline-none focus:border-primary focus:ring-0
+  @apply rounded p-2 border-2 border-white bg-white rounded-b-sm border-b-gray-500 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-lg
 }
