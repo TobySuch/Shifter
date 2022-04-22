@@ -11,7 +11,7 @@
 }
 
 .filepond--panel-root {
-  @apply bg-gray-200;
+  @apply input-primary
 }
 
 h1.title {
