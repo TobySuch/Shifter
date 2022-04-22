@@ -12,8 +12,8 @@
         {% endblock %}
     </head>
 
-    <body class="font-sans leading-normal tracking-normal bg-gray-100 h-screen">
-        <nav class="bg-gray-200 shadow-md py-2.5 fixed w-screen top-0">
+    <body class="font-sans leading-normal tracking-normal bg-gray-100">
+        <nav class="bg-gray-200 shadow-md py-2.5 w-screen top-0">
             <div class="px-2 md:px-20 mx-auto">
                 <div class="flex justify-between">
                     <a href="/" class="flex">
@@ -32,9 +32,9 @@
                 </div>
             </div>
         </nav>
-        <div class="container h-screen mx-auto">
+        <div class="container mx-auto mt-10">
             {% block content %}
-            <div class="flex h-screen items-center justify-center">
+            <div class="flex items-center justify-center">
                 <h1 class="text-5xl">Template Page</h1>
             </div>
             {% endblock %}
