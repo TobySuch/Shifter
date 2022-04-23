@@ -18,10 +18,10 @@ class FileUploadView(LoginRequiredMixin, FormView):
         filename = file.name
 
         upload_datetime = timezone.now()
-        expiary_datetime = form.cleaned_data["expiary_datetime"]
+        expiry_datetime = form.cleaned_data["expiry_datetime"]
         file_upload = FileUpload(owner=owner, file_content=file,
                                  upload_datetime=upload_datetime,
-                                 expiary_datetime=expiary_datetime,
+                                 expiry_datetime=expiry_datetime,
                                  filename=filename)
         file_upload.save()
         return super().form_valid(form)
@@ -36,4 +36,4 @@ class FileListView(LoginRequiredMixin, ListView):
         current_datetime = timezone.now()
         return FileUpload.objects.filter(
             owner=self.request.user,
-            expiary_datetime__gte=current_datetime).order_by(self.ordering)
+            expiry_datetime__gte=current_datetime).order_by(self.ordering)
