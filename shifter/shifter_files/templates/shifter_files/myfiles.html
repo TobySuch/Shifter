@@ -12,16 +12,16 @@
             <thead>
                 <tr class="border-b">
                     <th class="py-2">File</th>
-                    <th class="py-2">Uploaded At</th>
-                    <th class="py-2">Expires At</th>
+                    <th class="py-2 hidden md:table-cell">Uploaded At</th>
+                    <th class="py-2 hidden md:table-cell">Expires At</th>
                 </tr>
             </thead>
             <tbody>
                 {% for file in object_list %}
                 <tr class="hover:bg-slate-200 cursor-pointer">
                     <td class="py-3">{{ file.filename }}</td>
-                    <td class="py-3">{{ file.upload_datetime }}</td>
-                    <td class="py-3">{{ file.expiary_datetime }}</td>
+                    <td class="py-3 hidden md:table-cell">{{ file.upload_datetime }}</td>
+                    <td class="py-3 hidden md:table-cell">{{ file.expiary_datetime }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
