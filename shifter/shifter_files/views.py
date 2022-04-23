@@ -30,3 +30,4 @@ class FileUploadView(LoginRequiredMixin, FormView):
 class FileListView(LoginRequiredMixin, ListView):
     model = FileUpload
     template_name = 'shifter_files/myfiles.html'
+    ordering = 'upload_datetime'
