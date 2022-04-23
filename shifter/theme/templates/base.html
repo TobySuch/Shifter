@@ -15,10 +15,15 @@
     <body class="font-sans leading-normal tracking-normal bg-gray-100">
         <nav class="bg-gray-200 shadow-md py-2.5 w-screen top-0">
             <div class="px-2 md:px-20 mx-auto">
-                <div class="flex justify-between">
-                    <a href="/" class="flex">
+                <div class="flex justify-between items-center">
+                    <a href="/">
                         <img src="{% static 'img/logo.svg' %}" alt="logo" class="w-36">
                     </a>
+                    <div>
+                        <a href="{% url 'shifter_files:myfiles' %}" class="underline">
+                            <span class="self-center text-lg whitespace-nowrap">My Files</span>
+                        </a>
+                    </div>
                     {% if user.is_authenticated %}
                     <form method="post" action="{% url 'shifter_auth:logout' %}">
                         {% csrf_token %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}<title>My Files | Shifter</title>{% endblock %}
+
+{% block content %}
+<div class="standard-page-width">
+    <div class="py-2 rounded-t">
+        <h1 class="title">Upload File</h1>
+    </div>
+    <div class="p-2">
+    <table class="table-auto w-full text-center">
+            <thead>
+                <tr class="border-b">
+                    <th class="py-2">File</th>
+                    <th class="py-2">Uploaded At</th>
+                    <th class="py-2">Expires At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in object_list %}
+                <tr class="hover:bg-slate-200 cursor-pointer">
+                    <td class="py-3">{{ file.filename }}</td>
+                    <td class="py-3">{{ file.upload_datetime }}</td>
+                    <td class="py-3">{{ file.expiary_datetime }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
