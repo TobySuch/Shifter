@@ -1,0 +1,17 @@
+version: "3.9"
+   
+services:
+  db:
+    image: postgres
+    restart: always
+    env_file:
+      - "./.env EXAMPLE"
+  web:
+    build: .
+    entrypoint: /home/app/web/entrypoint.sh
+    command: python manage.py test
+    restart: always
+    env_file:
+      - "./.env EXAMPLE"
+    depends_on:
+      - db
