@@ -15,6 +15,8 @@ class IndexViewTest(TestCase):
         client = Client()
         response = client.post(reverse("shifter_auth:logout"))
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url,
+                         reverse("shifter_auth:login") + "?next=/auth/logout")
 
     def test_logout_with_get_request(self):
         client = Client()

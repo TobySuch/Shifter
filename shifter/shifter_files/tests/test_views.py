@@ -22,7 +22,8 @@ class IndexViewTest(TestCase):
         client = Client()
         response = client.get(reverse("shifter_files:index"))
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(reverse("shifter_auth:login") in response.url)
+        self.assertTrue(response.url,
+                        reverse("shifter_auth:login") + "?next=/")
 
     def test_authenticated_user_not_redirected(self):
         client = Client()
