@@ -160,4 +160,4 @@ DATETIME_INPUT_FORMATS = [
     '%Y-%m-%d %H:%M',     # '2006-10-25 14:30'
 ]
 
-DEFAULT_EXPIARY_OFFSET = timedelta(weeks=2)
+DEFAULT_EXPIRY_OFFSET = timedelta(weeks=2)
