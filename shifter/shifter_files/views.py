@@ -31,3 +31,9 @@ class FileListView(LoginRequiredMixin, ListView):
     model = FileUpload
     template_name = 'shifter_files/myfiles.html'
     ordering = 'upload_datetime'
+
+    def get_queryset(self):
+        current_datetime = timezone.now()
+        return FileUpload.objects.filter(
+            owner=self.request.user,
+            expiary_datetime__gte=current_datetime).order_by(self.ordering)
