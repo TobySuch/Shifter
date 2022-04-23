@@ -1,3 +1,4 @@
+from django.views.generic import ListView
 from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
@@ -24,3 +25,8 @@ class FileUploadView(LoginRequiredMixin, FormView):
                                  filename=filename)
         file_upload.save()
         return super().form_valid(form)
+
+
+class FileListView(LoginRequiredMixin, ListView):
+    model = FileUpload
+    template_name = 'shifter_files/myfiles.html'
