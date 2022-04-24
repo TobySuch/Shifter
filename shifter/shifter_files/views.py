@@ -1,8 +1,11 @@
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+
 from .forms import FileUploadForm
 from .models import FileUpload
 
@@ -36,3 +39,14 @@ class FileListView(LoginRequiredMixin, ListView):
         return FileUpload.objects.filter(
             owner=self.request.user,
             expiry_datetime__gte=current_datetime).order_by(self.ordering)
+
+
+class FileDetailView(LoginRequiredMixin, DetailView):
+    model = FileUpload
+
+    def get_object(self):
+        file_hex = self.kwargs["file_hex"]
+        obj = get_object_or_404(FileUpload, file_hex=file_hex)
+        if obj.owner != self.request.user:
+            raise Http404
+        return obj
