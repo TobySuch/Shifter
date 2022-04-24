@@ -100,7 +100,6 @@ class FileDetailsViewTest(TestCase):
                                                TEST_USER_PASSWORD_2)
 
     def test_unauthenticated_get(self):
-        # da7243ccea9049d6935a32644eeb711a
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         test_file = SimpleUploadedFile("mytestfile.txt", b"Hello, World!")
@@ -155,6 +154,21 @@ class FileDetailsViewTest(TestCase):
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         url = reverse("shifter_files:file-details",
                       args=['0'*32])
+        response = client.get(url)
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_expired_file(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        test_file = SimpleUploadedFile("mytestfile.txt", b"Hello, World!")
+        file_upload = FileUpload.objects.create(
+            owner=self.user, file_content=test_file,
+            upload_datetime=timezone.now(),
+            expiry_datetime=timezone.now() - datetime.timedelta(days=1),
+            filename=TEST_FILE_PATH)
+        url = reverse("shifter_files:file-details",
+                      args=[file_upload.file_hex])
         response = client.get(url)
 
         self.assertEqual(response.status_code, 404)

@@ -49,4 +49,6 @@ class FileDetailView(LoginRequiredMixin, DetailView):
         obj = get_object_or_404(FileUpload, file_hex=file_hex)
         if obj.owner != self.request.user:
             raise Http404
+        if obj.expiry_datetime <= timezone.now():
+            raise Http404
         return obj
