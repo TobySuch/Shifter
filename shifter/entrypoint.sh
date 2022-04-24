@@ -27,6 +27,7 @@ else
 # If prod mode, build and collect static files
   python manage.py tailwind install
   python manage.py tailwind build
+  python manage.py crontab add
   python manage.py collectstatic --no-input --clear
 fi
 exec "$@"
