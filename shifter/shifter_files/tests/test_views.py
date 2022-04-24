@@ -65,6 +65,9 @@ class IndexViewTest(TestCase):
         path = pathlib.Path("media/uploads/" + TEST_FILE_PATH)
         self.assertTrue(path.is_file())
 
+        self.assertEqual(response.url, reverse("shifter_files:file-details",
+                                               args=[file_upload.file_hex]))
+
     def test_expired_file_delete(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
