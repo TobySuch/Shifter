@@ -1,0 +1,21 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Images
+        run: docker-compose -f docker-compose.test.yml build web
+
+      - name: Run Tests
+        run: docker-compose -f docker-compose.test.yml run web
