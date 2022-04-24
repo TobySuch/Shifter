@@ -1,7 +1,13 @@
+import uuid
+
 from django.db import models
 from django.conf import settings
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
+
+
+def generate_hex_uuid():
+    return uuid.uuid4().hex
 
 
 class FileUpload(models.Model):
@@ -11,6 +17,8 @@ class FileUpload(models.Model):
     upload_datetime = models.DateTimeField()
     expiry_datetime = models.DateTimeField()
     file_content = models.FileField(upload_to='uploads/')
+    file_hex = models.CharField(default=generate_hex_uuid, editable=False,
+                                unique=True, max_length=32)
 
     def __str__(self):
         return self.filename
