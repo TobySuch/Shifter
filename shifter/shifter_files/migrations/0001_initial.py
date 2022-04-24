@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
+import shifter_files.models
 
 
 class Migration(migrations.Migration):
@@ -23,6 +24,7 @@ class Migration(migrations.Migration):
                 ('expiry_datetime', models.DateTimeField()),
                 ('file_content', models.FileField(upload_to='uploads/')),
                 ('owner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                ('file_hex', models.CharField(default=shifter_files.models.generate_hex_uuid, editable=False, max_length=32, unique=True)),
             ],
         ),
     ]
