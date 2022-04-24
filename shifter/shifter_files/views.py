@@ -1,7 +1,7 @@
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.utils import timezone
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -13,7 +13,6 @@ from .models import FileUpload
 class FileUploadView(LoginRequiredMixin, FormView):
     template_name = "shifter_files/file_upload.html"
     form_class = FileUploadForm
-    success_url = reverse_lazy("shifter_files:index")
 
     def form_valid(self, form):
         owner = self.request.user
@@ -27,7 +26,12 @@ class FileUploadView(LoginRequiredMixin, FormView):
                                  expiry_datetime=expiry_datetime,
                                  filename=filename)
         file_upload.save()
+        self.file_hex = file_upload.file_hex
         return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("shifter_files:file-details",
+                       args=[self.file_hex])
 
 
 class FileListView(LoginRequiredMixin, ListView):
