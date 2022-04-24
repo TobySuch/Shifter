@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crontab',
     'tailwind',
     'theme',
     'shifter_auth',
@@ -161,3 +162,7 @@ DATETIME_INPUT_FORMATS = [
 ]
 
 DEFAULT_EXPIRY_OFFSET = timedelta(weeks=2)
+
+CRONJOBS = [
+    ('*/59 * * * *', 'shifter_files.cron.delete_expired_files')
+]
