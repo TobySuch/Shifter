@@ -1,4 +1,6 @@
-# Shifter
+![Shifter Logo](shifter/theme/static/img/logo.svg)
+
+---
 
 Simple Firefox Send replacement built using Django and Tailwind. Quickly and easily upload files and get a link you can share with others to download. All files have an expiry date after which they will be deleted. 
 
