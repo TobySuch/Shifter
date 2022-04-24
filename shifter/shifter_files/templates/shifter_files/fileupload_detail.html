@@ -1,1 +1,39 @@
 {% extends 'base.html' %}
+
+{% block title %}<title>{{ object.filename }} | Shifter</title>{% endblock %}
+
+{% block content %}
+<div class="standard-page-width">
+    <div class="py-2 rounded-t">
+        <h1 class="title">{{ object.filename }}</h1>
+    </div>
+    <div class="py-2">
+        <div id="download-link" class="input-primary font-mono text-center" onclick="selectText('download-link')">http://www.mydomain.com/download/00000000000000000000000000000000</div>
+        <div class="text-center font-light">Click URL to select all</div>
+        <div class="flex flex-wrap justify-center md:justify-between pt-8">
+            <div><span class="font-semibold">Uploaded At:</span> {{ object.upload_datetime }}</div>
+            <div><span class="font-semibold">Expires At:</span> {{ object.expiry_datetime }}</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectText(node_id) {
+        node = document.getElementById(node_id);
+
+        if (document.body.createTextRange) {
+            const range = document.body.createTextRange();
+            range.moveToElementText(node);
+            range.select();
+        } else if (window.getSelection) {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } else {
+            console.warn("Could not select text in node: Unsupported browser.");
+        }
+    }
+</script>
+{% endblock %}
