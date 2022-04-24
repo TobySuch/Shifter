@@ -18,7 +18,7 @@
             </thead>
             <tbody>
                 {% for file in object_list %}
-                <tr class="hover:bg-slate-200 cursor-pointer">
+                <tr class="hover:bg-slate-200 cursor-pointer" onclick="window.location='{% url 'shifter_files:file-details' file_hex=file.file_hex %}';">
                     <td class="py-3">{{ file.filename }}</td>
                     <td class="py-3 hidden md:table-cell">{{ file.upload_datetime }}</td>
                     <td class="py-3 hidden md:table-cell">{{ file.expiry_datetime }}</td>
