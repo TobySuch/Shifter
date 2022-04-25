@@ -8,7 +8,6 @@ from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from shifter_files.models import FileUpload
-from shifter_files.cron import delete_expired_files
 
 TEST_USER_EMAIL = "iama@test.com"
 TEST_USER_PASSWORD = "mytemporarypassword"
@@ -67,30 +66,6 @@ class IndexViewTest(TestCase):
 
         self.assertEqual(response.url, reverse("shifter_files:file-details",
                                                args=[file_upload.file_hex]))
-
-    def test_expired_file_delete(self):
-        client = Client()
-        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        expiry_datetime = timezone.now() - datetime.timedelta(days=1)
-        filename = "entrypoint.sh"
-        with open(filename, 'rb') as fp:
-            response = client.post(reverse("shifter_files:index"), {
-                "expiry_datetime": expiry_datetime.isoformat(
-                    sep=' ', timespec='minutes'),
-                "file_content": fp
-            })
-        self.assertEqual(response.status_code, 302)
-
-        self.assertEqual(FileUpload.objects.count(), 1)
-        path = pathlib.Path("media/uploads/" + filename)
-        self.assertTrue(path.is_file())
-
-        # Run cron job
-        delete_expired_files()
-
-        # Ensure file has been deleted from db && uploads folder
-        self.assertEqual(FileUpload.objects.count(), 0)
-        self.assertFalse(path.is_file())
 
 
 class FileDetailsViewTest(TestCase):
