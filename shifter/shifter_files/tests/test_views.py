@@ -15,7 +15,8 @@ TEST_USER_PASSWORD = "mytemporarypassword"
 TEST_USER_EMAIL_2 = "shifter@github.com"
 TEST_USER_PASSWORD_2 = "mytemporarypassword"
 
-TEST_FILE_PATH = "manage.py"
+TEST_FILE_NAME = "mytestfile.txt"
+TEST_FILE_CONTENT = b"Hello, World!"
 
 
 class IndexViewTest(TestCase):
@@ -44,24 +45,24 @@ class IndexViewTest(TestCase):
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         current_datetime = timezone.now()
         expiry_datetime = current_datetime + datetime.timedelta(days=1)
-        with open(TEST_FILE_PATH, 'rb') as fp:
-            response = client.post(reverse("shifter_files:index"), {
-                "expiry_datetime": expiry_datetime.isoformat(
-                    sep=' ', timespec='minutes'),
-                "file_content": fp
-            })
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        response = client.post(reverse("shifter_files:index"), {
+            "expiry_datetime": expiry_datetime.isoformat(
+                sep=' ', timespec='minutes'),
+            "file_content": test_file
+        })
         self.assertEqual(response.status_code, 302)
 
         self.assertEqual(FileUpload.objects.count(), 1)
         file_upload = FileUpload.objects.first()
-        self.assertEqual(file_upload.filename, TEST_FILE_PATH)
+        self.assertEqual(file_upload.filename, TEST_FILE_NAME)
         self.assertEqual(file_upload.owner, self.user)
         self.assertAlmostEqual(file_upload.upload_datetime, current_datetime,
                                delta=datetime.timedelta(minutes=1))
         self.assertAlmostEqual(file_upload.expiry_datetime, expiry_datetime,
                                delta=datetime.timedelta(minutes=1))
         # Ensure file has been uploaded to the correct location
-        path = pathlib.Path("media/uploads/" + TEST_FILE_PATH)
+        path = pathlib.Path("media/uploads/" + TEST_FILE_NAME)
         self.assertTrue(path.is_file())
 
         self.assertEqual(response.url, reverse("shifter_files:file-details",
@@ -80,12 +81,12 @@ class FileDetailsViewTest(TestCase):
     def test_unauthenticated_get(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        test_file = SimpleUploadedFile("mytestfile.txt", b"Hello, World!")
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
         file_upload = FileUpload.objects.create(
             owner=self.user, file_content=test_file,
             upload_datetime=timezone.now(),
             expiry_datetime=timezone.now() + datetime.timedelta(weeks=1),
-            filename=TEST_FILE_PATH)
+            filename=TEST_FILE_NAME)
         client_unauthenticated = Client()
         url = reverse("shifter_files:file-details",
                       args=[file_upload.file_hex])
@@ -98,12 +99,12 @@ class FileDetailsViewTest(TestCase):
     def test_different_user(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        test_file = SimpleUploadedFile("mytestfile.txt", b"Hello, World!")
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
         file_upload = FileUpload.objects.create(
             owner=self.user, file_content=test_file,
             upload_datetime=timezone.now(),
             expiry_datetime=timezone.now() + datetime.timedelta(weeks=1),
-            filename=TEST_FILE_PATH)
+            filename=TEST_FILE_NAME)
         client_2 = Client()
         client_2.login(email=TEST_USER_EMAIL_2, password=TEST_USER_PASSWORD_2)
         url = reverse("shifter_files:file-details",
@@ -115,12 +116,12 @@ class FileDetailsViewTest(TestCase):
     def test_correct_user(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        test_file = SimpleUploadedFile("mytestfile.txt", b"Hello, World!")
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
         file_upload = FileUpload.objects.create(
             owner=self.user, file_content=test_file,
             upload_datetime=timezone.now(),
             expiry_datetime=timezone.now() + datetime.timedelta(weeks=1),
-            filename=TEST_FILE_PATH)
+            filename=TEST_FILE_NAME)
         url = reverse("shifter_files:file-details",
                       args=[file_upload.file_hex])
         response = client.get(url)
@@ -139,12 +140,12 @@ class FileDetailsViewTest(TestCase):
     def test_expired_file(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        test_file = SimpleUploadedFile("mytestfile.txt", b"Hello, World!")
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
         file_upload = FileUpload.objects.create(
             owner=self.user, file_content=test_file,
             upload_datetime=timezone.now(),
             expiry_datetime=timezone.now() - datetime.timedelta(days=1),
-            filename=TEST_FILE_PATH)
+            filename=TEST_FILE_NAME)
         url = reverse("shifter_files:file-details",
                       args=[file_upload.file_hex])
         response = client.get(url)

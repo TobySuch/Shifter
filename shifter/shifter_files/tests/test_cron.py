@@ -13,6 +13,9 @@ from shifter_files.cron import delete_expired_files
 TEST_USER_EMAIL = "iama@test.com"
 TEST_USER_PASSWORD = "mytemporarypassword"
 
+TEST_FILE_NAME = "mytestfile.txt"
+TEST_FILE_CONTENT = b"Hello, World!"
+
 
 class DeleteExpiredFiles(TestCase):
     def setUp(self):
@@ -24,7 +27,7 @@ class DeleteExpiredFiles(TestCase):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         file_name = "mytestfile.txt"
-        test_file = SimpleUploadedFile(file_name, b"Hello, World!")
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
         FileUpload.objects.create(
             owner=self.user, file_content=test_file,
             upload_datetime=timezone.now(),
