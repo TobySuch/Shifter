@@ -8,7 +8,7 @@
         <h1 class="title">{{ object.filename }}</h1>
     </div>
     <div class="py-2">
-        <div id="download-link" class="input-primary font-mono text-center" onclick="selectText('download-link')">http://www.mydomain.com/download/00000000000000000000000000000000</div>
+        <div id="download-link" class="input-primary font-mono text-center" onclick="selectText('download-link')">{{ full_download_url }}</div>
         <div class="text-center font-light">Click URL to select all</div>
         <div class="flex flex-wrap justify-center md:justify-between pt-8">
             <div><span class="font-semibold">Uploaded At:</span> {{ object.upload_datetime }}</div>
