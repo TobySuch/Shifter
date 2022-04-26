@@ -50,6 +50,13 @@ class FileListView(LoginRequiredMixin, ListView):
 class FileDetailView(LoginRequiredMixin, DetailView):
     model = FileUpload
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['full_download_url'] = settings.SHIFTER_FULL_DOMAIN + reverse(
+            "shifter_files:file-download",
+            args=[self.kwargs["file_hex"]])
+        return context
+
     def get_object(self):
         file_hex = self.kwargs["file_hex"]
         obj = get_object_or_404(FileUpload, file_hex=file_hex)
