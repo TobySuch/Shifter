@@ -1,7 +1,7 @@
 import datetime
 import pathlib
 
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -24,19 +24,14 @@ class DeleteExpiredFilesTest(TestCase):
                                              TEST_USER_PASSWORD)
 
     def test_expired_file_delete(self):
-        client = Client()
-        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        file_name = "mytestfile.txt"
         test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
         FileUpload.objects.create(
             owner=self.user, file_content=test_file,
             upload_datetime=timezone.now(),
             expiry_datetime=timezone.now() - datetime.timedelta(days=1),
-            filename=file_name)
+            filename=TEST_FILE_NAME)
 
-        self.assertEqual(FileUpload.objects.count(), 1)
-        path = pathlib.Path("media/uploads/" + file_name)
-        self.assertTrue(path.is_file())
+        path = pathlib.Path("media/uploads/" + TEST_FILE_NAME)
 
         # Run cron job
         delete_expired_files()
