@@ -17,7 +17,7 @@ TEST_FILE_NAME = "mytestfile.txt"
 TEST_FILE_CONTENT = b"Hello, World!"
 
 
-class DeleteExpiredFiles(TestCase):
+class DeleteExpiredFilesTest(TestCase):
     def setUp(self):
         User = get_user_model()
         self.user = User.objects.create_user(TEST_USER_EMAIL,
