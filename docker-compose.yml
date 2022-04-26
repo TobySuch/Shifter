@@ -3,6 +3,7 @@ version: "3.9"
 volumes:
   postgres_data:
   static:
+  media:
    
 services:
   db:
@@ -19,6 +20,7 @@ services:
     restart: always
     volumes:
       - static:/home/app/web/static
+      - media:/home/app/web/media
     expose:
       - 8000
     env_file:
@@ -30,6 +32,7 @@ services:
     restart: always
     volumes:
       - static:/home/app/web/static
+      - media:/home/app/web/media
     ports:
       - 1337:80
     depends_on:
