@@ -1,9 +1,11 @@
 from django.views.generic import ListView, DetailView
+from django.views.generic.base import View
 from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
-from django.http import Http404
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 
 from .forms import FileUploadForm
@@ -56,3 +58,20 @@ class FileDetailView(LoginRequiredMixin, DetailView):
         if obj.expiry_datetime <= timezone.now():
             raise Http404
         return obj
+
+
+class FileDownloadView(View):
+    http_method_names = ['get', 'head', 'options']
+
+    def setup(self, request, *args, **kwargs):
+        self.obj = get_object_or_404(FileUpload, file_hex=kwargs["file_hex"])
+        return super().setup(request, args, kwargs)
+
+    def get(self, request, *args, **kwargs):
+        if settings.DEBUG:
+            # Dev doesn't have a nginx proxy to serve media requests.
+            return HttpResponseRedirect(self.obj.file_content.url)
+        response = HttpResponse()
+        response['Content-Type'] = ''
+        response['X-Accel-Redirect'] = self.obj.file_content.url
+        return response
