@@ -123,23 +123,31 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+log_level = os.getenv('DJANGO_LOG_LEVEL', 'INFO')
 LOGGING = {
-   'version': 1,
-   'disable_existing_loggers': False,
-   'handlers': {
-      'file': {
-         'level': 'DEBUG',
-         'class': 'logging.FileHandler',
-         'filename': '/tmp/debug.log',
-      },
-   },
-   'loggers': {
-      'django': {
-         'handlers': ['file'],
-         'level': 'DEBUG',
-         'propagate': True,
-      },
-   },
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'level': log_level,
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/shifter.log',
+        }
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': log_level,
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': log_level,
+            'propagate': False,
+        },
+    },
 }
 
 

@@ -1,3 +1,5 @@
+import logging
+
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
@@ -83,4 +85,10 @@ class FileDownloadView(View):
         response = HttpResponse()
         response['Content-Type'] = ''
         response['X-Accel-Redirect'] = self.obj.file_content.url
+        response['Content-Disposition'] = ('attachment; '
+                                           f'filename="{self.obj.filename}"')
+        logging.debug("Header 'X-Accel-Redirect': "
+                      + response['X-Accel-Redirect'])
+        logging.debug("Header 'Content-Disposition': "
+                      + response['Content-Disposition'])
         return response
