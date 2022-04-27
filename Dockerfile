@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM python:3.9-alpine as builder
+FROM python:3.10-alpine as builder
 
 WORKDIR /app
 
@@ -23,7 +23,7 @@ RUN flake8 . --exclude=migrations
 #########
 # FINAL #
 #########
-FROM python:3.9-alpine
+FROM python:3.10-alpine
 
 # create directory for the app user
 RUN mkdir -p /home/app
