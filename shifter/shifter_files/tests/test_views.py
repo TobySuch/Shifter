@@ -1,11 +1,13 @@
 import datetime
 import pathlib
+from shutil import rmtree
 
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.conf import settings
 
 from shifter_files.models import FileUpload
 
@@ -24,6 +26,9 @@ class IndexViewTest(TestCase):
         User = get_user_model()
         self.user = User.objects.create_user(TEST_USER_EMAIL,
                                              TEST_USER_PASSWORD)
+
+    def tearDown(self):
+        rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     def test_force_authentication(self):
         client = Client()
@@ -62,7 +67,8 @@ class IndexViewTest(TestCase):
         self.assertAlmostEqual(file_upload.expiry_datetime, expiry_datetime,
                                delta=datetime.timedelta(minutes=1))
         # Ensure file has been uploaded to the correct location
-        path = pathlib.Path("media/uploads/" + TEST_FILE_NAME)
+        path = pathlib.Path("media/uploads/" + TEST_FILE_NAME + "_"
+                            + file_upload.file_hex)
         self.assertTrue(path.is_file())
 
         self.assertEqual(response.url, reverse("shifter_files:file-details",
@@ -77,6 +83,9 @@ class FileDetailsViewTest(TestCase):
 
         self.user_2 = User.objects.create_user(TEST_USER_EMAIL_2,
                                                TEST_USER_PASSWORD_2)
+
+    def tearDown(self):
+        rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     def test_unauthenticated_get(self):
         client = Client()
@@ -161,6 +170,9 @@ class FileDownloadViewTest(TestCase):
 
         self.user_2 = User.objects.create_user(TEST_USER_EMAIL_2,
                                                TEST_USER_PASSWORD_2)
+
+    def tearDown(self):
+        rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     def test_download(self):
         client = Client()
