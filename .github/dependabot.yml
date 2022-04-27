@@ -13,6 +13,10 @@ updates:
       - "TobySuch"
     reviewers:
       - "TobySuch"
+    labels:
+      - "backend"
+      - "dependencies"
+
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/shifter/theme/static_src" # Location of package manifests
     schedule:
@@ -21,3 +25,6 @@ updates:
       - "TobySuch"
     reviewers:
       - "TobySuch"
+    labels:
+      - "frontend"
+      - "dependencies"
