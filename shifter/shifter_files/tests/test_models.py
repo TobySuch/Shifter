@@ -1,10 +1,12 @@
 import datetime
 import pathlib
+from shutil import rmtree
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.conf import settings
 
 from shifter_files.models import FileUpload
 
@@ -21,6 +23,9 @@ class FileUploadModelTest(TestCase):
         User = get_user_model()
         self.user = User.objects.create_user(TEST_USER_EMAIL,
                                              TEST_USER_PASSWORD)
+
+    def tearDown(self):
+        rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     def test_add_new_file(self):
         test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
