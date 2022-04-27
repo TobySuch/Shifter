@@ -9,7 +9,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 
 from .forms import FileUploadForm
-from .models import FileUpload
+from .models import FileUpload, generate_hex_uuid
 
 
 class FileUploadView(LoginRequiredMixin, FormView):
@@ -20,13 +20,15 @@ class FileUploadView(LoginRequiredMixin, FormView):
         owner = self.request.user
         file = form.cleaned_data["file_content"]
         filename = file.name
+        file_hex = generate_hex_uuid()
+        file._name = file.name + "_" + file_hex
 
         upload_datetime = timezone.now()
         expiry_datetime = form.cleaned_data["expiry_datetime"]
         file_upload = FileUpload(owner=owner, file_content=file,
                                  upload_datetime=upload_datetime,
                                  expiry_datetime=expiry_datetime,
-                                 filename=filename)
+                                 filename=filename, file_hex=file_hex)
         file_upload.save()
         self.file_hex = file_upload.file_hex
         return super().form_valid(form)
