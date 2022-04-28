@@ -15,3 +15,7 @@ services:
       - "./.env EXAMPLE"
     depends_on:
       - db
+  nginx:
+    build: ./nginx
+    restart: always
+    command: nginx -t
