@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+import logging
 from pathlib import Path
 from datetime import timedelta
 
@@ -124,6 +125,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 log_level = os.getenv('DJANGO_LOG_LEVEL', 'INFO')
+if log_level.upper() == "OFF":
+    log_level = logging.CRITICAL + 1
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
