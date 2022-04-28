@@ -19,3 +19,5 @@ services:
     build: ./nginx
     restart: always
     command: nginx -t
+    depends_on:
+      - web
