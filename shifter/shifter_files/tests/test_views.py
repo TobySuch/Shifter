@@ -74,6 +74,22 @@ class IndexViewTest(TestCase):
         self.assertEqual(response.url, reverse("shifter_files:file-details",
                                                args=[file_upload.file_hex]))
 
+    def test_expiry_date_in_past(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime - datetime.timedelta(days=1)
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        response = client.post(reverse("shifter_files:index"), {
+            "expiry_datetime": expiry_datetime.isoformat(
+                sep=' ', timespec='minutes'),
+            "file_content": test_file
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertInHTML(("You can't upload a file with an expiry time in "
+                           "the past!"), response.content.decode())
+        self.assertEqual(FileUpload.objects.count(), 0)
+
 
 class FileDetailsViewTest(TestCase):
     def setUp(self):
