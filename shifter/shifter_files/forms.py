@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 from .models import FileUpload
 from .widgets import ShifterDateTimeInput
@@ -21,3 +22,14 @@ class FileUploadForm(forms.ModelForm):
         exp_date = timezone.now() + settings.DEFAULT_EXPIRY_OFFSET
         exp_date_str = exp_date.strftime(settings.DATETIME_INPUT_FORMATS[0])
         self.fields['expiry_datetime'].initial = exp_date_str
+
+    def clean_expiry_datetime(self):
+        expiry_datetime = self.cleaned_data['expiry_datetime']
+        current_datetime = timezone.now()
+
+        if expiry_datetime < current_datetime:
+            raise ValidationError(
+                "You can't upload a file with an expiry time in the past!",
+                code='expiry-time-past')
+
+        return expiry_datetime
