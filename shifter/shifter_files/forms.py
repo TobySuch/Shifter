@@ -22,6 +22,8 @@ class FileUploadForm(forms.ModelForm):
         exp_date = timezone.now() + settings.DEFAULT_EXPIRY_OFFSET
         exp_date_str = exp_date.strftime(settings.DATETIME_INPUT_FORMATS[0])
         self.fields['expiry_datetime'].initial = exp_date_str
+        self.fields['expiry_datetime'].widget.attrs['min'] = timezone.now(
+        ).strftime(settings.DATETIME_INPUT_FORMATS[0])
 
     def clean_expiry_datetime(self):
         expiry_datetime = self.cleaned_data['expiry_datetime']
