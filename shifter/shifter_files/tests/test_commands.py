@@ -31,7 +31,7 @@ class CleanUpExpiredCommandTest(TestCase):
     def command_output(self, *args, **kwargs):
         out = StringIO()
         call_command(
-            'cleanup_expired',
+            'cleanupexpired',
             *args,
             stdout=out,
             stderr=StringIO(),
@@ -47,12 +47,12 @@ class CleanUpExpiredCommandTest(TestCase):
             filename=TEST_FILE_NAME)
 
         out = self.command_output()
-        self.assertEqual(
+        self.assertIn(
             out,
             'Successfully deleted all expired files\n')
 
     def test_no_expired_files(self):
         out = self.command_output()
-        self.assertEqual(
+        self.assertIn(
             out,
             'No expired files to be deleted\n')
