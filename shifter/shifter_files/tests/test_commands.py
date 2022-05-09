@@ -32,7 +32,7 @@ class CleanUpExpiredCommandTest(TestCase):
         out = StringIO()
         call_command(
             'cleanupexpired',
-            *args,
+            *args + ("--no-color",),
             stdout=out,
             stderr=StringIO(),
             **kwargs)
