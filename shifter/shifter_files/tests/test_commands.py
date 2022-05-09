@@ -49,10 +49,10 @@ class CleanUpExpiredCommandTest(TestCase):
         out = self.command_output()
         self.assertEqual(
             out,
-            '\x1b[32;1mSuccessfully deleted all expired files\x1b[0m\n')
+            'Successfully deleted all expired files\n')
 
     def test_no_expired_files(self):
         out = self.command_output()
         self.assertEqual(
             out,
-            '\x1b[31;1mNo expired files to be deleted\x1b[0m\n')
+            'No expired files to be deleted\n')
