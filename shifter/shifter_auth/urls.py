@@ -9,5 +9,6 @@ urlpatterns = [
                            redirect_authenticated_user=True),
          name="login"),
     path('logout', logoutView, name="logout"),
-    path('change-password', ChangePasswordView.as_view())
+    path('change-password', ChangePasswordView.as_view(),
+         name="change-password")
 ]
