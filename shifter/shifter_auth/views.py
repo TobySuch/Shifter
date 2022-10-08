@@ -25,6 +25,7 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
         new_password = form.cleaned_data['new_password']
         user = self.request.user
         user.set_password(new_password)
+        user.change_password_on_login = False
         user.save()
 
         return super().form_valid(form)
