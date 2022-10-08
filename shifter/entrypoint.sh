@@ -19,6 +19,11 @@ fi
 
 python manage.py migrate --no-input
 
+# Copy over flowbite
+mkdir ./theme/static/js
+mkdir ./theme/static/js/flowbite
+cp ./theme/static_src/node_modules/flowbite/dist/* ./theme/static/js/flowbite
+
 # If debug mode, create an admin user
 if [ "$DEBUG" = "1" ]
 then

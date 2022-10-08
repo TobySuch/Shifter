@@ -140,3 +140,4 @@ dmypy.json
 # Static/Media
 shifter/media/
 shifter/static/
+shifter/theme/static/js/flowbite

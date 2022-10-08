@@ -40,6 +40,11 @@ module.exports = {
          * and make sure the pattern below matches your project structure.
          */
         // '../../**/*.py'
+
+        /**
+         * Flowbite
+         */
+        './node_modules/flowbite/**/*.js'
     ],
     theme: {
         extend: {
@@ -58,5 +63,6 @@ module.exports = {
         require('@tailwindcss/typography'),
         require('@tailwindcss/line-clamp'),
         require('@tailwindcss/aspect-ratio'),
+        require('flowbite/plugin'),
     ],
 }
