@@ -19,11 +19,6 @@ fi
 
 python manage.py migrate --no-input
 
-# Copy over flowbite
-mkdir ./theme/static/js
-mkdir ./theme/static/js/flowbite
-cp ./theme/static_src/node_modules/flowbite/dist/* ./theme/static/js/flowbite
-
 # If debug mode, create an admin user
 if [ "$DEBUG" = "1" ]
 then
@@ -32,6 +27,10 @@ else
 # If prod mode, build and collect static files
   python manage.py tailwind install
   python manage.py tailwind build
+  # Copy over flowbite
+  mkdir ./theme/static/js
+  mkdir ./theme/static/js/flowbite
+  cp ./theme/static_src/node_modules/flowbite/dist/* ./theme/static/js/flowbite
   python manage.py crontab add
   python manage.py collectstatic --no-input --clear
 fi
