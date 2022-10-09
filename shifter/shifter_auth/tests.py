@@ -32,3 +32,32 @@ class IndexViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("shifter_files:index"))
         self.assertFalse(get_user(client).is_authenticated)
+
+
+class EnsurePasswordResetMiddlewareTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        user = User.objects.create_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        user.change_password_on_login = True
+        user.save()
+
+    def test_redirect(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_files:index"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("shifter_auth:change-password"))
+
+    def test_allow_logout(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.post(reverse("shifter_auth:logout"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("shifter_files:index"))
+        self.assertFalse(get_user(client).is_authenticated)
+
+    def test_allow_password_reset(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_auth:change-password"))
+        self.assertEqual(response.status_code, 200)
