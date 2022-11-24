@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model, get_user
 from django.urls import reverse
 
 TEST_USER_EMAIL = "iama@test.com"
+TEST_STAFF_USER_EMAIL = "iamastaff@test.com"
+TEST_ADDITIONAL_USER_EMAIL = "iamalsoa@test.com"
 TEST_USER_PASSWORD = "mytemporarypassword"
 TEST_USER_NEW_PASSWORD = "mynewpassword"
 
@@ -103,3 +105,27 @@ class ChangePasswordViewTest(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertInHTML("Passwords do not match!", response.content.decode())
+
+
+class CreateNewUserViewTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        user = User.objects.create_user(TEST_USER_EMAIL,
+                                        TEST_USER_PASSWORD)
+        user.save()
+        staff_user = User.objects.create_user(TEST_STAFF_USER_EMAIL,
+                                              TEST_USER_PASSWORD,
+                                              is_staff=True)
+        staff_user.save()
+
+    def test_page_load_not_staff(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_auth:create-new-user"))
+        self.assertEqual(response.status_code, 403)
+
+    def test_page_load(self):
+        client = Client()
+        client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_auth:create-new-user"))
+        self.assertEqual(response.status_code, 200)

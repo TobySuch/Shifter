@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 from django.views.decorators.http import require_POST
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import FormView
 from django.contrib.auth import logout
@@ -29,3 +29,8 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
         user.save()
 
         return super().form_valid(form)
+
+
+class CreateNewUserView(UserPassesTestMixin, FormView):
+    def test_func(self):
+        return self.request.user.is_staff
