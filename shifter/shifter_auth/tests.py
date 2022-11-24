@@ -123,6 +123,9 @@ class CreateNewUserViewTest(TestCase):
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         response = client.get(reverse("shifter_auth:create-new-user"))
         self.assertEqual(response.status_code, 403)
+        self.assertInHTML("You do not have access to create new users."
+                          " Please ask an administrator for assistance.",
+                          response.content.decode())
 
     def test_page_load(self):
         client = Client()
