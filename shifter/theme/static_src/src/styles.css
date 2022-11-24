@@ -10,6 +10,10 @@
   @apply rounded p-2 border-2 border-white bg-sky-100 rounded-b-sm border-b-gray-500 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-lg
 }
 
+.error-box{
+  @apply rounded text-center font-semibold bg-red-400
+}
+
 .filepond--panel-root {
   @apply input-primary
 }
