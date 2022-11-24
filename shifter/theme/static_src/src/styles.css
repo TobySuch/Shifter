@@ -7,11 +7,15 @@
 }
 
 .input-primary {
-  @apply rounded p-2 border-2 border-white bg-white rounded-b-sm border-b-gray-500 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-lg
+  @apply rounded p-2 border-2 border-white bg-sky-100 rounded-b-sm border-b-gray-500 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-lg
 }
 
 .filepond--panel-root {
   @apply input-primary
+}
+
+.filepond--item-panel {
+  @apply bg-primary
 }
 
 h1.title {
