@@ -32,5 +32,8 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
 
 
 class CreateNewUserView(UserPassesTestMixin, FormView):
+    permission_denied_message = "You do not have access to create new users." \
+                                " Please ask an administrator for assistance."
+
     def test_func(self):
         return self.request.user.is_staff
