@@ -1,18 +1,15 @@
 {% extends 'base.html' %}
 
-{% block title %}<title>Forbidden | Shifter</title>{% endblock %}
+{% block title %}<title>Not Found | Shifter</title>{% endblock %}
 
 {% block content %}
 
 <div class="standard-page-width">
     <div class="py-2">
-        <h1 class="title">Forbidden</h1>
+        <h1 class="title">Not Found</h1>
     </div>
     <div class="flex justify-center">
-        <p class="m-3">You don't have permission to perform the action you are trying to do.</p>
-    </div>
-    <div class="flex justify-center">
-        <p class="m-3 p-3 error-box">{{ exception }}</p>
+        <p class="m-3">Page not found. You may have followed an invalid link, or the file you are trying to access has expired.</p>
     </div>
     <div class="flex justify-center">
         <a href={% url 'shifter_files:index' %} class="m-3 btn btn-primary">Click here to return home.</a>
