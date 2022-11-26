@@ -144,8 +144,9 @@ class CreateNewUserViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
         User = get_user_model()
-        self.assertEqual(User.objects.filter(
-            email=TEST_ADDITIONAL_USER_EMAIL).count(), 1)
+        users = User.objects.filter(email=TEST_ADDITIONAL_USER_EMAIL)
+        self.assertEqual(users.count(), 1)
+        self.assertTrue(users[0].change_password_on_login)
 
     def test_new_user_already_exists(self):
         client = Client()
