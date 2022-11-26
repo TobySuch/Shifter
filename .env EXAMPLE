@@ -6,6 +6,7 @@ SHIFTER_FULL_DOMAIN=https://shifter.mydomain.com
 DJANGO_LOG_LEVEL=INFO
 DJANGO_SUPERUSER_EMAIL=admin@mydomain.com  # Only used for dev
 DJANGO_SUPERUSER_PASSWORD=CHANGEME         # Only used for dev
+CLIENT_MAX_BODY_SIZE=5G    # Max filesize allowed by Nginx
 SQL_ENGINE=django.db.backends.postgresql
 SQL_DATABASE=CHANGEME
 SQL_USER=CHANGEME
