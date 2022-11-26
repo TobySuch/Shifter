@@ -132,3 +132,60 @@ class CreateNewUserViewTest(TestCase):
         client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
         response = client.get(reverse("shifter_auth:create-new-user"))
         self.assertEqual(response.status_code, 200)
+
+    def test_create_new_user(self):
+        client = Client()
+        client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.post(reverse("shifter_auth:create-new-user"), {
+            "email": TEST_ADDITIONAL_USER_EMAIL,
+            "password": TEST_USER_PASSWORD,
+            "confirm_password": TEST_USER_PASSWORD
+        })
+        self.assertEqual(response.status_code, 302)
+
+        User = get_user_model()
+        self.assertEqual(User.objects.filter(
+            email=TEST_ADDITIONAL_USER_EMAIL).count(), 1)
+
+    def test_new_user_already_exists(self):
+        client = Client()
+        client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.post(reverse("shifter_auth:create-new-user"), {
+            "email": TEST_USER_EMAIL,
+            "password": TEST_USER_PASSWORD,
+            "confirm_password": TEST_USER_PASSWORD
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertInHTML("Email already taken!", response.content.decode())
+
+        User = get_user_model()
+        self.assertEqual(User.objects.filter(email=TEST_USER_EMAIL).count(), 1)
+
+    def test_new_user_passwords_dont_match(self):
+        client = Client()
+        client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.post(reverse("shifter_auth:create-new-user"), {
+            "email": TEST_ADDITIONAL_USER_EMAIL,
+            "password": TEST_USER_PASSWORD,
+            "confirm_password": TEST_USER_PASSWORD + "_wrong"
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertInHTML("Passwords do not match!", response.content.decode())
+
+        User = get_user_model()
+        self.assertEqual(User.objects.filter(
+            email=TEST_ADDITIONAL_USER_EMAIL).count(), 0)
+
+    def test_new_user_not_staff(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.post(reverse("shifter_auth:create-new-user"), {
+            "email": TEST_ADDITIONAL_USER_EMAIL,
+            "password": TEST_USER_PASSWORD,
+            "confirm_password": TEST_USER_PASSWORD
+        })
+        self.assertEqual(response.status_code, 403)
+
+        User = get_user_model()
+        self.assertEqual(User.objects.filter(
+            email=TEST_ADDITIONAL_USER_EMAIL).count(), 0)

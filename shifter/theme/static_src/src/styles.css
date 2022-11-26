@@ -14,6 +14,10 @@
   @apply rounded text-center font-semibold bg-red-400
 }
 
+.info-box{
+  @apply rounded text-center font-semibold bg-sky-200
+}
+
 .filepond--panel-root {
   @apply input-primary
 }

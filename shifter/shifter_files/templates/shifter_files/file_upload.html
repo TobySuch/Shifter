@@ -13,6 +13,12 @@
         <h1 class="title">Upload File</h1>
     </div>
     <div class="p-2">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}-box{% endif %}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
         <form class="space-y-1 p2" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {% if form.non_field_errors %}<div class="error-box">{{ form.non_field_errors }}</div>{% endif %}
