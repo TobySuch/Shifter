@@ -1,6 +1,21 @@
-![Shifter Logo](shifter/theme/static/img/logo.svg)
+<p align="center">
+  <a href="https://github.com/TobySuch/Shifter">
+    <img alt="Shifter Logo" src="shifter/theme/static/img/logo.svg"/>
+  </a>
+</p>
+<p align="center">
+  <a href="https://github.com/TobySuch/Shifter/actions">
+    <img alt="Test Status" src="https://github.com/TobySuch/Shifter/actions/workflows/main.yml/badge.svg?branch=main"/>
+  </a>
 
-![Test Status](https://github.com/TobySuch/Shifter/actions/workflows/main.yml/badge.svg?branch=main)
+  <a href="https://github.com/TobySuch/Shifter/blob/main/LICENSE">
+    <img alt="MIT License" src="https://img.shields.io/github/license/TobySuch/Shifter.svg"/>
+  </a>
+  
+  <a href="https://github.com/TobySuch/Shifter/releases">
+    <img alt="Current Release" src="https://img.shields.io/github/release/TobySuch/Shifter.svg"/>
+  </a>
+</p>
 
 ---
 
