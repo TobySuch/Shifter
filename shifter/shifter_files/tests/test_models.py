@@ -48,3 +48,27 @@ class FileUploadModelTest(TestCase):
         # Ensure file has been uploaded to the correct location
         path = pathlib.Path("media/uploads/" + TEST_FILE_NAME)
         self.assertTrue(path.is_file())
+
+    def test_is_expired_false(self):
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime + datetime.timedelta(days=1)
+        file_upload = FileUpload.objects.create(
+            owner=self.user, file_content=test_file,
+            upload_datetime=current_datetime,
+            expiry_datetime=expiry_datetime,
+            filename=TEST_FILE_NAME)
+
+        self.assertFalse(file_upload.is_expired())
+
+    def test_is_expired_true(self):
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime - datetime.timedelta(days=1)
+        file_upload = FileUpload.objects.create(
+            owner=self.user, file_content=test_file,
+            upload_datetime=current_datetime,
+            expiry_datetime=expiry_datetime,
+            filename=TEST_FILE_NAME)
+
+        self.assertTrue(file_upload.is_expired())

@@ -10,5 +10,7 @@ urlpatterns = [
     path('files/<str:file_hex>', views.FileDetailView.as_view(),
          name='file-details'),
     path('download/<str:file_hex>', views.FileDownloadView.as_view(),
-         name='file-download')
+         name='file-download'),
+    path('files/<str:file_hex>/delete', views.FileDeleteView.as_view(),
+         name='file-delete'),
 ]
