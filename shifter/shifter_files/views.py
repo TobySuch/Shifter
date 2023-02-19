@@ -2,13 +2,13 @@ import logging
 
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import View
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 
 from .forms import FileUploadForm
 from .models import FileUpload, generate_hex_uuid
@@ -92,3 +92,29 @@ class FileDownloadView(View):
         logging.debug("Header 'Content-Disposition': "
                       + response['Content-Disposition'])
         return response
+
+
+class FileDeleteView(DeleteView):
+    model = FileUpload
+    success_url = reverse_lazy("shifter_files:myfiles")
+
+    def get_object(self):
+        file_hex = self.kwargs["file_hex"]
+        obj = get_object_or_404(FileUpload, file_hex=file_hex)
+        if obj.owner != self.request.user:
+            raise Http404
+
+        # File has already expired - do nothing.
+        if obj.expiry_datetime <= timezone.now():
+            raise Http404
+        return obj
+
+    def get(self, *args, **kwargs):
+        return redirect(reverse("shifter_files:file-details",
+                                args=[self.kwargs['file_hex']]))
+
+    def post(self, *args, **kwargs):
+        obj = self.get_object()
+        obj.expiry_datetime = timezone.now()
+        obj.save()
+        return redirect(self.success_url)
