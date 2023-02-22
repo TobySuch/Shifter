@@ -94,6 +94,19 @@ class FileDownloadView(View):
         return response
 
 
+class FileDownloadLandingView(DetailView):
+    model = FileUpload
+    template_name = "shifter_files/file_download_landing.html"
+
+    def get_object(self):
+        file_hex = self.kwargs["file_hex"]
+        obj = get_object_or_404(FileUpload, file_hex=file_hex)
+
+        if obj.expiry_datetime <= timezone.now():
+            raise Http404
+        return obj
+
+
 class FileDeleteView(DeleteView):
     model = FileUpload
     success_url = reverse_lazy("shifter_files:myfiles")
