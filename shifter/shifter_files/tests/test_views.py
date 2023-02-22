@@ -147,12 +147,16 @@ class FileDetailsViewTest(TestCase):
             upload_datetime=timezone.now(),
             expiry_datetime=timezone.now() + datetime.timedelta(weeks=1),
             filename=TEST_FILE_NAME)
+        file_full_url = settings.SHIFTER_FULL_DOMAIN + reverse(
+            "shifter_files:file-download-landing",
+            args=[file_upload.file_hex])
         url = reverse("shifter_files:file-details",
                       args=[file_upload.file_hex])
         response = client.get(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertInHTML(TEST_FILE_NAME, response.content.decode())
+        self.assertInHTML(file_full_url, response.content.decode())
         self.assertTemplateUsed(response,
                                 "shifter_files/fileupload_detail.html")
 

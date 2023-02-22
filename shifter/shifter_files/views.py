@@ -57,7 +57,7 @@ class FileDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context['full_download_url'] = settings.SHIFTER_FULL_DOMAIN + reverse(
-            "shifter_files:file-download",
+            "shifter_files:file-download-landing",
             args=[self.kwargs["file_hex"]])
         return context
 
