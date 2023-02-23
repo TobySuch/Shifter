@@ -22,6 +22,10 @@
   @apply input-primary
 }
 
+.filepond--root {
+  @apply h-56
+}
+
 .filepond--item-panel {
   @apply bg-primary
 }
