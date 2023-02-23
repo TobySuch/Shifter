@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load pretty_file_size  %}
+
 {% block title %}<title>{{ object.filename }} | Shifter</title>{% endblock %}
 
 {% block content %}
@@ -15,6 +17,7 @@
             </button></div>
         <div class="flex flex-wrap justify-center md:justify-between pt-8">
             <div><span class="font-semibold">Uploaded At:</span> {{ object.upload_datetime }}</div>
+            <div><span class="font-semibold">File Size:</span> {{ object.file_content.size | pretty_file_size }}</div>
             <div>
                 <span class="font-semibold">Expires At:</span> {{ object.expiry_datetime }}
                 <button class="block w-full text-white bg-red-600 shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="button" data-modal-toggle="delete-file-modal">Delete File</button>

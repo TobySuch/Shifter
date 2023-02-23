@@ -57,7 +57,7 @@ class FileDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context['full_download_url'] = settings.SHIFTER_FULL_DOMAIN + reverse(
-            "shifter_files:file-download",
+            "shifter_files:file-download-landing",
             args=[self.kwargs["file_hex"]])
         return context
 
@@ -92,6 +92,19 @@ class FileDownloadView(View):
         logging.debug("Header 'Content-Disposition': "
                       + response['Content-Disposition'])
         return response
+
+
+class FileDownloadLandingView(DetailView):
+    model = FileUpload
+    template_name = "shifter_files/file_download_landing.html"
+
+    def get_object(self):
+        file_hex = self.kwargs["file_hex"]
+        obj = get_object_or_404(FileUpload, file_hex=file_hex)
+
+        if obj.expiry_datetime <= timezone.now():
+            raise Http404
+        return obj
 
 
 class FileDeleteView(DeleteView):
