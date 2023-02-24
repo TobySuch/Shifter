@@ -7,7 +7,7 @@
 }
 
 .input-primary {
-  @apply rounded p-2 border-2 border-white bg-sky-100 rounded-b-sm border-b-gray-500 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-lg
+  @apply rounded-lg p-2 border-2 bg-sky-100 border-sky-200 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-lg
 }
 
 .error-box{
@@ -20,6 +20,10 @@
 
 .filepond--panel-root {
   @apply input-primary
+}
+
+.filepond--root {
+  @apply h-56
 }
 
 .filepond--item-panel {

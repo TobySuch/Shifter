@@ -8,6 +8,7 @@ from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 
 from .forms import FileUploadForm
@@ -33,7 +34,17 @@ class FileUploadView(LoginRequiredMixin, FormView):
                                  filename=filename, file_hex=file_hex)
         file_upload.save()
         self.file_hex = file_upload.file_hex
-        return super().form_valid(form)
+
+        response = {
+            "redirect_url": self.get_success_url()
+        }
+        return JsonResponse(response)
+
+    def form_invalid(self, form):
+        response = {
+            "errors": form.errors
+        }
+        return JsonResponse(response, status=400)
 
     def get_success_url(self):
         return reverse("shifter_files:file-details",

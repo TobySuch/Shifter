@@ -1,6 +1,7 @@
 import datetime
 import pathlib
 from shutil import rmtree
+import json
 
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
@@ -56,7 +57,7 @@ class IndexViewTest(TestCase):
                 sep=' ', timespec='minutes'),
             "file_content": test_file
         })
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
         self.assertEqual(FileUpload.objects.count(), 1)
         file_upload = FileUpload.objects.first()
@@ -71,8 +72,13 @@ class IndexViewTest(TestCase):
                             + file_upload.file_hex)
         self.assertTrue(path.is_file())
 
-        self.assertEqual(response.url, reverse("shifter_files:file-details",
-                                               args=[file_upload.file_hex]))
+        expected_response = {
+            "redirect_url": reverse("shifter_files:file-details",
+                                    args=[file_upload.file_hex])
+        }
+        self.assertEqual(
+            json.dumps(expected_response),
+            response.content.decode())
 
     def test_expiry_date_in_past(self):
         client = Client()
@@ -85,7 +91,24 @@ class IndexViewTest(TestCase):
                 sep=' ', timespec='minutes'),
             "file_content": test_file
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertInHTML(("You can't upload a file with an expiry time in "
-                           "the past!"), response.content.decode())
+        self.assertEqual(response.status_code, 400)
+        self.assertJSONEqual(response.content.decode(), {
+            'errors': {
+                'expiry_datetime': ["You can't upload a file with an expiry "
+                                    + "time in the past!"]
+            }
+        })
+        self.assertEqual(FileUpload.objects.count(), 0)
+
+    def test_file_upload_unauthenticated(self):
+        client = Client()
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime + datetime.timedelta(days=1)
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        response = client.post(reverse("shifter_files:index"), {
+            "expiry_datetime": expiry_datetime.isoformat(
+                sep=' ', timespec='minutes'),
+            "file_content": test_file
+        })
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(FileUpload.objects.count(), 0)
