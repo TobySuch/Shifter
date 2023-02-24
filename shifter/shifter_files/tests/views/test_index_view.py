@@ -91,7 +91,11 @@ class IndexViewTest(TestCase):
                 sep=' ', timespec='minutes'),
             "file_content": test_file
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertInHTML(("You can't upload a file with an expiry time in "
-                           "the past!"), response.content.decode())
+        self.assertEqual(response.status_code, 400)
+        self.assertJSONEqual(response.content.decode(), {
+            'errors': {
+                'expiry_datetime': ["You can't upload a file with an expiry "
+                                    + "time in the past!"]
+            }
+        })
         self.assertEqual(FileUpload.objects.count(), 0)

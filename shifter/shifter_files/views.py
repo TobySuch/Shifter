@@ -40,6 +40,12 @@ class FileUploadView(LoginRequiredMixin, FormView):
         }
         return JsonResponse(response)
 
+    def form_invalid(self, form):
+        response = {
+            "errors": form.errors
+        }
+        return JsonResponse(response, status=400)
+
     def get_success_url(self):
         return reverse("shifter_files:file-details",
                        args=[self.file_hex])

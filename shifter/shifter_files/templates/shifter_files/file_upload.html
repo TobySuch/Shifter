@@ -20,18 +20,10 @@
         {% endif %}
 
         {% csrf_token %}
-        {% if form.non_field_errors %}<div class="error-box">{{ form.non_field_errors }}</div>{% endif %}
+        <div id="error-box" class="error-box"></div>
         
-        {% if form.file_content.errors %}
-        <div class="flex">
-            <div class="ml-2 error-box">{{ form.file_content.errors }}</div>
-        </div>
-        {% endif %}
         {{ form.file_content }}
 
-        <div class="flex justify-center">
-            {% if form.expiry_datetime.errors %}<div class="ml-2 error-box grow">{{ form.expiry_datetime.errors }}</div>{% endif %}
-        </div>
         <div class="flex flex-wrap justify-center sm:justify-between py-2">
             <p class="font-medium m-3">Expiry: {{ form.expiry_datetime }}</p>
             <button id="upload-btn" class="btn-primary m-3">Upload</button>
