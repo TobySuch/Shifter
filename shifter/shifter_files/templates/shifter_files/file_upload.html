@@ -19,35 +19,29 @@
         {% endfor %}
         {% endif %}
 
-        <form class="space-y-1 p2" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% if form.non_field_errors %}<div class="error-box">{{ form.non_field_errors }}</div>{% endif %}
-            
-            {% if form.file_content.errors %}
-            <div class="flex">
-                <div class="ml-2 error-box">{{ form.file_content.errors }}</div>
-            </div>
-            {% endif %}
-            {{ form.file_content }}
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="error-box">{{ form.non_field_errors }}</div>{% endif %}
+        
+        {% if form.file_content.errors %}
+        <div class="flex">
+            <div class="ml-2 error-box">{{ form.file_content.errors }}</div>
+        </div>
+        {% endif %}
+        {{ form.file_content }}
 
-            <div class="flex justify-center">
-                {% if form.expiry_datetime.errors %}<div class="ml-2 error-box grow">{{ form.expiry_datetime.errors }}</div>{% endif %}
-            </div>
-            <div class="flex flex-wrap justify-center sm:justify-between py-2">
-                <p class="font-medium m-3">Expiry: {{ form.expiry_datetime }}</p>
-                <input type="submit" value="Upload" class="btn-primary m-3">
-            </div>
-        </form>
+        <div class="flex justify-center">
+            {% if form.expiry_datetime.errors %}<div class="ml-2 error-box grow">{{ form.expiry_datetime.errors }}</div>{% endif %}
+        </div>
+        <div class="flex flex-wrap justify-center sm:justify-between py-2">
+            <p class="font-medium m-3">Expiry: {{ form.expiry_datetime }}</p>
+            <button id="upload-btn" class="btn-primary m-3">Upload</button>
+        </div>
     </div>
 </div>
 
 <script src="{% static 'shifter_files/js/filepond.min.js' %}"></script>
+<script src="{% static 'shifter_files/js/filepond_controller.js' %}"></script>
 <script>
-    const inputElement = document.getElementsByName("{{ form.file_content.name }}")[0];
-
-    const pond = FilePond.create(inputElement, {
-        name: "{{ form.file_content.name }}",
-        storeAsFile: true
-    });
+    setupFilepond("{{ form.file_content.name }}", "{{ form.expiry_datetime.name }}")
 </script>
 {% endblock %}
