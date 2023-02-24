@@ -20,7 +20,7 @@
             <div><span class="font-semibold">File Size:</span> {{ object.file_content.size | pretty_file_size }}</div>
             <div>
                 <span class="font-semibold">Expires At:</span> {{ object.expiry_datetime }}
-                <button class="block w-full text-white bg-red-600 shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="button" data-modal-toggle="delete-file-modal">Delete File</button>
+                <button class="block w-full text-white bg-red-500 shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="button" data-modal-toggle="delete-file-modal">Delete File</button>
             </div>
         </div>
     </div>
@@ -42,7 +42,7 @@
                 <div class="flex flex-row-reverse p-6 space-x-2 border-t border-gray-200 rounded-b">
                     <form method="post" action="{% url 'shifter_files:file-delete' object.file_hex %}">
                         {% csrf_token %}
-                        <input type="submit" value="Delete File" class="inline-flex justify-center m-2 text-white bg-red-600 shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        <input type="submit" value="Delete File" class="inline-flex justify-center m-2 text-white bg-red-600 shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer">
                     </form>
                     <button data-modal-toggle="delete-file-modal" type="button" class="inline-flex justify-center m-2 text-gray-900 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-primary rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">Cancel</button>
                 </div>
