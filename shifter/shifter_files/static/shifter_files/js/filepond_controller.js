@@ -6,6 +6,7 @@ function setupFilepond(filepondElementName, expiryDatetimeElementName) {
         allowMultiple: false,
         allowProcess: false,
         allowRevert: false,
+        credits: false,
         server: {
             process: {
                 url: "./",
@@ -22,6 +23,10 @@ function setupFilepond(filepondElementName, expiryDatetimeElementName) {
                     formData.append("csrfmiddlewaretoken", document.querySelector('input[name="csrfmiddlewaretoken"]').value);
                     formData.append("expiry_datetime", document.querySelector('input[name="' + expiryDatetimeElementName + '"]').value);
                     return formData;
+                },
+                onload(response) {
+                    redirectUrl = JSON.parse(response).redirect_url;
+                    window.location.href = redirectUrl;
                 }
             },
             fetch: null,

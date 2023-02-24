@@ -1,6 +1,7 @@
 import datetime
 import pathlib
 from shutil import rmtree
+import json
 
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
@@ -56,7 +57,7 @@ class IndexViewTest(TestCase):
                 sep=' ', timespec='minutes'),
             "file_content": test_file
         })
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
         self.assertEqual(FileUpload.objects.count(), 1)
         file_upload = FileUpload.objects.first()
@@ -71,8 +72,13 @@ class IndexViewTest(TestCase):
                             + file_upload.file_hex)
         self.assertTrue(path.is_file())
 
-        self.assertEqual(response.url, reverse("shifter_files:file-details",
-                                               args=[file_upload.file_hex]))
+        expected_response = {
+            "redirect_url": reverse("shifter_files:file-details",
+                                    args=[file_upload.file_hex])
+        }
+        self.assertEqual(
+            json.dumps(expected_response),
+            response.content.decode())
 
     def test_expiry_date_in_past(self):
         client = Client()
