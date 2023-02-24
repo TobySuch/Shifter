@@ -99,3 +99,16 @@ class IndexViewTest(TestCase):
             }
         })
         self.assertEqual(FileUpload.objects.count(), 0)
+
+    def test_file_upload_unauthenticated(self):
+        client = Client()
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime + datetime.timedelta(days=1)
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        response = client.post(reverse("shifter_files:index"), {
+            "expiry_datetime": expiry_datetime.isoformat(
+                sep=' ', timespec='minutes'),
+            "file_content": test_file
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(FileUpload.objects.count(), 0)
