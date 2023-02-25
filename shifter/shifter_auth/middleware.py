@@ -3,7 +3,7 @@ from django.urls import reverse
 
 
 def ensure_password_changed(get_response):
-    CHANGE_PASSWORD_URL = "shifter_auth:change-password"
+    CHANGE_PASSWORD_URL = "shifter_auth:settings"
 
     ALLOW_LIST = [
         reverse("shifter_auth:logout")

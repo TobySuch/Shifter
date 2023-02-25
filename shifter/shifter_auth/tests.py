@@ -49,7 +49,7 @@ class EnsurePasswordResetMiddlewareTest(TestCase):
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         response = client.get(reverse("shifter_files:index"))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("shifter_auth:change-password"))
+        self.assertEqual(response.url, reverse("shifter_auth:settings"))
 
     def test_allow_logout(self):
         client = Client()
@@ -62,7 +62,7 @@ class EnsurePasswordResetMiddlewareTest(TestCase):
     def test_allow_password_reset(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        response = client.get(reverse("shifter_auth:change-password"))
+        response = client.get(reverse("shifter_auth:settings"))
         self.assertEqual(response.status_code, 200)
 
 
@@ -75,13 +75,13 @@ class ChangePasswordViewTest(TestCase):
     def test_page_load(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        response = client.get(reverse("shifter_auth:change-password"))
+        response = client.get(reverse("shifter_auth:settings"))
         self.assertEqual(response.status_code, 200)
 
     def test_successful_form_submit(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        response = client.post(reverse("shifter_auth:change-password"), {
+        response = client.post(reverse("shifter_auth:settings"), {
             "new_password": TEST_USER_NEW_PASSWORD,
             "confirm_password": TEST_USER_NEW_PASSWORD
         })
@@ -99,7 +99,7 @@ class ChangePasswordViewTest(TestCase):
     def test_unsuccessful_form_submit(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        response = client.post(reverse("shifter_auth:change-password"), {
+        response = client.post(reverse("shifter_auth:settings"), {
             "new_password": TEST_USER_NEW_PASSWORD,
             "confirm_password": TEST_USER_NEW_PASSWORD + "wrong"
         })
