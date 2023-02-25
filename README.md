@@ -25,7 +25,7 @@ Shifter is a simple self-hosted file-sharing web app built using Django and Tail
 - [Django 4](https://github.com/django/django)
 - [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) (With help from [Django-Tailwind](https://github.com/timonweb/django-tailwind))
 - [Docker](https://github.com/docker)
-- [FilePond](https://github.com/pqina/filepond)
+- [FilePond](https://github.com/pqina/filepond) + [JSZip](https://github.com/Stuk/jszip)
 
 ## Running in production
 This project is still in early development and should not be used in production yet. Many requirements and features are incomplete or non-existent. The instructions below are for documentation purposes only at this time. Please note that these instructions may not always be up to date or fully working in all configurations.
