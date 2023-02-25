@@ -49,5 +49,10 @@ COPY ./shifter/entrypoint.sh $APP_HOME
 # copy project
 COPY ./shifter/ $APP_HOME
 
+# Labels
+LABEL org.opencontainers.image.source https://github.com/TobySuch/Shifter
+LABEL org.opencontainers.image.description="Shifter - A simple, self-hosted file-sharing web app, powered by Django"
+LABEL org.opencontainers.image.licenses=MIT
+
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME
