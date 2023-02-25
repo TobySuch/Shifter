@@ -32,6 +32,7 @@
 </div>
 
 <script src="{% static 'shifter_files/js/filepond.min.js' %}"></script>
+<script src="{% static 'shifter_files/js/jszip.min.js' %}"></script>
 <script src="{% static 'shifter_files/js/filepond_controller.js' %}"></script>
 <script>
     setupFilepond("{{ form.file_content.name }}", "{{ form.expiry_datetime.name }}")
