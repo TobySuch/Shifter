@@ -1,5 +1,8 @@
+import zoneinfo
+
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils import timezone
 
 
 def ensure_password_changed(get_response):
@@ -17,5 +20,21 @@ def ensure_password_changed(get_response):
 
         response = get_response(request)
         return response
+
+    return middleware
+
+
+def activate_timezone(get_response):
+    def middleware(request):
+        try:
+            tzname = request.COOKIES.get("django_timezone")
+            if tzname:
+                timezone.activate(zoneinfo.ZoneInfo(tzname))
+            else:
+                timezone.deactivate()
+        except Exception:
+            timezone.deactivate()
+
+        return get_response(request)
 
     return middleware

@@ -14,9 +14,9 @@
     </div>
     <div class="py-2">
         <div class="flex flex-wrap justify-center md:justify-between pt-8">
-            <div><span class="font-semibold">Uploaded At:</span> {{ object.upload_datetime }}</div>
+            <div><span class="font-semibold">Uploaded At:</span> {{ object.upload_datetime|date:"M j, Y, g:i A" }}</div>
             <div><span class="font-semibold">File Size:</span> {{ object.file_content.size | pretty_file_size }}</div>
-            <div><span class="font-semibold">Expires At:</span> {{ object.expiry_datetime }}</div>
+            <div><span class="font-semibold">Expires At:</span> {{ object.expiry_datetime|date:"M j, Y, g:i A" }}</div>
         </div>
     </div>
 </div>

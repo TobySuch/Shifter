@@ -1,12 +1,28 @@
+import datetime
+import zoneinfo
+
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model, get_user
 from django.urls import reverse
+from django.utils import timezone
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+from shifter_files.models import FileUpload
 
 TEST_USER_EMAIL = "iama@test.com"
 TEST_STAFF_USER_EMAIL = "iamastaff@test.com"
 TEST_ADDITIONAL_USER_EMAIL = "iamalsoa@test.com"
 TEST_USER_PASSWORD = "mytemporarypassword"
 TEST_USER_NEW_PASSWORD = "mynewpassword"
+
+TEST_FILE_NAME = "mytestfile.txt"
+TEST_FILE_CONTENT = b"Hello, World!"
+
+DATETIME_DISPLAY_FORMAT = "%b %-d, %Y, %-I:%M %p"  # Feb 6, 2021, 12:00 AM
+
+
+def format_datetime(dt):
+    return dt.strftime(DATETIME_DISPLAY_FORMAT)
 
 
 class IndexViewTest(TestCase):
@@ -190,3 +206,57 @@ class CreateNewUserViewTest(TestCase):
         User = get_user_model()
         self.assertEqual(User.objects.filter(
             email=TEST_ADDITIONAL_USER_EMAIL).count(), 0)
+
+
+class ActivateTimezoneMiddlewareTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(TEST_USER_EMAIL,
+                                             TEST_USER_PASSWORD)
+        self.user.save()
+
+        self.current_time = timezone.now()
+        self.expiry_time = self.current_time + datetime.timedelta(weeks=1)
+
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        self.test_file = FileUpload.objects.create(
+            owner=self.user, file_content=test_file,
+            upload_datetime=self.current_time,
+            expiry_datetime=self.expiry_time,
+            filename=TEST_FILE_NAME)
+
+    def test_no_cookie(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_files:file-details",
+                                      args=[self.test_file.file_hex]))
+        self.assertContains(response, format_datetime(self.current_time))
+        self.assertContains(response, format_datetime(self.expiry_time))
+
+    def test_india_cookie(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        client.cookies["django_timezone"] = "Asia/Kolkata"
+        response = client.get(reverse("shifter_files:file-details",
+                                      args=[self.test_file.file_hex]))
+        tz = zoneinfo.ZoneInfo("Asia/Kolkata")
+        current_time_ist = timezone.make_aware(
+            timezone.make_naive(self.current_time), tz)
+        expiry_time_ist = timezone.make_aware(
+            timezone.make_naive(self.expiry_time), tz)
+        self.assertContains(response, format_datetime(current_time_ist))
+        self.assertContains(response, format_datetime(expiry_time_ist))
+
+    def test_america_cookie(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        client.cookies["django_timezone"] = "America/New_York"
+        response = client.get(reverse("shifter_files:file-details",
+                                      args=[self.test_file.file_hex]))
+        tz = zoneinfo.ZoneInfo("America/New_York")
+        current_time_est = timezone.make_aware(
+            timezone.make_naive(self.current_time), tz)
+        expiry_time_est = timezone.make_aware(
+            timezone.make_naive(self.expiry_time), tz)
+        self.assertContains(response, format_datetime(current_time_est))
+        self.assertContains(response, format_datetime(expiry_time_est))
