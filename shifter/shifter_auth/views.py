@@ -18,8 +18,8 @@ def logoutView(request):
     return redirect("shifter_files:index")
 
 
-class ChangePasswordView(LoginRequiredMixin, FormView):
-    template_name = "shifter_auth/change_password.html"
+class SettingsView(LoginRequiredMixin, FormView):
+    template_name = "shifter_auth/settings.html"
     form_class = ChangePasswordForm
     success_url = reverse_lazy("shifter_files:index")
 

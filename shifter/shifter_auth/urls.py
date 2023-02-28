@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView
-from .views import logoutView, ChangePasswordView, CreateNewUserView
+from .views import logoutView, SettingsView, CreateNewUserView
 
 app_name = "shifter_auth"
 urlpatterns = [
@@ -9,8 +9,8 @@ urlpatterns = [
                            redirect_authenticated_user=True),
          name="login"),
     path('logout', logoutView, name="logout"),
-    path('change-password', ChangePasswordView.as_view(),
-         name="change-password"),
+    path('setings', SettingsView.as_view(),
+         name="settings"),
     path('new-user',
          CreateNewUserView.as_view(),
          name="create-new-user")
