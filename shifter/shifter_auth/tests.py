@@ -260,3 +260,27 @@ class ActivateTimezoneMiddlewareTest(TestCase):
             timezone.make_naive(self.expiry_time), tz)
         self.assertContains(response, format_datetime(current_time_est))
         self.assertContains(response, format_datetime(expiry_time_est))
+
+    def test_file_upload_ist(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        client.cookies["django_timezone"] = "Asia/Kolkata"
+        tz = zoneinfo.ZoneInfo("Asia/Kolkata")
+        expiry_time_ist = timezone.make_aware(
+            timezone.make_naive(self.expiry_time), tz)
+
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        response = client.post(reverse("shifter_files:index"), {
+            "expiry_datetime": expiry_time_ist.isoformat(
+                sep=' ', timespec='minutes'),
+            "file_content": test_file
+        })
+        self.assertEqual(response.status_code, 200)
+
+        file_upload = FileUpload.objects.first()
+        self.assertEqual(file_upload.filename, TEST_FILE_NAME)
+        self.assertEqual(file_upload.owner, self.user)
+        self.assertAlmostEqual(file_upload.upload_datetime, self.current_time,
+                               delta=datetime.timedelta(minutes=1))
+        self.assertAlmostEqual(file_upload.expiry_datetime, self.expiry_time,
+                               delta=datetime.timedelta(minutes=1))
