@@ -45,8 +45,6 @@ class FileDownloadViewTest(TestCase):
                       args=[file_upload.file_hex])
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.headers['X-Accel-Redirect'],
-                         file_upload.file_content.url)
 
     def test_download_anon_user(self):
         client = Client()
@@ -62,8 +60,6 @@ class FileDownloadViewTest(TestCase):
                       args=[file_upload.file_hex])
         response = client_anon.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.headers['X-Accel-Redirect'],
-                         file_upload.file_content.url)
 
     def test_download_another_user(self):
         client = Client()
@@ -80,8 +76,6 @@ class FileDownloadViewTest(TestCase):
                       args=[file_upload.file_hex])
         response = client_2.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.headers['X-Accel-Redirect'],
-                         file_upload.file_content.url)
 
     def test_download_does_not_exist(self):
         client = Client()

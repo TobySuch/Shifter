@@ -1,5 +1,3 @@
-import logging
-
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import View
 from django.views.generic.edit import FormView, DeleteView
@@ -7,8 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.http import JsonResponse
+from django.http import Http404
+from django.http import JsonResponse, FileResponse
 from django.shortcuts import get_object_or_404, redirect
 
 from .forms import FileUploadForm
@@ -90,19 +88,8 @@ class FileDownloadView(View):
         return super().setup(request, args, kwargs)
 
     def get(self, request, *args, **kwargs):
-        if settings.DEBUG:
-            # Dev doesn't have a nginx proxy to serve media requests.
-            return HttpResponseRedirect(self.obj.file_content.url)
-        response = HttpResponse()
-        response['Content-Type'] = ''
-        response['X-Accel-Redirect'] = self.obj.file_content.url
-        response['Content-Disposition'] = ('attachment; '
-                                           f'filename="{self.obj.filename}"')
-        logging.debug("Header 'X-Accel-Redirect': "
-                      + response['X-Accel-Redirect'])
-        logging.debug("Header 'Content-Disposition': "
-                      + response['Content-Disposition'])
-        return response
+        return FileResponse(self.obj.file_content, as_attachment=True,
+                            filename=self.obj.filename)
 
 
 class FileDownloadLandingView(DetailView):
