@@ -19,8 +19,6 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
-    entrypoint: /home/app/web/entrypoint.sh
-    command: gunicorn shifter.wsgi:application --bind 0.0.0.0:8000 --timeout 600
     restart: always
     volumes:
       - static:/home/app/web/static
