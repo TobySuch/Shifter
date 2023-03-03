@@ -50,8 +50,13 @@ These instructions are for setting up the project in development mode which may 
 
 1. Download or clone this repository.
 2. Make a copy of the `.env EXAMPLE` file and name it `.env.dev`. In your new copy, make sure `DEBUG` is set to 1, and change any values that are set to `CHANGEME` to the appropriate values for your development environment.
+2. In the .env.dev file, add values for the following variables: `DJANGO_SUPERUSER_EMAIL` and `DJANGO_SUPERUSER_PASSWORD`. These will be used to create an admin user when the containers are started. For example:
+```
+DJANGO_SUPERUSER_EMAIL=admin@mydomain.com
+DJANGO_SUPERUSER_PASSWORD=CHANGEME
+```
 3. Build and start the development containers using the following command:
 ```
 docker-compose -f docker-compose.dev.yml up --build
 ```
-4. Once the containers are running, you should be able to access the site in your web browser at `127.0.0.1:8000`. By default, there will be an admin user created with the email "admin@mydomain.com" and password "CHANGEME", unless you have changed these values in your environment file.
+4. Once the containers are running, you should be able to access the site in your web browser at `127.0.0.1:8000`. By default, the admin user will automatically be created and you will be able to log in using the credentials you entered in the .env.dev file.

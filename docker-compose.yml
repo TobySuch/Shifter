@@ -6,13 +6,14 @@ volumes:
   media:
    
 services:
-  db:
-    image: postgres
-    restart: always
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    env_file:
-      - ./.env
+  ## Uncomment this if you want to use postgres
+  # db:
+  #   image: postgres
+  #   restart: always
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   env_file:
+  #     - ./.env
   web:
     build: .
     entrypoint: /home/app/web/entrypoint.sh
@@ -21,12 +22,11 @@ services:
     volumes:
       - static:/home/app/web/static
       - media:/home/app/web/media
+      - db:/home/app/web/db
     expose:
       - 8000
     env_file:
       - ./.env
-    depends_on:
-      - db
   nginx:
     build: ./nginx
     restart: always

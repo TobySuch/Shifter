@@ -1,22 +1,29 @@
+### Django settings ###
 DEBUG=0    # 1 for dev, 0 for prod
-SECRET_KEY=CHANGEME
+SECRET_KEY=CHANGEME # Generate a long random string of characters for this. Example command: openssl rand -base64 64
 DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
 CSRF_TRUSTED_ORIGINS=https://mydomain.com
 SHIFTER_FULL_DOMAIN=https://shifter.mydomain.com
 DJANGO_LOG_LEVEL=INFO
-DJANGO_SUPERUSER_EMAIL=admin@mydomain.com  # Only used for dev
-DJANGO_SUPERUSER_PASSWORD=CHANGEME         # Only used for dev
-CLIENT_MAX_BODY_SIZE=5G    # Max filesize allowed by Nginx
 TIMEZONE=UTC
-SQL_ENGINE=django.db.backends.postgresql
+
+
+### Nginx settings ###
+CLIENT_MAX_BODY_SIZE=5G  # Max size of uploaded file allowed by Nginx
+
+
+### Database settings ###
+DATABASE=sqlite  # Possible values: sqlite, postgres
+
+# The following only need to be set if you choose postgres. They can be ignored if you choose sqlite.
+# Don't forget to add a postgres container to your docker-compose.yml file if you choose postgres.
 SQL_DATABASE=CHANGEME
 SQL_USER=CHANGEME
 SQL_PASSWORD=CHANGEME
 SQL_HOST=db
 SQL_PORT=5432
-DATABASE=postgres  # If you change this you will need to make other config changes elsewhere. Currently only supporting Postgres.
 
-# Config for postgres db container - should match credentials above.
+# Config for postgres db container - should match credentials above. You can usually ignore this, even if you choose postgres.
 POSTGRES_DB=${SQL_DATABASE}
 POSTGRES_USER=${SQL_USER}
 POSTGRES_PASSWORD=${SQL_PASSWORD}

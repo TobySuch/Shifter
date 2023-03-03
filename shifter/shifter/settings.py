@@ -89,16 +89,34 @@ WSGI_APPLICATION = 'shifter.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+# https://docs.djangoproject.com/en/dev/ref/settings/#databases
+db_option = os.environ.get("DATABASE", "sqlite").lower()
+if db_option == "postgres":
+    db_engine = "django.db.backends.postgresql"
+    # Ensure environment variables are set for postgres
+    if not os.environ.get("SQL_DATABASE"):
+        raise ValueError("SQL_DATABASE environment variable not set.")
+    if not os.environ.get("SQL_HOST"):
+        raise ValueError("SQL_HOST environment variable not set.")
+    if not os.environ.get("SQL_USER"):
+        raise ValueError("SQL_USER environment variable not set.")
+    if not os.environ.get("SQL_PASSWORD"):
+        raise ValueError("SQL_PASSWORD environment variable not set.")
+
+elif db_option == "sqlite":
+    db_engine = "django.db.backends.sqlite3"
+    db_path = os.path.join(BASE_DIR, "db", "db.sqlite3")
+else:
+    raise ValueError("Invalid database engine specified in environment. "
+                     + "Must be either sqlite or postgres.")
 
 DATABASES = {
     "default": {
-        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR,
-                                                            "db.sqlite3")),
-        "USER": os.environ.get("SQL_USER", "user"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "ENGINE": db_engine,
+        "NAME": os.environ.get("SQL_DATABASE", db_path),
+        "USER": os.environ.get("SQL_USER"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD"),
+        "HOST": os.environ.get("SQL_HOST", "db"),
         "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }

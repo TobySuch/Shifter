@@ -15,8 +15,6 @@ services:
       - "./.env EXAMPLE"
     environment:
       - DJANGO_LOG_LEVEL=OFF
-    depends_on:
-      - db
   nginx:
     build: ./nginx
     restart: always
