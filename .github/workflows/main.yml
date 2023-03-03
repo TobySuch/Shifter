@@ -15,10 +15,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build Images
-        run: docker-compose -f docker-compose.test.yml build
+        run: docker-compose -f docker/docker-compose.test.yml build
 
       - name: Run Tests
-        run: docker-compose -f docker-compose.test.yml run web
+        run: docker-compose -f docker/docker-compose.test.yml run web
 
       - name: Check Nginx Config
-        run: docker-compose -f docker-compose.test.yml run nginx
+        run: docker-compose -f docker/docker-compose.test.yml run nginx

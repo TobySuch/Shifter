@@ -1,27 +1,22 @@
 version: "3.9"
    
 services:
-  db:
-    image: postgres
-    restart: always
-    env_file:
-      - "./.env EXAMPLE"
   web:
-    build: .
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
     entrypoint: /home/app/web/entrypoint.sh
     command: python manage.py test
     restart: always
     env_file:
-      - "./.env EXAMPLE"
+      - "../.env EXAMPLE"
     environment:
       - DJANGO_LOG_LEVEL=OFF
-    depends_on:
-      - db
   nginx:
-    build: ./nginx
+    build: ../nginx
     restart: always
     command: nginx -t
     depends_on:
       - web
     env_file:
-      - "./.env EXAMPLE"
+      - "../.env EXAMPLE"
