@@ -37,11 +37,11 @@ Before you begin, make sure you have installed Docker and Docker Compose on your
 3. In the .env file, update the DJANGO_ALLOWED_HOSTS and CSRF_TRUSTED_ORIGINS values to match your deployment.
 4. Build and start the development containers using the following command:
 ```
-docker-compose up --build
+docker-compose -f docker/docker-compose.yml up --build
 ```
 5. To create an admin user, run the following command and follow the prompts:
 ```
-docker-compose exec web python manage.py createsuperuser
+docker-compose -f docker/docker-compose.yml exec web python manage.py createsuperuser
 ```
 6. After creating the admin user, you will be able to log into the site using the credentials you entered.
 

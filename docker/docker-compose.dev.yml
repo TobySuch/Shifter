@@ -2,12 +2,12 @@ version: "3.9"
 
 x-app: &default-app
   build:
-    context: .
-    dockerfile: ./Dockerfile.dev
+    context: ../
+    dockerfile: docker/Dockerfile.dev
   volumes:
-    - ./shifter:/app
+    - ../shifter:/app
   env_file:
-    - ./.env.dev
+    - ../.env.dev
   
    
 services:

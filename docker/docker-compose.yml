@@ -1,9 +1,10 @@
 version: "3.9"
 
 volumes:
-  postgres_data:
+  # postgres_data: Uncomment this if you want to use postgres
   static:
   media:
+  db:
    
 services:
   ## Uncomment this if you want to use postgres
@@ -15,7 +16,9 @@ services:
   #   env_file:
   #     - ./.env
   web:
-    build: .
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
     entrypoint: /home/app/web/entrypoint.sh
     command: gunicorn shifter.wsgi:application --bind 0.0.0.0:8000 --timeout 600
     restart: always
@@ -26,9 +29,9 @@ services:
     expose:
       - 8000
     env_file:
-      - ./.env
+      - ../.env
   nginx:
-    build: ./nginx
+    build: ../nginx
     restart: always
     volumes:
       - static:/home/app/web/static
@@ -38,4 +41,4 @@ services:
     depends_on:
       - web
     env_file:
-      - ./.env
+      - ../.env
