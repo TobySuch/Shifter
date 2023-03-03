@@ -28,7 +28,7 @@ Shifter is a simple self-hosted file-sharing web app built using Django and Tail
 - [FilePond](https://github.com/pqina/filepond) + [JSZip](https://github.com/Stuk/jszip)
 
 ## Running in production
-This project is still in early development and should not be used in production yet. Many requirements and features are incomplete or non-existent. The instructions below are for documentation purposes only at this time. Please note that these instructions may not always be up to date or fully working in all configurations.
+This project is still in development and may not be suitable to use in production yet depending on your requirements. Some features are incomplete or non-existent. Existing features are subject to change and may not be backwards compatible. If you would like to use this project in production, please be aware of this and proceed with caution, especially if you are updating.
 
 Before you begin, make sure you have installed Docker and Docker Compose on your system. If you're not sure how to do this, refer to the [Docker documentation](https://docs.docker.com/get-docker/) for instructions.
 
@@ -45,6 +45,12 @@ docker-compose exec web python manage.py createsuperuser
 ```
 6. After creating the admin user, you will be able to log into the site using the credentials you entered.
 
+### Using Postgresql
+By default, Shifter uses SQLite for its database. If you would like to use Postgresql instead, you can do so by following these steps:
+1. In the `docker-compose.yml` file, uncomment out the `db` service.
+2. In the `.env` file, make sure to change the `DATABASE` variable to `postgresql`.
+3. Ensure the other postgres variables are set to the appropriate values for your deployment. `SQL_HOST` and `SQL_PORT` usually won't need changing if you are using the default postgres configuration from the `docker-compose.yml` file.
+
 ## Installation Instructions (development):
 These instructions are for setting up the project in development mode which may aid you in contributing. Before you begin, make sure you have installed Docker and Docker Compose on your system. If you're not sure how to do this, refer to the [Docker documentation](https://docs.docker.com/get-docker/) for instructions.
 
@@ -60,3 +66,5 @@ DJANGO_SUPERUSER_PASSWORD=CHANGEME
 docker-compose -f docker-compose.dev.yml up --build
 ```
 4. Once the containers are running, you should be able to access the site in your web browser at `127.0.0.1:8000`. By default, the admin user will automatically be created and you will be able to log in using the credentials you entered in the .env.dev file.
+
+If you are thinking about contributing to this project, please read the [contributing guidelines](CONTRIBUTING.md) for more information.
