@@ -29,11 +29,11 @@ services:
     env_file:
       - ../.env
   nginx:
-    build: ../nginx
-    restart: always
+    image: nginx:1.19.0-alpine
     volumes:
       - static:/home/app/web/static
       - media:/home/app/web/media
+      - ../nginx/nginx.conf:/etc/nginx/templates/default.conf.template
     ports:
       - 1337:80
     depends_on:
