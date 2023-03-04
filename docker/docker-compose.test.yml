@@ -13,9 +13,11 @@ services:
     environment:
       - DJANGO_LOG_LEVEL=OFF
   nginx:
-    build: ../nginx
+    image: nginx:1.19.0-alpine
     restart: always
     command: nginx -t
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/templates/default.conf.template
     depends_on:
       - web
     env_file:
