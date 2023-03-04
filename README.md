@@ -32,12 +32,14 @@ This project is still in development and may not be suitable to use in productio
 
 Before you begin, make sure you have installed Docker and Docker Compose on your system. If you're not sure how to do this, refer to the [Docker documentation](https://docs.docker.com/get-docker/) for instructions.
 
+By default, the `docker-compose.yml` will use the latest image from GHCR. However it still requires some config files from this repository, and the relative paths are important. This will be improved in the future.
+
 1. Download or clone this repository.
 2. Make a copy of the `.env EXAMPLE` file and name it `.env`. In your new copy, make sure DEBUG is set to 0, and change any values that are set to `CHANGEME` to the appropriate values for your deployment.
 3. In the .env file, update the DJANGO_ALLOWED_HOSTS and CSRF_TRUSTED_ORIGINS values to match your deployment.
-4. Build and start the development containers using the following command:
+4. Start the containers using the following command:
 ```
-docker-compose -f docker/docker-compose.yml up --build
+docker-compose -f docker/docker-compose.yml up
 ```
 5. To create an admin user, run the following command and follow the prompts:
 ```
