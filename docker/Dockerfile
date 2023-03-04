@@ -44,8 +44,6 @@ COPY --from=builder /app/wheels /wheels
 COPY --from=builder /app/requirements.txt .
 RUN pip install --no-cache /wheels/*
 
-COPY ./shifter/entrypoint.sh $APP_HOME
-
 # copy project
 COPY ./shifter/ $APP_HOME
 
@@ -56,3 +54,6 @@ LABEL org.opencontainers.image.licenses=MIT
 
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME
+
+ENTRYPOINT [ "/home/app/web/entrypoint.sh" ]
+CMD [ "gunicorn", "shifter.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "600" ]
