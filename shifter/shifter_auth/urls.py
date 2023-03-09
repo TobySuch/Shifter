@@ -9,7 +9,7 @@ urlpatterns = [
                            redirect_authenticated_user=True),
          name="login"),
     path('logout', logoutView, name="logout"),
-    path('setings', SettingsView.as_view(),
+    path('settings', SettingsView.as_view(),
          name="settings"),
     path('new-user',
          CreateNewUserView.as_view(),
