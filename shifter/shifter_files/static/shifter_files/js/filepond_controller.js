@@ -1,6 +1,11 @@
 function combineFiles(pond) {
     let files = pond.getFiles();
 
+    // If there are no files, do nothing
+    if (files.length === 0) {
+        return Promise.reject('Select at least one file to upload')
+    }
+
     // If there is more than one file, zip them into one file
     if (files.length > 1) {
         console.debug("Combining files")
@@ -58,7 +63,8 @@ function setupFilepond(filepondElementName, expiryDatetimeElementName) {
                 onerror: (response) => {
                     console.error(response);
                     const errorBox = document.getElementById('error-box');
-                    document.getElementById('error-box').innerHTML = '';
+                    errorBox.innerHTML = '';
+                    document.getElementById('info-box').innerHTML = ''
 
                     rObj = JSON.parse(response);
                     for (const [key, value] of Object.entries(rObj.errors)) {
@@ -74,9 +80,21 @@ function setupFilepond(filepondElementName, expiryDatetimeElementName) {
     const uploadButton = document.getElementById('upload-btn');
 
     uploadButton.addEventListener('click', () => {
+        const errorBox = document.getElementById('error-box')
+        const infoBox = document.getElementById('info-box')
+
         combineFiles(pond).then(() => {
             console.debug("Uploading file")
+            errorBox.innerHTML = ''
+            infoBox.innerHTML = 'Stay on this page until upload is finished'
+            uploadButton.disabled = true;
             pond.processFiles();
+        }).catch(error => {
+            infoBox.innerHTML = ''
+            errorBox.innerHTML = error
+            setTimeout(() => {
+                errorBox.innerHTML = ''
+            }, 5000)
         });
     });
 }
