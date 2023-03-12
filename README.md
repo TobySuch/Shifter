@@ -65,7 +65,7 @@ DJANGO_SUPERUSER_PASSWORD=CHANGEME
 ```
 3. Build and start the development containers using the following command:
 ```
-docker-compose -f docker-compose.dev.yml up --build
+docker-compose -f docker/docker-compose.dev.yml up --build
 ```
 4. Once the containers are running, you should be able to access the site in your web browser at `127.0.0.1:8000`. By default, the admin user will automatically be created and you will be able to log in using the credentials you entered in the .env.dev file.
 
