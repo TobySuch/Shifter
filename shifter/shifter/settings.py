@@ -113,7 +113,7 @@ else:
 DATABASES = {
     "default": {
         "ENGINE": db_engine,
-        "NAME": os.environ.get("SQL_DATABASE", db_path),
+        "NAME": db_path or os.environ.get("SQL_DATABASE"),
         "USER": os.environ.get("SQL_USER"),
         "PASSWORD": os.environ.get("SQL_PASSWORD"),
         "HOST": os.environ.get("SQL_HOST", "db"),
