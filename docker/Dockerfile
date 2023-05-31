@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM python:3.10-alpine as builder
+FROM python:3.11-alpine as builder
 
 WORKDIR /app
 
@@ -40,6 +40,7 @@ WORKDIR $APP_HOME
 
 # install dependencies
 RUN apk add --update libpq nodejs npm
+RUN pip install --upgrade pip
 COPY --from=builder /app/wheels /wheels
 COPY --from=builder /app/requirements.txt .
 RUN pip install --no-cache /wheels/*
