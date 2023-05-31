@@ -40,6 +40,7 @@ WORKDIR $APP_HOME
 
 # install dependencies
 RUN apk add --update libpq nodejs npm
+RUN pip install --upgrade pip
 COPY --from=builder /app/wheels /wheels
 COPY --from=builder /app/requirements.txt .
 RUN pip install --no-cache /wheels/*
