@@ -1,14 +1,5 @@
 version: "3.9"
-
-x-app: &default-app
-  build:
-    context: ../
-    dockerfile: docker/Dockerfile.dev
-  volumes:
-    - ../shifter:/app
-  env_file:
-    - ../.env.dev
-  
+name: shifter-dev
    
 services:
   ## Uncomment this if you want to use postgres
@@ -17,13 +8,12 @@ services:
   #   env_file:
   #     - ./.env.dev
   web:
-    <<: *default-app
-    entrypoint: /app/entrypoint.sh
-    command: python manage.py runserver 0.0.0.0:8000
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.dev
+    volumes:
+      - ../shifter:/app
+    env_file:
+      - ../.env.dev
     ports:
       - "8000:8000"
-  tailwind:
-    <<: *default-app
-    entrypoint: /app/entrypoint_tailwind.sh
-    command: "python manage.py tailwind start"
-    tty: true

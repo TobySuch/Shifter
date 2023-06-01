@@ -28,11 +28,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(" ")
 
 # Not required when running in DEBUG mode, removes requirement for dev envs.
 if not DEBUG:
-    CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
+    CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS",
+                                          "").split(" ")
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -48,8 +49,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_crontab',
-    'tailwind',
-    'theme',
     'shifter_auth',
     'shifter_files',
 ]
@@ -71,7 +70,7 @@ ROOT_URLCONF = 'shifter.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -79,7 +78,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'theme.context_processors.debug',
             ],
         },
     },
@@ -96,6 +94,8 @@ if db_option == "postgres":
     # Ensure environment variables are set for postgres
     if not os.environ.get("SQL_DATABASE"):
         raise ValueError("SQL_DATABASE environment variable not set.")
+    else:
+        db_path = os.environ.get("SQL_DATABASE")
     if not os.environ.get("SQL_HOST"):
         raise ValueError("SQL_HOST environment variable not set.")
     if not os.environ.get("SQL_USER"):
@@ -113,7 +113,7 @@ else:
 DATABASES = {
     "default": {
         "ENGINE": db_engine,
-        "NAME": db_path or os.environ.get("SQL_DATABASE"),
+        "NAME": db_path,
         "USER": os.environ.get("SQL_USER"),
         "PASSWORD": os.environ.get("SQL_PASSWORD"),
         "HOST": os.environ.get("SQL_HOST", "db"),
@@ -192,7 +192,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = '/media/'
 
@@ -200,9 +202,6 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Tailwind Settings
-TAILWIND_APP_NAME = 'theme'
 
 # Shifter Settings
 AUTH_USER_MODEL = "shifter_auth.User"
