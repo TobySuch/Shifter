@@ -8,7 +8,7 @@
         <h1 class="title">Login</h1>
     </div>
     <div class="p-2">
-        <form class="space-y-1 p2" method="post">
+        <form class="space-y-1 p-2" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}<div class="error-box">{{ form.non_field_errors }}</div>{% endif %}
 

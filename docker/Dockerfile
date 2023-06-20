@@ -23,7 +23,7 @@ RUN flake8 . --exclude=migrations
 #########
 # FINAL #
 #########
-FROM python:3.10-alpine
+FROM python:3.11-alpine
 
 # create directory for the app user
 RUN mkdir -p /home/app

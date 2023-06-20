@@ -157,7 +157,8 @@ LOGGING = {
         'file': {
             'level': log_level,
             'class': 'logging.FileHandler',
-            'filename': '/var/log/shifter.log',
+            'filename': os.environ.get("DJANGO_LOG_LOCATION",
+                                       "/var/log/shifter.log"),
         }
     },
     'root': {

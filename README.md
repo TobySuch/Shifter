@@ -23,7 +23,7 @@ Shifter is a simple self-hosted file-sharing web app built using Django and Tail
 
 ## Built using:
 - [Django 4](https://github.com/django/django)
-- [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) (With help from [Django-Tailwind](https://github.com/timonweb/django-tailwind))
+- [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss)
 - [Docker](https://github.com/docker)
 - [FilePond](https://github.com/pqina/filepond) + [JSZip](https://github.com/Stuk/jszip)
 
@@ -39,11 +39,11 @@ By default, the `docker-compose.yml` will use the latest image from GHCR. Howeve
 3. In the .env file, update the DJANGO_ALLOWED_HOSTS and CSRF_TRUSTED_ORIGINS values to match your deployment.
 4. Start the containers using the following command:
 ```
-docker-compose -f docker/docker-compose.yml up
+docker compose -f docker/docker-compose.yml up
 ```
 5. To create an admin user, run the following command and follow the prompts:
 ```
-docker-compose -f docker/docker-compose.yml exec web python manage.py createsuperuser
+docker compose -f docker/docker-compose.yml exec web python manage.py createsuperuser
 ```
 6. After creating the admin user, you will be able to log into the site using the credentials you entered.
 
@@ -65,7 +65,7 @@ DJANGO_SUPERUSER_PASSWORD=CHANGEME
 ```
 3. Build and start the development containers using the following command:
 ```
-docker-compose -f docker/docker-compose.dev.yml up --build
+docker compose -f docker/dev/docker-compose.dev.yml up --build
 ```
 4. Once the containers are running, you should be able to access the site in your web browser at `127.0.0.1:8000`. By default, the admin user will automatically be created and you will be able to log in using the credentials you entered in the .env.dev file.
 

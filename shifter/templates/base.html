@@ -8,6 +8,8 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         {% block head %}
         {% endblock %}
+        {# Loaded after head, so that tailwind can override css classes. #}
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
     </head>
 
     <body class="font-sans leading-normal tracking-normal bg-white">
@@ -68,11 +70,11 @@
                 {% endblock %}
             </div>
         </div>
-        <script src="{% static 'js/flowbite/flowbite.js' %}"></script>
+        <script src="{% static 'js/flowbite-bundle.js' %}"></script>
         <script>
             // Timezone settings
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // e.g. "America/New_York"
-            document.cookie = "django_timezone=" + timezone;
+            document.cookie = "django_timezone=" + timezone + "; SameSite=strict; path=/";
         </script>
     </body>
 </html>
