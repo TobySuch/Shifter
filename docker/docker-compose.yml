@@ -20,7 +20,7 @@ services:
     image: ghcr.io/tobysuch/shifter:0.2.0
     restart: always
     volumes:
-      - static:/home/app/web/static
+      - static:/home/app/web/static_root
       - media:/home/app/web/media
       - db:/home/app/web/db
     expose:

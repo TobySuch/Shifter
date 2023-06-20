@@ -4,7 +4,9 @@
   "description": "A simple, self-hosted file-sharing web app, powered by Django.",
   "scripts": {
     "tailwind-dev": "npx tailwindcss -i /app/shifter/assets/css/style.css -o /app/shifter/static/css/style.css --watch",
-    "js-dev": "webpack --mode development --watch"
+    "tailwind-build": "npx tailwindcss -i /app/shifter/assets/css/style.css -o /app/shifter/static/css/style.css --minify",
+    "js-dev": "webpack --mode development --watch",
+    "js-build": "webpack --mode production"
   },
   "repository": {
     "type": "git",
