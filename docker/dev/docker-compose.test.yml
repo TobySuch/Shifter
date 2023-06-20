@@ -1,15 +1,16 @@
 version: "3.9"
+name: shifter-test
    
 services:
   web:
     build:
-      context: ../
+      context: ../../
       dockerfile: docker/Dockerfile
     entrypoint: /home/app/web/entrypoint.sh
     command: python manage.py test
     restart: always
     env_file:
-      - "../.env EXAMPLE"
+      - "../../.env EXAMPLE"
     environment:
       - DJANGO_LOG_LEVEL=OFF
   nginx:
@@ -21,4 +22,4 @@ services:
     depends_on:
       - web
     env_file:
-      - "../.env EXAMPLE"
+      - "../../.env EXAMPLE"

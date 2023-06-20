@@ -1,0 +1,41 @@
+version: "3.9"
+name: shifter-dev
+   
+services:
+  ## Uncomment this if you want to use postgres
+  # db:
+  #   image: postgres
+  #   env_file:
+  #     - ./.env.dev
+  web:
+    build:
+      context: ../../
+      dockerfile: docker/dev/Dockerfile.dev
+    volumes:
+      - ../../shifter:/app
+    env_file:
+      - ../../.env.dev
+    ports:
+      - "8000:8000"
+  
+  frontend-tailwind:
+    build:
+      context: ../../
+      dockerfile: docker/dev/Dockerfile.frontend.dev
+    command: npm run tailwind-dev
+    volumes:
+      - ../../shifter:/app/shifter
+    env_file:
+      - ../../.env.dev
+    tty: true
+
+  frontend-js:
+    build:
+      context: ../../
+      dockerfile: docker/dev/Dockerfile.frontend.dev
+    command: npm run js-dev
+    volumes:
+      - ../../shifter:/app/shifter
+    env_file:
+      - ../../.env.dev
+    tty: true

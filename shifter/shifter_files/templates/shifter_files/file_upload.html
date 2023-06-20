@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 
-{% block head %}
 {% load static %}
-<link href="{% static 'shifter_files/css/filepond.min.css' %}" rel="stylesheet">
+
+{% block head %}
+<script src="{% static 'js/filepond-bundle.js' %}" type="text/javascript"></script>
 {% endblock %}
 
 {% block title %}<title>Upload File | Shifter</title>{% endblock %}
@@ -31,11 +32,7 @@
         </div>
     </div>
 </div>
-
-<script src="{% static 'shifter_files/js/filepond.min.js' %}"></script>
-<script src="{% static 'shifter_files/js/jszip.min.js' %}"></script>
-<script src="{% static 'shifter_files/js/filepond_controller.js' %}"></script>
 <script>
-    setupFilepond("{{ form.file_content.name }}", "{{ form.expiry_datetime.name }}")
+    ShifterFilepond.setupFilepond("{{ form.file_content.name }}", "{{ form.expiry_datetime.name }}");
 </script>
 {% endblock %}

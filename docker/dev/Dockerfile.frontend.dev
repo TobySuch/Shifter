@@ -1,0 +1,13 @@
+FROM node:20
+
+WORKDIR /app
+
+RUN npm install -g npm
+
+COPY ./shifter/package.json .
+COPY ./shifter/package-lock.json .
+
+RUN npm install
+
+COPY ./shifter/tailwind.config.js .
+COPY ./shifter/webpack.config.js .

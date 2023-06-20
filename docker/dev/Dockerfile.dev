@@ -10,5 +10,7 @@ RUN pip install -r requirements_dev.txt
 COPY ./shifter/ .
 
 RUN chmod +x ./entrypoint.sh
-RUN chmod +x ./entrypoint_tailwind.sh
 
+EXPOSE 8000
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

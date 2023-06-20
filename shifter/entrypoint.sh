@@ -34,13 +34,6 @@ then
         python manage.py createsuperuser --no-input
     fi
 else
-    # If prod mode, build and collect static files
-    python manage.py tailwind install
-    python manage.py tailwind build
-    # Copy over flowbite
-    mkdir ./theme/static/js
-    mkdir ./theme/static/js/flowbite
-    cp ./theme/static_src/node_modules/flowbite/dist/* ./theme/static/js/flowbite
     python manage.py crontab add
     python manage.py collectstatic --no-input --clear
 fi
