@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/TobySuch/Shifter">
-    <img alt="Shifter Logo" src="shifter/theme/static/img/logo.svg"/>
+    <img alt="Shifter Logo" src="shifter/static/img/logo.svg"/>
   </a>
 </p>
 <p align="center">
