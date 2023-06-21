@@ -238,9 +238,6 @@ SITE_SETTINGS = {
     }
 }
 
-SHIFTER_FULL_DOMAIN = os.environ.get("SHIFTER_FULL_DOMAIN",
-                                     default="localhost:1337")
-
 DEFAULT_EXPIRY_OFFSET = timedelta(weeks=2)
 
 CRONJOBS = [

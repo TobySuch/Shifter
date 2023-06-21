@@ -7,3 +7,7 @@ class SiteSetting(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_setting(cls, name: str) -> str:
+        return cls.objects.get(name=name).value
