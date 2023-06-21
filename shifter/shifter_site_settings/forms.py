@@ -9,7 +9,10 @@ class SiteSettingsForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         for setting in SiteSetting.objects.all():
-            label = settings.SITE_SETTINGS[setting.name]["label"]
-            self.fields[f"setting_{setting.name}"] = forms.CharField(
+            setting_config: dict = settings.SITE_SETTINGS[setting.name]
+            label = setting_config["label"]
+            form_field_type = setting_config.get("field_type",
+                                                 forms.CharField)
+            self.fields[f"setting_{setting.name}"] = form_field_type(
                 label=label, initial=setting.value
             )

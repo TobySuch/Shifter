@@ -14,6 +14,7 @@ import os
 import logging
 from pathlib import Path
 from datetime import timedelta
+from django import forms
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -223,14 +224,17 @@ SITE_SETTINGS = {
     "max_file_size": {
         "default": 5 * 1024,  # 5GB
         "label": "Maximum File Size (MB)",
+        "field_type": forms.IntegerField,
     },
     "default_expiry_offset": {
         "default": 24 * 14,  # 2 weeks
         "label": "Default Expiry Offset (hours)",
+        "field_type": forms.IntegerField,
     },
     "max_expiry_offset": {
         "default": 24 * 365 * 5,  # 5 years
         "label": "Maximum Expiry Offset (hours)",
+        "field_type": forms.IntegerField,
     },
     "cleanup_schedule": {
         "default": "*/15 * * * *",  # Every 15 minutes

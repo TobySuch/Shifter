@@ -2,7 +2,6 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.base import View
 from django.views.generic.edit import FormView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.conf import settings
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.http import Http404
