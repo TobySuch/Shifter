@@ -6,7 +6,7 @@
 version: 2
 updates:
   - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
+    directory: "/shifter" # Location of package manifests
     schedule:
       interval: "daily"
     assignees:
@@ -18,7 +18,7 @@ updates:
       - "dependencies"
 
   - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/shifter/theme/static_src" # Location of package manifests
+    directory: "/shifter" # Location of package manifests
     schedule:
       interval: "daily"
     assignees:

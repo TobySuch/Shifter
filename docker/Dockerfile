@@ -1,6 +1,6 @@
-###########
-# BUILDER #
-###########
+##################
+# PYTHON BUILDER #
+##################
 
 FROM python:3.11-alpine as builder
 
@@ -14,16 +14,36 @@ RUN apk add --update postgresql-dev gcc python3-dev musl-dev
 
 RUN pip install --upgrade pip
 RUN pip install flake8
-COPY ./requirements.txt .
+COPY ./shifter/requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
 
 COPY ./shifter/ .
 RUN flake8 . --exclude=migrations
 
+################
+# NODE BUILDER #
+################
+FROM node:20 as nodebuilder
+WORKDIR /app
+
+RUN npm install -g npm
+COPY ./shifter/package.json .
+COPY ./shifter/package-lock.json .
+
+RUN npm install
+
+COPY ./shifter/tailwind.config.js .
+COPY ./shifter/webpack.config.js .
+COPY ./shifter ./shifter
+
+RUN npm run tailwind-build
+RUN npm run js-build
+
+
 #########
 # FINAL #
 #########
-FROM python:3.10-alpine
+FROM python:3.11-alpine
 
 # create directory for the app user
 RUN mkdir -p /home/app
@@ -47,6 +67,10 @@ RUN pip install --no-cache /wheels/*
 
 # copy project
 COPY ./shifter/ $APP_HOME
+
+# copy static files
+COPY --from=nodebuilder /app/shifter/static/js $APP_HOME/static/js
+COPY --from=nodebuilder /app/shifter/static/css $APP_HOME/static/css
 
 # Labels
 LABEL org.opencontainers.image.source https://github.com/TobySuch/Shifter

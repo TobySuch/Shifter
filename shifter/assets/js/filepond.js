@@ -1,3 +1,7 @@
+import * as FilePond from 'filepond';
+import JSZip from 'jszip';
+import 'filepond/dist/filepond.min.css';
+
 function combineFiles(pond) {
     let files = pond.getFiles();
 
@@ -32,7 +36,7 @@ function combineFiles(pond) {
     return Promise.resolve();
 }
 
-function setupFilepond(filepondElementName, expiryDatetimeElementName) {
+export function setupFilepond(filepondElementName, expiryDatetimeElementName) {
     const inputElement = document.getElementsByName(filepondElementName)[0];
 
     const pond = FilePond.create(inputElement, {
@@ -57,7 +61,7 @@ function setupFilepond(filepondElementName, expiryDatetimeElementName) {
                     return formData;
                 },
                 onload: (response) => {
-                    redirectUrl = JSON.parse(response).redirect_url;
+                    const redirectUrl = JSON.parse(response).redirect_url;
                     window.location.href = redirectUrl;
                 },
                 onerror: (response) => {

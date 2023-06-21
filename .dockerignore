@@ -1,3 +1,4 @@
 shifter/media/
-shifter/theme/static/css
-shifter/theme/static/js
+shifter/static/css
+shifter/static/js
+.DS_Store

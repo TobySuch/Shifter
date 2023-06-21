@@ -1,0 +1,34 @@
+{
+  "name": "shifter",
+  "version": "0.2.0",
+  "description": "A simple, self-hosted file-sharing web app, powered by Django.",
+  "scripts": {
+    "tailwind-dev": "npx tailwindcss -i /app/shifter/assets/css/style.css -o /app/shifter/static/css/style.css --watch",
+    "tailwind-build": "npx tailwindcss -i /app/shifter/assets/css/style.css -o /app/shifter/static/css/style.css --minify",
+    "js-dev": "webpack --mode development --watch",
+    "js-build": "webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TobySuch/Shifter.git"
+  },
+  "author": "TobySuch",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TobySuch/Shifter/issues"
+  },
+  "homepage": "https://github.com/TobySuch/Shifter#readme",
+  "devDependencies": {
+    "css-loader": "^6.8.1",
+    "source-map-loader": "^4.0.1",
+    "style-loader": "^3.3.3",
+    "tailwindcss": "^3.3.2",
+    "webpack": "^5.87.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "filepond": "^4.30.4",
+    "flowbite": "^1.6.6",
+    "jszip": "^3.10.1"
+  }
+}
