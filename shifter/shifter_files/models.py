@@ -5,6 +5,7 @@ from django.conf import settings
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
+from django.db.models.functions import Now
 
 
 def generate_hex_uuid():
@@ -26,6 +27,17 @@ class FileUpload(models.Model):
 
     def is_expired(self):
         return self.expiry_datetime < timezone.now()
+
+    @classmethod
+    def get_expired_files(cls):
+        return cls.objects.filter(expiry_datetime__lte=Now())
+
+    @classmethod
+    def delete_expired_files(cls):
+        files = cls.get_expired_files()
+        num_files = files.count()
+        files.delete()
+        return num_files
 
 
 @receiver(pre_delete, sender=FileUpload)

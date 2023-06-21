@@ -72,3 +72,52 @@ class FileUploadModelTest(TestCase):
             filename=TEST_FILE_NAME)
 
         self.assertTrue(file_upload.is_expired())
+
+    def test_get_expired_files(self):
+        expired_files = FileUpload.get_expired_files()
+        self.assertEqual(expired_files.count(), 0)
+
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime - datetime.timedelta(days=1)
+        file_upload = FileUpload.objects.create(
+            owner=self.user, file_content=test_file,
+            upload_datetime=current_datetime,
+            expiry_datetime=expiry_datetime,
+            filename=TEST_FILE_NAME)
+
+        expired_files = FileUpload.get_expired_files()
+        self.assertEqual(expired_files.count(), 1)
+        self.assertEqual(expired_files.first(), file_upload)
+
+        file_upload2 = FileUpload.objects.create(
+            owner=self.user, file_content=test_file,
+            upload_datetime=current_datetime,
+            expiry_datetime=expiry_datetime,
+            filename=TEST_FILE_NAME)
+
+        expired_files = FileUpload.get_expired_files()
+        self.assertEqual(expired_files.count(), 2)
+        self.assertEqual(expired_files.last(), file_upload2)
+
+    def test_delete_expired_files_empty(self):
+        self.assertEqual(FileUpload.get_expired_files().count(), 0)
+        num_files_deleted = FileUpload.delete_expired_files()
+        self.assertEqual(num_files_deleted, 0)
+
+    def test_delete_expired_files(self):
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime - datetime.timedelta(days=1)
+
+        for _ in range(2):
+            FileUpload.objects.create(
+                owner=self.user, file_content=test_file,
+                upload_datetime=current_datetime,
+                expiry_datetime=expiry_datetime,
+                filename=TEST_FILE_NAME)
+
+        self.assertEqual(FileUpload.get_expired_files().count(), 2)
+        num_files_deleted = FileUpload.delete_expired_files()
+        self.assertEqual(num_files_deleted, 2)
+        self.assertEqual(FileUpload.get_expired_files().count(), 0)
