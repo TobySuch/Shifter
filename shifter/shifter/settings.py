@@ -214,6 +214,13 @@ DATETIME_INPUT_FORMATS = [
     '%Y-%m-%d %H:%M',     # '2006-10-25 14:30'
 ]
 
+SITE_SETTINGS = {
+    "domain": {
+        "default": os.environ.get("SHIFTER_FULL_DOMAIN",
+                                  default="")
+    },
+}
+
 SHIFTER_FULL_DOMAIN = os.environ.get("SHIFTER_FULL_DOMAIN",
                                      default="localhost:1337")
 
