@@ -21,6 +21,7 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('shifter_auth.urls')),
+    path('', include('shifter_site_settings.urls')),
     path('', include('shifter_files.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

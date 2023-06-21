@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'shifter_auth',
     'shifter_files',
+    'shifter_site_settings',
 ]
 
 MIDDLEWARE = [
