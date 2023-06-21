@@ -14,7 +14,7 @@ RUN apk add --update postgresql-dev gcc python3-dev musl-dev
 
 RUN pip install --upgrade pip
 RUN pip install flake8
-COPY ./requirements.txt .
+COPY ./shifter/requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
 
 COPY ./shifter/ .
