@@ -16,6 +16,8 @@ updates:
     labels:
       - "backend"
       - "dependencies"
+    commit-message:
+      prefix: ":arrow_up:"
 
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/shifter" # Location of package manifests
@@ -28,3 +30,31 @@ updates:
     labels:
       - "frontend"
       - "dependencies"
+    commit-message:
+      prefix: ":arrow_up:"
+
+  - package-ecosystem: "docker"
+    directory: "/docker"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "TobySuch"
+    reviewers:
+      - "TobySuch"
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: ":arrow_up:"
+  
+  - package-ecosystem: "docker"
+    directory: "/docker/dev"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "TobySuch"
+    reviewers:
+      - "TobySuch"
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: ":arrow_up:"
