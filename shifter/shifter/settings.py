@@ -217,8 +217,25 @@ DATETIME_INPUT_FORMATS = [
 SITE_SETTINGS = {
     "domain": {
         "default": os.environ.get("SHIFTER_FULL_DOMAIN",
-                                  default="")
+                                  default="localhost:1337"),
+        "label": "Full Domain",
     },
+    "max_file_size": {
+        "default": 5 * 1024,  # 5GB
+        "label": "Maximum File Size (MB)",
+    },
+    "default_expiry_offset": {
+        "default": 24 * 14,  # 2 weeks
+        "label": "Default Expiry Offset (hours)",
+    },
+    "max_expiry_offset": {
+        "default": 24 * 365 * 5,  # 5 years
+        "label": "Maximum Expiry Offset (hours)",
+    },
+    "cleanup_schedule": {
+        "default": "*/15 * * * *",  # Every 15 minutes
+        "label": "File Cleanup Schedule (Cron Format)",
+    }
 }
 
 SHIFTER_FULL_DOMAIN = os.environ.get("SHIFTER_FULL_DOMAIN",

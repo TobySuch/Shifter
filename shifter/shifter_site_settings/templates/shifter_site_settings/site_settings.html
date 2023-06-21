@@ -9,5 +9,23 @@
     <div class="py-2 rounded-t">
         <h1 class="title">Site Settings</h1>
     </div>
+    <div class="p-2">
+        <form class="space-y-1 p-2 flex flex-col gap-3" method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="error-box">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form %}
+            <div>
+                <div class="flex">
+                    <label class="text-gray-800" for="{{ field.id }}">{{ field.label }}</label>
+                    {% if field.errors %}<div class="ml-2 error-box grow">{{ field.errors }}</div>{% endif %}
+                </div>
+                <input name="{{ field.html_name }}" type="text" class="w-full input-primary" {% if field.value %}value="{{ field.value }}"{% endif %}>
+            </div>
+            {% endfor %}
+            <div class="flex justify-end py-2">
+                <input type="submit" value="Save" class="btn-primary">
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}
