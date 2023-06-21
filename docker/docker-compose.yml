@@ -2,7 +2,6 @@ version: "3.9"
 name: shifter
 
 volumes:
-  # postgres_data: Uncomment this if you want to use postgres
   static:
   media:
   db:
@@ -13,16 +12,16 @@ services:
   #   image: postgres
   #   restart: always
   #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
+  #     - db:/var/lib/postgresql/data
   #   env_file:
-  #     - ./.env
+  #     - ../.env
   web:
     image: ghcr.io/tobysuch/shifter:0.2.0
     restart: always
     volumes:
       - static:/home/app/web/static_root
       - media:/home/app/web/media
-      - db:/home/app/web/db
+      - db:/home/app/web/db # Comment this out if you are using postgres
     expose:
       - 8000
     env_file:

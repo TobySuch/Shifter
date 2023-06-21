@@ -6,7 +6,7 @@ services:
   # db:
   #   image: postgres
   #   env_file:
-  #     - ./.env.dev
+  #     - ../../.env.dev
   web:
     build:
       context: ../../

@@ -1,7 +1,6 @@
 FROM python:3.11-alpine
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
-RUN apk add --update postgresql-dev gcc python3-dev musl-dev nodejs npm
 COPY ./shifter/requirements.txt .
 RUN pip install -r requirements.txt
 COPY ./shifter/requirements_dev.txt .
