@@ -48,6 +48,12 @@ class FileUploadView(LoginRequiredMixin, FormView):
         return reverse("shifter_files:file-details",
                        args=[self.file_hex])
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["setting_max_file_size"] = SiteSetting.get_setting(
+            "max_file_size")
+        return context
+
 
 class FileListView(LoginRequiredMixin, ListView):
     model = FileUpload

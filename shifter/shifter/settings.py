@@ -222,9 +222,8 @@ SITE_SETTINGS = {
         "label": "Full Domain",
     },
     "max_file_size": {
-        "default": 5 * 1024,  # 5GB
-        "label": "Maximum File Size (MB)",
-        "field_type": forms.IntegerField,
+        "default": "5120MB",  # 5GB
+        "label": "Maximum File Size",
     },
     "default_expiry_offset": {
         "default": 24 * 14,  # 2 weeks
