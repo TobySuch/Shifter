@@ -234,15 +234,13 @@ SITE_SETTINGS = {
         "default": 24 * 365 * 5,  # 5 years
         "label": "Maximum Expiry Offset (hours)",
         "field_type": forms.IntegerField,
-    },
-    "cleanup_schedule": {
-        "default": "*/15 * * * *",  # Every 15 minutes
-        "label": "File Cleanup Schedule (Cron Format)",
     }
 }
 
 DEFAULT_EXPIRY_OFFSET = timedelta(weeks=2)
 
+
 CRONJOBS = [
-    ('*/59 * * * *', 'shifter_files.cron.delete_expired_files')
+    (os.environ.get("EXPIRED_FILE_CLEANUP_SCHEDULE", "*/15 * * * *"),
+     'shifter_files.cron.delete_expired_files')
 ]
