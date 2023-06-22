@@ -16,3 +16,6 @@ class SiteSettingsForm(forms.Form):
             self.fields[f"setting_{setting.name}"] = form_field_type(
                 label=label, initial=setting.value
             )
+            if "tooltip" in setting_config:
+                self.fields[f"setting_{setting.name}"].help_text = \
+                    setting_config["tooltip"]

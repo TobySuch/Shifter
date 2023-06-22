@@ -220,10 +220,14 @@ SITE_SETTINGS = {
         "default": os.environ.get("SHIFTER_FULL_DOMAIN",
                                   default="localhost:1337"),
         "label": "Full Domain",
+        "tooltip": "This is prepended to the download URL. Include the \
+            protocol (e.g. https://) and the port if it is not standard."
     },
     "max_file_size": {
         "default": "5120MB",  # 5GB
         "label": "Maximum File Size",
+        "tooltip": "Enter max size as a number value, followed by either KB \
+            for Kilobytes or MB for Megabytes."
     },
     "default_expiry_offset": {
         "default": 24 * 14,  # 2 weeks

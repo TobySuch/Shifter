@@ -19,7 +19,13 @@
                     <label class="text-gray-800" for="{{ field.id }}">{{ field.label }}</label>
                     {% if field.errors %}<div class="ml-2 error-box grow">{{ field.errors }}</div>{% endif %}
                 </div>
-                <input name="{{ field.html_name }}" type="text" class="w-full input-primary" {% if field.value %}value="{{ field.value }}"{% endif %}>
+                <input name="{{ field.html_name }}" type="text" class="w-full input-primary" {% if field.value %}value="{{ field.value }}"{% endif %}  {% if field.help_text %}data-tooltip-target="tooltip-{{ field.html_name }}" {% endif %}>
+                {% if field.help_text %}
+                <div id="tooltip-{{ field.html_name }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    {{ field.help_text }}
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
             <div class="flex justify-end py-2">
