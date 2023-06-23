@@ -15,7 +15,7 @@
 }
 
 .error-box{
-    @apply rounded text-center font-semibold bg-red-500 text-white my-2 py-1
+    @apply rounded text-center font-semibold bg-red-500 text-white p-4 mb-4
 }
 
 .info-box{
