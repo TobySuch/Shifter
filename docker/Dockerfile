@@ -71,8 +71,6 @@ COPY ./shifter/ $APP_HOME
 COPY --from=nodebuilder /app/shifter/static/js $APP_HOME/static/js
 COPY --from=nodebuilder /app/shifter/static/css $APP_HOME/static/css
 
-RUN python manage.py collectstatic --noinput --clear
-
 # Labels
 LABEL org.opencontainers.image.source https://github.com/TobySuch/Shifter
 LABEL org.opencontainers.image.description="Shifter - A simple, self-hosted file-sharing web app, powered by Django"

@@ -19,7 +19,7 @@ services:
     image: ghcr.io/tobysuch/shifter:0.2.0
     restart: always
     volumes:
-      - static:/static
+      - static:/home/app/web/static_root
       - media:/home/app/web/media
       - db:/home/app/web/db # Comment this out if you are using postgres
     expose:

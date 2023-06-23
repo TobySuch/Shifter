@@ -44,10 +44,6 @@ else
     else
         echo "In testing mode - not setting up con."
     fi
-    if [[ -d "/static" ]]
-    then
-        rm -r /static/*
-    fi
-    cp -r $APP_HOME/static_root/* /static
+    python manage.py collectstatic --no-input --clear
 fi
 exec "$@"
