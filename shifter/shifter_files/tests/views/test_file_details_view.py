@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 
+from shifter_site_settings.models import SiteSetting
 from shifter_files.models import FileUpload
 
 TEST_USER_EMAIL = "iama@test.com"
@@ -76,7 +77,7 @@ class FileDetailsViewTest(TestCase):
             upload_datetime=timezone.now(),
             expiry_datetime=timezone.now() + datetime.timedelta(weeks=1),
             filename=TEST_FILE_NAME)
-        file_full_url = settings.SHIFTER_FULL_DOMAIN + reverse(
+        file_full_url = SiteSetting.get_setting("domain") + reverse(
             "shifter_files:file-download-landing",
             args=[file_upload.file_hex])
         url = reverse("shifter_files:file-details",

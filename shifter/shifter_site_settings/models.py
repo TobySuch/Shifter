@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 class SiteSetting(models.Model):
@@ -10,4 +11,8 @@ class SiteSetting(models.Model):
 
     @classmethod
     def get_setting(cls, name: str) -> str:
-        return cls.objects.get(name=name).value
+        try:
+            return cls.objects.get(name=name).value
+        except cls.DoesNotExist:
+            # If the setting doesn't exist, return the default value
+            return settings.SITE_SETTINGS[name]["default"]
