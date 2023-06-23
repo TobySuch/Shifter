@@ -19,7 +19,7 @@
 }
 
 .info-box{
-    @apply rounded text-center font-semibold bg-primary text-white my-2 py-1
+    @apply rounded text-center font-semibold bg-primary text-white p-4 mb-4
 }
 
 [data-filepond-item-state*='error'] .filepond--item-panel,

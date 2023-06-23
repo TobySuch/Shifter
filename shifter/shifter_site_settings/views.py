@@ -20,4 +20,7 @@ class SiteSettingsView(UserPassesTestMixin, FormView):
             setting = SiteSetting.objects.get(name=setting_name)
             setting.value = field.value()
             setting.save()
-        return super().form_valid(form)
+
+        context = self.get_context_data()
+        context["message"] = "Settings Saved!"
+        return self.render_to_response(context)
