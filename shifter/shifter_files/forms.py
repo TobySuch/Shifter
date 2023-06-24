@@ -52,3 +52,18 @@ class FileUploadForm(forms.ModelForm):
                 code='expiry-time-too-far')
 
         return expiry_datetime
+
+    def clean_file_content(self):
+        file_content = self.cleaned_data['file_content']
+        max_file_size_str = SiteSetting.get_setting("max_file_size")
+        if max_file_size_str[-2:] == 'MB':
+            max_file_size = int(max_file_size_str[:-2]) * 1024 * 1024
+        elif max_file_size_str[-2:] == 'KB':
+            max_file_size = int(max_file_size_str[:-2]) * 1024
+
+        if file_content.size > max_file_size:
+            raise ValidationError(
+                "You can't upload a file larger than "
+                f"{max_file_size_str}",
+                code='file-size-too-large')
+        return file_content
