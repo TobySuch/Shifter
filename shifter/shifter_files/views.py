@@ -1,7 +1,7 @@
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import View
 from django.views.generic.edit import FormView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.http import Http404
@@ -136,3 +136,17 @@ class FileDeleteView(DeleteView):
         obj.expiry_datetime = timezone.now()
         obj.save()
         return redirect(self.success_url)
+
+
+class CleanupExpiredFilesView(UserPassesTestMixin, View):
+    http_method_names = ['post']
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def post(self, request, *args, **kwargs):
+        num_files_deleted = FileUpload.delete_expired_files()
+        return JsonResponse({
+            "success": True,
+            "num_files_deleted": num_files_deleted
+        })
