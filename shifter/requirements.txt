@@ -5,4 +5,4 @@ gunicorn==20.1.0
 psycopg==3.1.9
 psycopg-binary==3.1.9
 sqlparse==0.4.4
-typing_extensions==4.7.0
+typing_extensions==4.7.1
