@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "filepond": "^4.30.4",
-    "flowbite": "^1.7.0",
+    "flowbite": "^1.8.1",
     "jszip": "^3.10.1"
   }
 }
