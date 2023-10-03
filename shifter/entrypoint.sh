@@ -24,6 +24,8 @@ fi
 
 python manage.py migrate --no-input
 
+python manage.py createsettings
+
 # If debug mode and env vars are set, create an admin user
 if [ "$DEBUG" = "1" ]
 then

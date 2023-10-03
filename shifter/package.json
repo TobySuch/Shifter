@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "filepond": "^4.30.4",
+    "filepond-plugin-file-validate-size": "^2.2.8",
     "flowbite": "^1.8.1",
     "jszip": "^3.10.1"
   }

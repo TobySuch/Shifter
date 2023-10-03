@@ -15,4 +15,6 @@ urlpatterns = [
          name='file-download'),
     path('files/<str:file_hex>/delete', views.FileDeleteView.as_view(),
          name='file-delete'),
+    path('api/cleanup-files', views.CleanupExpiredFilesView.as_view(),
+         name='cleanup-files'),
 ]

@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 
+from shifter_site_settings.models import SiteSetting
 from shifter_files.models import FileUpload
 
 TEST_USER_EMAIL = "iama@test.com"
@@ -95,7 +96,30 @@ class IndexViewTest(TestCase):
         self.assertJSONEqual(response.content.decode(), {
             'errors': {
                 'expiry_datetime': ["You can't upload a file with an expiry "
-                                    + "time in the past!"]
+                                    + "time in the past."]
+            }
+        })
+        self.assertEqual(FileUpload.objects.count(), 0)
+
+    def test_expiry_date_too_far_future(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        current_datetime = timezone.now()
+        max_expiry_offset = SiteSetting.get_setting("max_expiry_offset")
+        expiry_datetime = current_datetime + datetime.timedelta(
+            hours=int(max_expiry_offset) + 1)
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        response = client.post(reverse("shifter_files:index"), {
+            "expiry_datetime": expiry_datetime.isoformat(
+                sep=' ', timespec='minutes'),
+            "file_content": test_file
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertJSONEqual(response.content.decode(), {
+            'errors': {
+                'expiry_datetime': ["You can't upload a file with an expiry "
+                                    + f"time more than {max_expiry_offset} "
+                                    + "hours in the future."]
             }
         })
         self.assertEqual(FileUpload.objects.count(), 0)

@@ -15,11 +15,16 @@
 }
 
 .error-box{
-    @apply rounded text-center font-semibold bg-red-400
+    @apply rounded text-center font-semibold bg-red-500 text-white p-4 mb-4
 }
 
 .info-box{
-    @apply rounded text-center font-semibold bg-sky-200
+    @apply rounded text-center font-semibold bg-primary text-white p-4 mb-4
+}
+
+[data-filepond-item-state*='error'] .filepond--item-panel,
+[data-filepond-item-state*='invalid'] .filepond--item-panel {
+    @apply bg-red-500
 }
 
 .filepond--panel-root {

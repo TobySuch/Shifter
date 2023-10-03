@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}<title>Site Settings | Shifter</title>{% endblock %}
+
+{% block head %}
+<script src="{% static 'js/cleanupexpiredfiles-bundle.js' %}" type="text/javascript"></script>
+{% endblock %}
+
+{% block content %}
+<div class="standard-page-width">
+    <div class="py-2 rounded-t">
+        <h1 class="title">Site Settings</h1>
+    </div>
+    <div class="p-2">
+        <div class="flex justify-end">
+            <button id="cleanup-expired-files-btn" class="btn-primary">Cleanup Expired Files Now</button>
+        </div>
+        <div id="expired-files-info" class="flex info-box mt-2 hidden" role="alert">
+            <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <span class="sr-only">Info</span>
+            <div id="expired-files-info-msg" class="ml-3 text-sm font-medium text-center">
+            </div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 text-white rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:bg-white hover:text-primary inline-flex h-8 w-8 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700" data-dismiss-target="#expired-files-info" aria-label="Close">
+                <span class="sr-only">Close</span>
+                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+        <form class="space-y-1 flex flex-col gap-3 mt-2" method="post">
+            {% if message %}
+            <div id="info-box" class="flex info-box" role="alert">
+                <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                <span class="sr-only">Info</span>
+                <div class="ml-3 text-sm font-medium text-center">
+                    {{ message }}
+                </div>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 text-white rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:bg-white hover:text-primary inline-flex h-8 w-8 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700" data-dismiss-target="#info-box" aria-label="Close">
+                    <span class="sr-only">Close</span>
+                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+            {% endif %}
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="error-box">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form %}
+            <div>
+                <div class="flex">
+                    <label class="text-gray-800" for="{{ field.id }}">{{ field.label }}</label>
+                    {% if field.errors %}<div class="ml-2 error-box grow">{{ field.errors }}</div>{% endif %}
+                </div>
+                <input name="{{ field.html_name }}" type="text" class="w-full input-primary" {% if field.value %}value="{{ field.value }}"{% endif %}  {% if field.help_text %}data-tooltip-target="tooltip-{{ field.html_name }}" {% endif %}>
+                {% if field.help_text %}
+                <div id="tooltip-{{ field.html_name }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                    {{ field.help_text }}
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <div class="flex justify-end py-2">
+                <input type="submit" value="Save" class="btn-primary">
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    document.getElementById('cleanup-expired-files-btn').addEventListener('click', Shifter.cleanupExpiredFiles);
+</script>
+{% endblock %}

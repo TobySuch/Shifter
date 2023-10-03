@@ -1,8 +1,7 @@
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import View
 from django.views.generic.edit import FormView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.http import Http404
@@ -11,6 +10,7 @@ from django.shortcuts import get_object_or_404, redirect
 
 from .forms import FileUploadForm
 from .models import FileUpload, generate_hex_uuid
+from shifter_site_settings.models import SiteSetting
 
 
 class FileUploadView(LoginRequiredMixin, FormView):
@@ -48,6 +48,12 @@ class FileUploadView(LoginRequiredMixin, FormView):
         return reverse("shifter_files:file-details",
                        args=[self.file_hex])
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["setting_max_file_size"] = SiteSetting.get_setting(
+            "max_file_size")
+        return context
+
 
 class FileListView(LoginRequiredMixin, ListView):
     model = FileUpload
@@ -65,9 +71,10 @@ class FileDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        context['full_download_url'] = settings.SHIFTER_FULL_DOMAIN + reverse(
-            "shifter_files:file-download-landing",
-            args=[self.kwargs["file_hex"]])
+        context['full_download_url'] = (
+            SiteSetting.get_setting("domain") + reverse(
+                "shifter_files:file-download-landing",
+                args=[self.kwargs["file_hex"]]))
         return context
 
     def get_object(self):
@@ -129,3 +136,17 @@ class FileDeleteView(DeleteView):
         obj.expiry_datetime = timezone.now()
         obj.save()
         return redirect(self.success_url)
+
+
+class CleanupExpiredFilesView(UserPassesTestMixin, View):
+    http_method_names = ['post']
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def post(self, request, *args, **kwargs):
+        num_files_deleted = FileUpload.delete_expired_files()
+        return JsonResponse({
+            "success": True,
+            "num_files_deleted": num_files_deleted
+        })

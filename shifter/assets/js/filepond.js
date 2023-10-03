@@ -1,6 +1,31 @@
 import * as FilePond from 'filepond';
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 import JSZip from 'jszip';
 import 'filepond/dist/filepond.min.css';
+
+FilePond.registerPlugin(FilePondPluginFileValidateSize);
+
+function showInfoBox(message) {
+    const errorBox = document.getElementById('error-box')
+    const infoBox = document.getElementById('info-box')
+    const errorBoxMessage = document.getElementById('error-box-message')
+    const infoBoxMessage = document.getElementById('info-box-message')
+    errorBoxMessage.innerHTML = ''
+    infoBoxMessage.innerHTML = message
+    errorBox.classList.add('hidden')
+    infoBox.classList.remove('hidden')
+}
+
+function showErrorBox(message) {
+    const errorBox = document.getElementById('error-box')
+    const infoBox = document.getElementById('info-box')
+    const errorBoxMessage = document.getElementById('error-box-message')
+    const infoBoxMessage = document.getElementById('info-box-message')
+    infoBoxMessage.innerHTML = ''
+    errorBoxMessage.innerHTML = message
+    infoBox.classList.add('hidden')
+    errorBox.classList.remove('hidden')
+}
 
 function combineFiles(pond) {
     let files = pond.getFiles();
@@ -36,11 +61,12 @@ function combineFiles(pond) {
     return Promise.resolve();
 }
 
-export function setupFilepond(filepondElementName, expiryDatetimeElementName) {
+export function setupFilepond(filepondElementName, expiryDatetimeElementName, max_file_size) {
     const inputElement = document.getElementsByName(filepondElementName)[0];
 
     const pond = FilePond.create(inputElement, {
         name: filepondElementName,
+        maxFileSize: max_file_size,
         allowMultiple: true,
         allowProcess: false,
         allowRevert: false,
@@ -66,14 +92,12 @@ export function setupFilepond(filepondElementName, expiryDatetimeElementName) {
                 },
                 onerror: (response) => {
                     console.error(response);
-                    const errorBox = document.getElementById('error-box');
-                    errorBox.innerHTML = '';
-                    document.getElementById('info-box').innerHTML = ''
-
-                    rObj = JSON.parse(response);
+                    const rObj = JSON.parse(response);
+                    let errorMsg = '';
                     for (const [key, value] of Object.entries(rObj.errors)) {
-                        errorBox.innerHTML += value + '<br>';
+                        errorMsg += value + '<br>';
                     }
+                    showErrorBox(errorMsg);
                 }
             },
             fetch: null,
@@ -84,21 +108,14 @@ export function setupFilepond(filepondElementName, expiryDatetimeElementName) {
     const uploadButton = document.getElementById('upload-btn');
 
     uploadButton.addEventListener('click', () => {
-        const errorBox = document.getElementById('error-box')
-        const infoBox = document.getElementById('info-box')
-
         combineFiles(pond).then(() => {
             console.debug("Uploading file")
-            errorBox.innerHTML = ''
-            infoBox.innerHTML = 'Stay on this page until upload is finished'
+            showInfoBox('Stay on this page until upload is finished.')
             uploadButton.disabled = true;
             pond.processFiles();
         }).catch(error => {
-            infoBox.innerHTML = ''
-            errorBox.innerHTML = error
-            setTimeout(() => {
-                errorBox.innerHTML = ''
-            }, 5000)
+            console.error(error)
+            showErrorBox("Error during upload.")
         });
     });
 }

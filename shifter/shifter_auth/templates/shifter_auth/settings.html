@@ -8,8 +8,8 @@
         <h1 class="title">Settings</h1>
     </div>
     <div class="p-2">
-        <h2 class="text-2xl font-medium">Change Password</h2>
-        <p class="border-b-2 border-gray-400 pb-2">After changing your password, you will automatically be logged out and must login with your new password.</p>
+        <h2 class="text-gray-800 text-2xl font-medium">Change Password</h2>
+        <p class="text-gray-800 border-b-2 border-gray-400 pb-2">After changing your password, you will automatically be logged out and must login with your new password.</p>
         {% if user.change_password_on_login %}<div class="my-4 rounded text-center font-semibold border border-blue-600 bg-blue-300">You need to reset your password before you can continue.</div>{% endif %}
         <form class="space-y-1 p2" method="post">
             {% csrf_token %}

@@ -14,6 +14,7 @@ import os
 import logging
 from pathlib import Path
 from datetime import timedelta
+from django import forms
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'shifter_auth',
     'shifter_files',
+    'shifter_site_settings',
 ]
 
 MIDDLEWARE = [
@@ -213,11 +215,36 @@ DATETIME_INPUT_FORMATS = [
     '%Y-%m-%d %H:%M',     # '2006-10-25 14:30'
 ]
 
-SHIFTER_FULL_DOMAIN = os.environ.get("SHIFTER_FULL_DOMAIN",
-                                     default="localhost:1337")
+SITE_SETTINGS = {
+    "domain": {
+        "default": os.environ.get("SHIFTER_FULL_DOMAIN",
+                                  default="localhost:1337"),
+        "label": "Full Domain",
+        "tooltip": "This is prepended to the download URL. Include the \
+            protocol (e.g. https://) and the port if it is not standard."
+    },
+    "max_file_size": {
+        "default": "5120MB",  # 5GB
+        "label": "Maximum File Size",
+        "tooltip": "Enter max size as a number value, followed by either KB \
+            for Kilobytes or MB for Megabytes."
+    },
+    "default_expiry_offset": {
+        "default": 24 * 14,  # 2 weeks
+        "label": "Default Expiry Offset (hours)",
+        "field_type": forms.IntegerField,
+    },
+    "max_expiry_offset": {
+        "default": 24 * 365 * 5,  # 5 years
+        "label": "Maximum Expiry Offset (hours)",
+        "field_type": forms.IntegerField,
+    }
+}
 
 DEFAULT_EXPIRY_OFFSET = timedelta(weeks=2)
 
+
 CRONJOBS = [
-    ('*/59 * * * *', 'shifter_files.cron.delete_expired_files')
+    (os.environ.get("EXPIRED_FILE_CLEANUP_SCHEDULE", "*/15 * * * *"),
+     'shifter_files.cron.delete_expired_files')
 ]
