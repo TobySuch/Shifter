@@ -7,8 +7,10 @@
     <div class="py-2">
         <h1 class="title">Register New User</h1>
     </div>
+    <div>
+        <p class="text-gray-800 border-b-2 border-gray-400 pb-2">New users will be able to upload their own files to share. They will not be able to change site settings, or create new users.</p>
+    </div>
     <div class="p-2">
-        {% if user.change_password_on_login %}<div class="my-4 rounded text-center font-semibold border border-blue-600 bg-blue-300">You need to reset your password before you can continue.</div>{% endif %}
         <form class="space-y-1 p2" method="post">
             {% csrf_token %}
             {% if form.non_field_errors %}<div class="error-box">{{ form.non_field_errors }}</div>{% endif %}
