@@ -2,7 +2,7 @@
 # PYTHON BUILDER #
 ##################
 
-FROM python:3.11-alpine as builder
+FROM python:3.12-alpine as builder
 
 WORKDIR /app
 
@@ -43,7 +43,7 @@ RUN npm run js-build
 #########
 # FINAL #
 #########
-FROM python:3.11-alpine
+FROM python:3.12-alpine
 
 # create directory for the app user
 RUN mkdir -p /home/app
