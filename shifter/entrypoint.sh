@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "Starting Shifter version v$APP_VERSION"
+
 if [ "$DATABASE" = "postgres" ]
 then
     echo "Waiting for postgres..."
@@ -11,7 +13,7 @@ then
     echo "PostgreSQL started"
 elif [ "$DATABASE" = "sqlite" ]
 then
-    echo "Using sqlite"
+    echo "Using sqlite database"
     # Create db folder
     mkdir -p "/app/db"
 fi
@@ -46,6 +48,6 @@ else
     else
         echo "In testing mode - not setting up con."
     fi
-    python manage.py collectstatic --no-input --clear
+    python manage.py collectstatic --no-input --clear > /dev/null
 fi
 exec "$@"

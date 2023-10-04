@@ -44,7 +44,7 @@ RUN npm run js-build
 # FINAL #
 #########
 FROM python:3.12-alpine
-
+ARG APP_VERSION="0.0.0"
 # create directory for the app user
 RUN mkdir -p /home/app
 
@@ -72,9 +72,12 @@ COPY --from=nodebuilder /app/shifter/static/js $APP_HOME/static/js
 COPY --from=nodebuilder /app/shifter/static/css $APP_HOME/static/css
 
 # Labels
+LABEL org.opencontainers.image.title Shifter
 LABEL org.opencontainers.image.source https://github.com/TobySuch/Shifter
 LABEL org.opencontainers.image.description="Shifter - A simple, self-hosted file-sharing web app, powered by Django"
 LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.version=${APP_VERSION}
+ENV APP_VERSION=${APP_VERSION}
 
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME
