@@ -23,7 +23,7 @@ RUN flake8 . --exclude=migrations
 ################
 # NODE BUILDER #
 ################
-FROM node:20 as nodebuilder
+FROM node:21 as nodebuilder
 WORKDIR /app
 
 RUN npm install -g npm
