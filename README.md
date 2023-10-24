@@ -21,6 +21,10 @@
 
 Shifter is a simple self-hosted file-sharing web app built using Django and Tailwind. It allows you to quickly and easily upload files and share download links with others. All uploaded files have an expiration date after which they will be automatically deleted. Please note that the project is currently in early development and not all features are implemented yet, so everything is subject to change.
 
+<p align="center">
+  <img alt="Shifter Demo GIF" src="docs/ShifterDemo.gif"/>
+</p>
+
 ## Built using:
 - [Django 4](https://github.com/django/django)
 - [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss)
