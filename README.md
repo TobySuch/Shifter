@@ -19,20 +19,28 @@
 
 ---
 
-Shifter is a simple self-hosted file-sharing web app built using Django and Tailwind. It allows you to quickly and easily upload files and share download links with others. All uploaded files have an expiration date after which they will be automatically deleted. Please note that the project is currently in early development and not all features are implemented yet, so everything is subject to change.
+Shifter is a simple self-hosted file-sharing web app built using Django and Tailwind. It allows you to quickly and easily upload files and share download links with others.
 
 <p align="center">
   <img alt="Shifter Demo GIF" src="docs/ShifterDemo.gif"/>
 </p>
 
+## Features:
+- Upload files and share download links with others.
+- Upload multiple files and automatically create a zip archive.
+- Files are automatically deleted once they expire.
+- Manage your uploaded files, delete them early.
+- Create multiple accounts to allow others to upload files.
+- Admin interface for managing site settings such as maximum file size and expiry time.
+
 ## Built using:
 - [Django 4](https://github.com/django/django)
-- [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss)
+- [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) + [Flowbite Components](https://github.com/themesberg/flowbite)
 - [Docker](https://github.com/docker)
 - [FilePond](https://github.com/pqina/filepond) + [JSZip](https://github.com/Stuk/jszip)
 
 ## Running in production
-This project is still in development and may not be suitable to use in production yet depending on your requirements. Some features are incomplete or non-existent. Existing features are subject to change and may not be backwards compatible. If you would like to use this project in production, please be aware of this and proceed with caution, especially if you are updating.
+This project is still in development and may not be suitable to use in production yet depending on your requirements. Some features are incomplete or non-existent. Existing features are subject to change and may not be backwards compatible. If you would like to use this project in production, please be aware of this and proceed with caution, especially when you update. Non-backwards compatible changes will be listed in the release notes.
 
 Before you begin, make sure you have installed Docker and Docker Compose on your system. If you're not sure how to do this, refer to the [Docker documentation](https://docs.docker.com/get-docker/) for instructions.
 
@@ -73,4 +81,4 @@ docker compose -f docker/dev/docker-compose.dev.yml up --build
 ```
 4. Once the containers are running, you should be able to access the site in your web browser at `127.0.0.1:8000`. By default, the admin user will automatically be created and you will be able to log in using the credentials you entered in the .env.dev file.
 
-If you are thinking about contributing to this project, please read the [contributing guidelines](CONTRIBUTING.md) for more information.
+If you would like to this project, please read the [contributing guidelines](CONTRIBUTING.md) for more information.
