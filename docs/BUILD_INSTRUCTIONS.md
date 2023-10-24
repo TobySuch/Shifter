@@ -1,5 +1,5 @@
 # Build Instructions
-These instructions are to document the build process for creating a new version of the image to push to the image repository of choice. This is not intended to be a guide for building the image for an end user, or even a developer. This is intended to be a guide for the person who is responsible for building the image and pushing it to the image repository.
+These instructions are to document the build process for creating a new version of the image to push to the image repository of choice. This is not intended to be a guide for building the image for an end user, or even a developer. This is intended to be a guide for the person who is responsible for building the image and pushing it to the image repository. If you are looking to build the project from scratch, check the [README file](/README.md)
 
 ## Pre-build Instructions
 1. Update the version number in the `package.json` and `package-lock.json` files. Commit these changes to the repository.
