@@ -81,4 +81,4 @@ docker compose -f docker/dev/docker-compose.dev.yml up --build
 ```
 4. Once the containers are running, you should be able to access the site in your web browser at `127.0.0.1:8000`. By default, the admin user will automatically be created and you will be able to log in using the credentials you entered in the .env.dev file.
 
-If you would like to this project, please read the [contributing guidelines](CONTRIBUTING.md) for more information.
+If you would like contribute to this project, please read the [contributing guidelines](CONTRIBUTING.md) for more information.
