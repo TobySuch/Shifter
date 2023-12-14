@@ -3,6 +3,6 @@ Django==5.0
 django-crontab==0.7.1
 gunicorn==21.2.0
 psycopg==3.1.15
-psycopg-binary==3.1.14
+psycopg-binary==3.1.15
 sqlparse==0.4.4
 typing_extensions==4.9.0
