@@ -27,7 +27,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "filepond": "^4.30.5",
+    "filepond": "^4.30.6",
     "filepond-plugin-file-validate-size": "^2.2.8",
     "flowbite": "^2.2.1",
     "jszip": "^3.10.1"
