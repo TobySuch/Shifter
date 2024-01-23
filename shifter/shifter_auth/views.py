@@ -24,7 +24,7 @@ class SettingsView(LoginRequiredMixin, FormView):
     success_url = reverse_lazy("shifter_files:index")
 
     def form_valid(self, form):
-        new_password = form.cleaned_data['new_password']
+        new_password = form.cleaned_data["new_password"]
         user = self.request.user
         user.set_password(new_password)
         user.change_password_on_login = False
@@ -37,20 +37,23 @@ class CreateNewUserView(UserPassesTestMixin, FormView):
     template_name = "shifter_auth/new_user.html"
     form_class = NewUserForm
     success_url = reverse_lazy("shifter_files:index")
-    permission_denied_message = "You do not have access to create new users." \
-                                " Please ask an administrator for assistance."
+    permission_denied_message = (
+        "You do not have access to create new users."
+        " Please ask an administrator for assistance."
+    )
 
     def test_func(self):
         return self.request.user.is_staff
 
     def form_valid(self, form):
         User = get_user_model()
-        email = form.cleaned_data['email']
-        password = form.cleaned_data['password']
+        email = form.cleaned_data["email"]
+        password = form.cleaned_data["password"]
         user = User.objects.create_user(email, password)
         user.change_password_on_login = True
         user.save()
-        messages.add_message(self.request, messages.INFO,
-                             'User successfully created.')
+        messages.add_message(
+            self.request, messages.INFO, "User successfully created."
+        )
 
         return super().form_valid(form)

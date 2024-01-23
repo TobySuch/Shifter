@@ -34,8 +34,9 @@ class IndexViewTest(TestCase):
         client = Client()
         response = client.post(reverse("shifter_auth:logout"))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url,
-                         reverse("shifter_auth:login") + "?next=/auth/logout")
+        self.assertEqual(
+            response.url, reverse("shifter_auth:login") + "?next=/auth/logout"
+        )
 
     def test_logout_with_get_request(self):
         client = Client()
@@ -97,10 +98,13 @@ class ChangePasswordViewTest(TestCase):
     def test_successful_form_submit(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        response = client.post(reverse("shifter_auth:settings"), {
-            "new_password": TEST_USER_NEW_PASSWORD,
-            "confirm_password": TEST_USER_NEW_PASSWORD
-        })
+        response = client.post(
+            reverse("shifter_auth:settings"),
+            {
+                "new_password": TEST_USER_NEW_PASSWORD,
+                "confirm_password": TEST_USER_NEW_PASSWORD,
+            },
+        )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("shifter_files:index"))
         self.assertFalse(get_user(client).is_authenticated)
@@ -115,10 +119,13 @@ class ChangePasswordViewTest(TestCase):
     def test_unsuccessful_form_submit(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        response = client.post(reverse("shifter_auth:settings"), {
-            "new_password": TEST_USER_NEW_PASSWORD,
-            "confirm_password": TEST_USER_NEW_PASSWORD + "wrong"
-        })
+        response = client.post(
+            reverse("shifter_auth:settings"),
+            {
+                "new_password": TEST_USER_NEW_PASSWORD,
+                "confirm_password": TEST_USER_NEW_PASSWORD + "wrong",
+            },
+        )
         self.assertEqual(response.status_code, 200)
         self.assertInHTML("Passwords do not match!", response.content.decode())
 
@@ -126,12 +133,11 @@ class ChangePasswordViewTest(TestCase):
 class CreateNewUserViewTest(TestCase):
     def setUp(self):
         User = get_user_model()
-        user = User.objects.create_user(TEST_USER_EMAIL,
-                                        TEST_USER_PASSWORD)
+        user = User.objects.create_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
         user.save()
-        staff_user = User.objects.create_user(TEST_STAFF_USER_EMAIL,
-                                              TEST_USER_PASSWORD,
-                                              is_staff=True)
+        staff_user = User.objects.create_user(
+            TEST_STAFF_USER_EMAIL, TEST_USER_PASSWORD, is_staff=True
+        )
         staff_user.save()
 
     def test_page_load_not_staff(self):
@@ -139,9 +145,11 @@ class CreateNewUserViewTest(TestCase):
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         response = client.get(reverse("shifter_auth:create-new-user"))
         self.assertEqual(response.status_code, 403)
-        self.assertInHTML("You do not have access to create new users."
-                          " Please ask an administrator for assistance.",
-                          response.content.decode())
+        self.assertInHTML(
+            "You do not have access to create new users."
+            " Please ask an administrator for assistance.",
+            response.content.decode(),
+        )
 
     def test_page_load(self):
         client = Client()
@@ -152,11 +160,14 @@ class CreateNewUserViewTest(TestCase):
     def test_create_new_user(self):
         client = Client()
         client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
-        response = client.post(reverse("shifter_auth:create-new-user"), {
-            "email": TEST_ADDITIONAL_USER_EMAIL,
-            "password": TEST_USER_PASSWORD,
-            "confirm_password": TEST_USER_PASSWORD
-        })
+        response = client.post(
+            reverse("shifter_auth:create-new-user"),
+            {
+                "email": TEST_ADDITIONAL_USER_EMAIL,
+                "password": TEST_USER_PASSWORD,
+                "confirm_password": TEST_USER_PASSWORD,
+            },
+        )
         self.assertEqual(response.status_code, 302)
 
         User = get_user_model()
@@ -167,11 +178,14 @@ class CreateNewUserViewTest(TestCase):
     def test_new_user_already_exists(self):
         client = Client()
         client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
-        response = client.post(reverse("shifter_auth:create-new-user"), {
-            "email": TEST_USER_EMAIL,
-            "password": TEST_USER_PASSWORD,
-            "confirm_password": TEST_USER_PASSWORD
-        })
+        response = client.post(
+            reverse("shifter_auth:create-new-user"),
+            {
+                "email": TEST_USER_EMAIL,
+                "password": TEST_USER_PASSWORD,
+                "confirm_password": TEST_USER_PASSWORD,
+            },
+        )
         self.assertEqual(response.status_code, 200)
         self.assertInHTML("Email already taken!", response.content.decode())
 
@@ -181,38 +195,47 @@ class CreateNewUserViewTest(TestCase):
     def test_new_user_passwords_dont_match(self):
         client = Client()
         client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
-        response = client.post(reverse("shifter_auth:create-new-user"), {
-            "email": TEST_ADDITIONAL_USER_EMAIL,
-            "password": TEST_USER_PASSWORD,
-            "confirm_password": TEST_USER_PASSWORD + "_wrong"
-        })
+        response = client.post(
+            reverse("shifter_auth:create-new-user"),
+            {
+                "email": TEST_ADDITIONAL_USER_EMAIL,
+                "password": TEST_USER_PASSWORD,
+                "confirm_password": TEST_USER_PASSWORD + "_wrong",
+            },
+        )
         self.assertEqual(response.status_code, 200)
         self.assertInHTML("Passwords do not match!", response.content.decode())
 
         User = get_user_model()
-        self.assertEqual(User.objects.filter(
-            email=TEST_ADDITIONAL_USER_EMAIL).count(), 0)
+        self.assertEqual(
+            User.objects.filter(email=TEST_ADDITIONAL_USER_EMAIL).count(), 0
+        )
 
     def test_new_user_not_staff(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        response = client.post(reverse("shifter_auth:create-new-user"), {
-            "email": TEST_ADDITIONAL_USER_EMAIL,
-            "password": TEST_USER_PASSWORD,
-            "confirm_password": TEST_USER_PASSWORD
-        })
+        response = client.post(
+            reverse("shifter_auth:create-new-user"),
+            {
+                "email": TEST_ADDITIONAL_USER_EMAIL,
+                "password": TEST_USER_PASSWORD,
+                "confirm_password": TEST_USER_PASSWORD,
+            },
+        )
         self.assertEqual(response.status_code, 403)
 
         User = get_user_model()
-        self.assertEqual(User.objects.filter(
-            email=TEST_ADDITIONAL_USER_EMAIL).count(), 0)
+        self.assertEqual(
+            User.objects.filter(email=TEST_ADDITIONAL_USER_EMAIL).count(), 0
+        )
 
 
 class ActivateTimezoneMiddlewareTest(TestCase):
     def setUp(self):
         User = get_user_model()
-        self.user = User.objects.create_user(TEST_USER_EMAIL,
-                                             TEST_USER_PASSWORD)
+        self.user = User.objects.create_user(
+            TEST_USER_EMAIL, TEST_USER_PASSWORD
+        )
         self.user.save()
 
         self.current_time = timezone.now()
@@ -220,16 +243,21 @@ class ActivateTimezoneMiddlewareTest(TestCase):
 
         test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
         self.test_file = FileUpload.objects.create(
-            owner=self.user, file_content=test_file,
+            owner=self.user,
+            file_content=test_file,
             upload_datetime=self.current_time,
             expiry_datetime=self.expiry_time,
-            filename=TEST_FILE_NAME)
+            filename=TEST_FILE_NAME,
+        )
 
     def test_no_cookie(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        response = client.get(reverse("shifter_files:file-details",
-                                      args=[self.test_file.file_hex]))
+        response = client.get(
+            reverse(
+                "shifter_files:file-details", args=[self.test_file.file_hex]
+            )
+        )
         self.assertContains(response, format_datetime(self.current_time))
         self.assertContains(response, format_datetime(self.expiry_time))
 
@@ -237,13 +265,18 @@ class ActivateTimezoneMiddlewareTest(TestCase):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         client.cookies["django_timezone"] = "Asia/Kolkata"
-        response = client.get(reverse("shifter_files:file-details",
-                                      args=[self.test_file.file_hex]))
+        response = client.get(
+            reverse(
+                "shifter_files:file-details", args=[self.test_file.file_hex]
+            )
+        )
         tz = zoneinfo.ZoneInfo("Asia/Kolkata")
         current_time_ist = timezone.make_aware(
-            timezone.make_naive(self.current_time), tz)
+            timezone.make_naive(self.current_time), tz
+        )
         expiry_time_ist = timezone.make_aware(
-            timezone.make_naive(self.expiry_time), tz)
+            timezone.make_naive(self.expiry_time), tz
+        )
         self.assertContains(response, format_datetime(current_time_ist))
         self.assertContains(response, format_datetime(expiry_time_ist))
 
@@ -251,13 +284,18 @@ class ActivateTimezoneMiddlewareTest(TestCase):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         client.cookies["django_timezone"] = "America/New_York"
-        response = client.get(reverse("shifter_files:file-details",
-                                      args=[self.test_file.file_hex]))
+        response = client.get(
+            reverse(
+                "shifter_files:file-details", args=[self.test_file.file_hex]
+            )
+        )
         tz = zoneinfo.ZoneInfo("America/New_York")
         current_time_est = timezone.make_aware(
-            timezone.make_naive(self.current_time), tz)
+            timezone.make_naive(self.current_time), tz
+        )
         expiry_time_est = timezone.make_aware(
-            timezone.make_naive(self.expiry_time), tz)
+            timezone.make_naive(self.expiry_time), tz
+        )
         self.assertContains(response, format_datetime(current_time_est))
         self.assertContains(response, format_datetime(expiry_time_est))
 
@@ -267,20 +305,31 @@ class ActivateTimezoneMiddlewareTest(TestCase):
         client.cookies["django_timezone"] = "Asia/Kolkata"
         tz = zoneinfo.ZoneInfo("Asia/Kolkata")
         expiry_time_ist = timezone.make_aware(
-            timezone.make_naive(self.expiry_time), tz)
+            timezone.make_naive(self.expiry_time), tz
+        )
 
         test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
-        response = client.post(reverse("shifter_files:index"), {
-            "expiry_datetime": expiry_time_ist.isoformat(
-                sep=' ', timespec='minutes'),
-            "file_content": test_file
-        })
+        response = client.post(
+            reverse("shifter_files:index"),
+            {
+                "expiry_datetime": expiry_time_ist.isoformat(
+                    sep=" ", timespec="minutes"
+                ),
+                "file_content": test_file,
+            },
+        )
         self.assertEqual(response.status_code, 200)
 
         file_upload = FileUpload.objects.first()
         self.assertEqual(file_upload.filename, TEST_FILE_NAME)
         self.assertEqual(file_upload.owner, self.user)
-        self.assertAlmostEqual(file_upload.upload_datetime, self.current_time,
-                               delta=datetime.timedelta(minutes=1))
-        self.assertAlmostEqual(file_upload.expiry_datetime, self.expiry_time,
-                               delta=datetime.timedelta(minutes=1))
+        self.assertAlmostEqual(
+            file_upload.upload_datetime,
+            self.current_time,
+            delta=datetime.timedelta(minutes=1),
+        )
+        self.assertAlmostEqual(
+            file_upload.expiry_datetime,
+            self.expiry_time,
+            delta=datetime.timedelta(minutes=1),
+        )

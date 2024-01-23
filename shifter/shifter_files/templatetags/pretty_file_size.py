@@ -22,4 +22,4 @@ def pretty_file_size(value):
         return f"{terabytes}TB"
 
 
-register.filter('pretty_file_size', pretty_file_size)
+register.filter("pretty_file_size", pretty_file_size)

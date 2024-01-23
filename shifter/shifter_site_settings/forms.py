@@ -11,11 +11,11 @@ class SiteSettingsForm(forms.Form):
         for setting in SiteSetting.objects.all():
             setting_config: dict = settings.SITE_SETTINGS[setting.name]
             label = setting_config["label"]
-            form_field_type = setting_config.get("field_type",
-                                                 forms.CharField)
+            form_field_type = setting_config.get("field_type", forms.CharField)
             self.fields[f"setting_{setting.name}"] = form_field_type(
                 label=label, initial=setting.value
             )
             if "tooltip" in setting_config:
-                self.fields[f"setting_{setting.name}"].help_text = \
-                    setting_config["tooltip"]
+                self.fields[
+                    f"setting_{setting.name}"
+                ].help_text = setting_config["tooltip"]
