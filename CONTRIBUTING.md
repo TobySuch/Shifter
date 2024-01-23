@@ -7,7 +7,7 @@ Thanks for considering contributing to this project! I really appreciate any and
 2. Create a new branch with a descriptive name for what you will be working on.
 3. Install the project dependencies. Currently, we only support Docker, so you will need an up-to-date version of Docker and Docker Compose to run it. However, the rest of the dependencies will be installed for you. If you don't want to use Docker, you should be able to install the dependencies from the `requirement.txt` and `package.json` files.
 4. Write your code! Don't forget to write unit tests if they apply.
-5. Before submitting your pull request, make sure your code works. You can run the flake8 tests and the unit tests with the following command:
+5. Before submitting your pull request, make sure your code works. You can check your linting and the unit tests with the following command:
 ```
 docker compose -f docker/dev/docker-compose.test.yml build && docker compose -f docker/dev/docker-compose.test.yml run web; docker compose -f docker/dev/docker-compose.test.yml down
 ```
