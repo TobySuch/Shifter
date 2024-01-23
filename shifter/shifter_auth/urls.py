@@ -1,6 +1,7 @@
-from django.urls import path
 from django.contrib.auth.views import LoginView
-from .views import logoutView, SettingsView, CreateNewUserView
+from django.urls import path
+
+from .views import CreateNewUserView, SettingsView, logoutView
 
 app_name = "shifter_auth"
 urlpatterns = [

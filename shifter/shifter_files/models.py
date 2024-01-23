@@ -1,11 +1,11 @@
 import uuid
 
-from django.db import models
 from django.conf import settings
+from django.db import models
+from django.db.models.functions import Now
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
-from django.db.models.functions import Now
 
 
 def generate_hex_uuid():

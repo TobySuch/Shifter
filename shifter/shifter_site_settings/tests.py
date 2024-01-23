@@ -1,9 +1,9 @@
 from io import StringIO
 
-from django.test import TestCase, Client
 from django.conf import settings
-from django.core.management import call_command
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from shifter_site_settings.models import SiteSetting

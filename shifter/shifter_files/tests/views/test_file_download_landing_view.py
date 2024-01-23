@@ -1,12 +1,12 @@
 import datetime
 from shutil import rmtree
 
-from django.test import TestCase, Client
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.conf import settings
 
 from shifter_files.models import FileUpload
 

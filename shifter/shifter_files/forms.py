@@ -1,12 +1,14 @@
 from datetime import timedelta
+
 from django import forms
 from django.conf import settings
-from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+
+from shifter_site_settings.models import SiteSetting
 
 from .models import FileUpload
 from .widgets import ShifterDateTimeInput
-from shifter_site_settings.models import SiteSetting
 
 
 class FileUploadForm(forms.ModelForm):

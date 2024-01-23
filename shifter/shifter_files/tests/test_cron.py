@@ -2,15 +2,14 @@ import datetime
 import pathlib
 from shutil import rmtree
 
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.utils import timezone
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
+from django.utils import timezone
 
-from shifter_files.models import FileUpload
 from shifter_files.cron import delete_expired_files
-
+from shifter_files.models import FileUpload
 
 TEST_USER_EMAIL = "iama@test.com"
 TEST_USER_PASSWORD = "mytemporarypassword"

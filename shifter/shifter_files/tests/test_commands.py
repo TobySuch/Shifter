@@ -1,13 +1,13 @@
-from io import StringIO
 import datetime
+from io import StringIO
 from shutil import rmtree
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.test import TestCase
-from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.conf import settings
 
 from shifter_files.models import FileUpload
 

@@ -2,4 +2,4 @@
 line-length = 79
 
 [tool.ruff.lint]
-select = ["E", "F"]
+extend-select = ["E", "F", "I"]

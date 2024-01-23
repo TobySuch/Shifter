@@ -1,16 +1,16 @@
-from django.views.generic import ListView, DetailView
-from django.views.generic.base import View
-from django.views.generic.edit import FormView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import FileResponse, Http404, JsonResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.http import Http404
-from django.http import JsonResponse, FileResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.views.generic import DetailView, ListView
+from django.views.generic.base import View
+from django.views.generic.edit import DeleteView, FormView
+
+from shifter_site_settings.models import SiteSetting
 
 from .forms import FileUploadForm
 from .models import FileUpload, generate_hex_uuid
-from shifter_site_settings.models import SiteSetting
 
 
 class FileUploadView(LoginRequiredMixin, FormView):
