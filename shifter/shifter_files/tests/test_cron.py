@@ -2,15 +2,14 @@ import datetime
 import pathlib
 from shutil import rmtree
 
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.utils import timezone
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
+from django.utils import timezone
 
-from shifter_files.models import FileUpload
 from shifter_files.cron import delete_expired_files
-
+from shifter_files.models import FileUpload
 
 TEST_USER_EMAIL = "iama@test.com"
 TEST_USER_PASSWORD = "mytemporarypassword"
@@ -22,8 +21,9 @@ TEST_FILE_CONTENT = b"Hello, World!"
 class DeleteExpiredFilesTest(TestCase):
     def setUp(self):
         User = get_user_model()
-        self.user = User.objects.create_user(TEST_USER_EMAIL,
-                                             TEST_USER_PASSWORD)
+        self.user = User.objects.create_user(
+            TEST_USER_EMAIL, TEST_USER_PASSWORD
+        )
 
     def tearDown(self):
         rmtree(settings.MEDIA_ROOT, ignore_errors=True)
@@ -31,10 +31,12 @@ class DeleteExpiredFilesTest(TestCase):
     def test_expired_file_delete(self):
         test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
         FileUpload.objects.create(
-            owner=self.user, file_content=test_file,
+            owner=self.user,
+            file_content=test_file,
             upload_datetime=timezone.now(),
             expiry_datetime=timezone.now() - datetime.timedelta(days=1),
-            filename=TEST_FILE_NAME)
+            filename=TEST_FILE_NAME,
+        )
 
         path = pathlib.Path("media/uploads/" + TEST_FILE_NAME)
 

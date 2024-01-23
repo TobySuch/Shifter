@@ -13,12 +13,12 @@ ENV PYTHONUNBUFFERED 1
 RUN apk add --update postgresql-dev gcc python3-dev musl-dev
 
 RUN pip install --upgrade pip
-RUN pip install flake8
+RUN pip install ruff
 COPY ./shifter/requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
 
 COPY ./shifter/ .
-RUN flake8 . --exclude=migrations
+RUN ruff check --show-source .
 
 ################
 # NODE BUILDER #

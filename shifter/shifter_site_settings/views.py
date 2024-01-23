@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.views.generic import FormView
 from django.urls import reverse_lazy
+from django.views.generic import FormView
+
 from .forms import SiteSettingsForm
 from .models import SiteSetting
 

@@ -1,16 +1,16 @@
-from django.views.generic import ListView, DetailView
-from django.views.generic.base import View
-from django.views.generic.edit import FormView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import FileResponse, Http404, JsonResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.http import Http404
-from django.http import JsonResponse, FileResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.views.generic import DetailView, ListView
+from django.views.generic.base import View
+from django.views.generic.edit import DeleteView, FormView
+
+from shifter_site_settings.models import SiteSetting
 
 from .forms import FileUploadForm
 from .models import FileUpload, generate_hex_uuid
-from shifter_site_settings.models import SiteSetting
 
 
 class FileUploadView(LoginRequiredMixin, FormView):
@@ -26,44 +26,44 @@ class FileUploadView(LoginRequiredMixin, FormView):
 
         upload_datetime = timezone.now()
         expiry_datetime = form.cleaned_data["expiry_datetime"]
-        file_upload = FileUpload(owner=owner, file_content=file,
-                                 upload_datetime=upload_datetime,
-                                 expiry_datetime=expiry_datetime,
-                                 filename=filename, file_hex=file_hex)
+        file_upload = FileUpload(
+            owner=owner,
+            file_content=file,
+            upload_datetime=upload_datetime,
+            expiry_datetime=expiry_datetime,
+            filename=filename,
+            file_hex=file_hex,
+        )
         file_upload.save()
         self.file_hex = file_upload.file_hex
 
-        response = {
-            "redirect_url": self.get_success_url()
-        }
+        response = {"redirect_url": self.get_success_url()}
         return JsonResponse(response)
 
     def form_invalid(self, form):
-        response = {
-            "errors": form.errors
-        }
+        response = {"errors": form.errors}
         return JsonResponse(response, status=400)
 
     def get_success_url(self):
-        return reverse("shifter_files:file-details",
-                       args=[self.file_hex])
+        return reverse("shifter_files:file-details", args=[self.file_hex])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["setting_max_file_size"] = SiteSetting.get_setting(
-            "max_file_size")
+            "max_file_size"
+        )
         return context
 
 
 class FileListView(LoginRequiredMixin, ListView):
     model = FileUpload
-    ordering = 'upload_datetime'
+    ordering = "upload_datetime"
 
     def get_queryset(self):
         current_datetime = timezone.now()
         return FileUpload.objects.filter(
-            owner=self.request.user,
-            expiry_datetime__gte=current_datetime).order_by(self.ordering)
+            owner=self.request.user, expiry_datetime__gte=current_datetime
+        ).order_by(self.ordering)
 
 
 class FileDetailView(LoginRequiredMixin, DetailView):
@@ -71,10 +71,12 @@ class FileDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        context['full_download_url'] = (
-            SiteSetting.get_setting("domain") + reverse(
-                "shifter_files:file-download-landing",
-                args=[self.kwargs["file_hex"]]))
+        context["full_download_url"] = SiteSetting.get_setting(
+            "domain"
+        ) + reverse(
+            "shifter_files:file-download-landing",
+            args=[self.kwargs["file_hex"]],
+        )
         return context
 
     def get_object(self):
@@ -88,15 +90,18 @@ class FileDetailView(LoginRequiredMixin, DetailView):
 
 
 class FileDownloadView(View):
-    http_method_names = ['get', 'head', 'options']
+    http_method_names = ["get", "head", "options"]
 
     def setup(self, request, *args, **kwargs):
         self.obj = get_object_or_404(FileUpload, file_hex=kwargs["file_hex"])
         return super().setup(request, args, kwargs)
 
     def get(self, request, *args, **kwargs):
-        return FileResponse(self.obj.file_content, as_attachment=True,
-                            filename=self.obj.filename)
+        return FileResponse(
+            self.obj.file_content,
+            as_attachment=True,
+            filename=self.obj.filename,
+        )
 
 
 class FileDownloadLandingView(DetailView):
@@ -128,8 +133,11 @@ class FileDeleteView(DeleteView):
         return obj
 
     def get(self, *args, **kwargs):
-        return redirect(reverse("shifter_files:file-details",
-                                args=[self.kwargs['file_hex']]))
+        return redirect(
+            reverse(
+                "shifter_files:file-details", args=[self.kwargs["file_hex"]]
+            )
+        )
 
     def post(self, *args, **kwargs):
         obj = self.get_object()
@@ -139,14 +147,13 @@ class FileDeleteView(DeleteView):
 
 
 class CleanupExpiredFilesView(UserPassesTestMixin, View):
-    http_method_names = ['post']
+    http_method_names = ["post"]
 
     def test_func(self):
         return self.request.user.is_staff
 
     def post(self, request, *args, **kwargs):
         num_files_deleted = FileUpload.delete_expired_files()
-        return JsonResponse({
-            "success": True,
-            "num_files_deleted": num_files_deleted
-        })
+        return JsonResponse(
+            {"success": True, "num_files_deleted": num_files_deleted}
+        )

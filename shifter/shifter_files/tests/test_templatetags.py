@@ -24,8 +24,7 @@ class PrettyFileSizeTest(TestCase):
 
     def test_gigabytes(self):
         self.assertEqual(pretty_file_size(gigabyte), "1GB")
-        self.assertEqual(pretty_file_size(terabyte - 1),
-                         "999GB")
+        self.assertEqual(pretty_file_size(terabyte - 1), "999GB")
 
     def test_terabytes(self):
         self.assertEqual(pretty_file_size(terabyte), "1TB")
