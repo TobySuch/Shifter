@@ -13,7 +13,8 @@ ENV PYTHONUNBUFFERED 1
 RUN apk add --update postgresql-dev gcc python3-dev musl-dev
 
 RUN pip install --upgrade pip
-RUN pip install ruff
+COPY ./shifter/requirements_dev.txt .
+RUN pip install -r requirements_dev.txt
 COPY ./shifter/requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
 
