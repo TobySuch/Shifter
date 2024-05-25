@@ -18,6 +18,11 @@ updates:
       - "dependencies"
     commit-message:
       prefix: ":arrow_up:"
+    groups:
+      python-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
 
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/shifter" # Location of package manifests
@@ -32,6 +37,11 @@ updates:
       - "dependencies"
     commit-message:
       prefix: ":arrow_up:"
+    groups:
+      js-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
 
   - package-ecosystem: "docker"
     directory: "/docker"
@@ -45,7 +55,12 @@ updates:
       - "dependencies"
     commit-message:
       prefix: ":arrow_up:"
-  
+    groups:
+      docker-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
   - package-ecosystem: "docker"
     directory: "/docker/dev"
     schedule:
@@ -58,3 +73,8 @@ updates:
       - "dependencies"
     commit-message:
       prefix: ":arrow_up:"
+    groups:
+      docker-dev-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
