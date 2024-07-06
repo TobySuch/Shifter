@@ -2,7 +2,7 @@
 # PYTHON BUILDER #
 ##################
 
-FROM python:3.12-alpine as builder
+FROM python:3.12-alpine AS builder
 
 WORKDIR /app
 
@@ -19,12 +19,12 @@ COPY ./shifter/requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
 
 COPY ./shifter/ .
-RUN ruff check --show-source .
+RUN ruff check .
 
 ################
 # NODE BUILDER #
 ################
-FROM node:22 as nodebuilder
+FROM node:22 AS nodebuilder
 WORKDIR /app
 
 RUN npm install -g npm
