@@ -4,5 +4,5 @@ django-crontab==0.7.1
 gunicorn==22.0.0
 psycopg==3.2.1
 psycopg-binary==3.2.1
-sqlparse==0.5.0
+sqlparse==0.5.1
 typing_extensions==4.12.2
