@@ -1,7 +1,7 @@
 asgiref==3.8.1
-Django==5.0.7
+Django==5.1
 django-crontab==0.7.1
-gunicorn==22.0.0
+gunicorn==23.0.0
 psycopg==3.2.1
 psycopg-binary==3.2.1
 sqlparse==0.5.1
