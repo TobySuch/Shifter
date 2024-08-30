@@ -1,1 +1,1 @@
-import 'flowbite';
+import "flowbite";

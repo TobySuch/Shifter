@@ -1,14 +1,14 @@
 module.exports = {
-  entry:{
-    flowbite: '/app/shifter/assets/js/flowbite.js',
-    filepond: '/app/shifter/assets/js/filepond.js',
-    cleanupexpiredfiles: '/app/shifter/assets/js/cleanup-expired-files.js',
+  entry: {
+    flowbite: "/app/shifter/assets/js/flowbite.js",
+    filepond: "/app/shifter/assets/js/filepond.js",
+    cleanupexpiredfiles: "/app/shifter/assets/js/cleanup-expired-files.js",
   },
   output: {
-    filename: '[name]-bundle.js',
-    path: '/app/shifter/static/js',
-    library: 'Shifter',
-    libraryTarget: 'var'
+    filename: "[name]-bundle.js",
+    path: "/app/shifter/static/js",
+    library: "Shifter",
+    libraryTarget: "var",
   },
   module: {
     rules: [
