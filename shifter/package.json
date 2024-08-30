@@ -1,6 +1,6 @@
 {
   "name": "shifter",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A simple, self-hosted file-sharing web app, powered by Django.",
   "scripts": {
     "tailwind-dev": "npx tailwindcss -i /app/shifter/assets/css/style.css -o /app/shifter/static/css/style.css --watch",
