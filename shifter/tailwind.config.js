@@ -8,12 +8,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'primary': '#114c92',
-      }
+        primary: "#114c92",
+      },
     },
   },
-  plugins: [
-    require('flowbite/plugin'),
-  ],
-}
-
+  plugins: [require("flowbite/plugin")],
+};
