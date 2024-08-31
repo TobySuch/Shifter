@@ -57,9 +57,11 @@
                     </ul>
                 </div>
                 {% else %}
-                <a href="{% url 'shifter_auth:login' %}" class="flex">
-                    <span class="btn-primary">Sign In</span>
-                </a>
+                    {% if request.resolver_match.url_name != 'login' %}
+                    <a href="{% url 'shifter_auth:login' %}" class="flex">
+                        <span class="btn-primary">Sign In</span>
+                    </a>
+                    {% endif %}
                 {% endif %}
             </div>
         </nav>
