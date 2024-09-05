@@ -15,7 +15,7 @@ services:
   #   env_file:
   #     - ../.env
   web:
-    image: ghcr.io/tobysuch/shifter:0.3.0
+    image: ghcr.io/tobysuch/shifter:0.3.1
     restart: always
     volumes:
       - static:/home/app/web/static_root
