@@ -58,6 +58,7 @@ class FileUploadView(LoginRequiredMixin, FormView):
 class FileListView(LoginRequiredMixin, ListView):
     model = FileUpload
     ordering = "upload_datetime"
+    paginate_by = 10
 
     def get_queryset(self):
         current_datetime = timezone.now()
