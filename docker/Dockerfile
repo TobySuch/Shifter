@@ -24,7 +24,7 @@ RUN ruff check .
 ################
 # NODE BUILDER #
 ################
-FROM node:22 AS nodebuilder
+FROM node:23 AS nodebuilder
 WORKDIR /app
 
 RUN npm install -g npm
