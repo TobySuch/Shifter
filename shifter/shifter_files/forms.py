@@ -18,7 +18,7 @@ class FileUploadForm(forms.ModelForm):
         widgets = {
             "expiry_datetime": ShifterDateTimeInput(
                 attrs={
-                    "class": ("input-primary"),
+                    "class": ("input-primary localized-time"),
                 }
             )
         }
@@ -30,9 +30,11 @@ class FileUploadForm(forms.ModelForm):
         )
         exp_date_str = exp_date.strftime(settings.DATETIME_INPUT_FORMATS[0])
         self.fields["expiry_datetime"].initial = exp_date_str
-        self.fields["expiry_datetime"].widget.attrs[
-            "min"
-        ] = timezone.now().strftime(settings.DATETIME_INPUT_FORMATS[0])
+        exp_date_min = timezone.now()
+        exp_date_min_str = exp_date_min.strftime(
+            settings.DATETIME_INPUT_FORMATS[0]
+        )
+        self.fields["expiry_datetime"].widget.attrs["min"] = exp_date_min_str
         exp_date_max = timezone.now() + timedelta(
             hours=int(SiteSetting.get_setting("max_expiry_offset"))
         )
@@ -40,6 +42,15 @@ class FileUploadForm(forms.ModelForm):
             settings.DATETIME_INPUT_FORMATS[0]
         )
         self.fields["expiry_datetime"].widget.attrs["max"] = exp_date_max_str
+        self.fields["expiry_datetime"].widget.attrs["data-initial-iso"] = (
+            exp_date.isoformat()
+        )
+        self.fields["expiry_datetime"].widget.attrs["data-min-iso"] = (
+            exp_date_min.isoformat()
+        )
+        self.fields["expiry_datetime"].widget.attrs["data-max-iso"] = (
+            exp_date_max.isoformat()
+        )
 
     def clean_expiry_datetime(self):
         expiry_datetime = self.cleaned_data["expiry_datetime"]
