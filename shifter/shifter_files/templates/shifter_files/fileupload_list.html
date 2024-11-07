@@ -20,8 +20,8 @@
                 {% for file in object_list %}
                 <tr class="hover:bg-slate-200 cursor-pointer" onclick="window.location='{% url 'shifter_files:file-details' file_hex=file.file_hex %}';">
                     <td class="py-3">{{ file.filename }}</td>
-                    <td class="py-3 hidden md:table-cell">{{ file.upload_datetime|date:"M j, Y, g:i A" }}</td>
-                    <td class="py-3 hidden md:table-cell">{{ file.expiry_datetime|date:"M j, Y, g:i A" }}</td>
+                    <td class="localized-time py-3 hidden md:table-cell" data-iso-time="{{ file.upload_datetime|date:"c" }}">{{ file.upload_datetime|date:"M j, Y, g:i A T" }}</td>
+                    <td class="localized-time py-3 hidden md:table-cell" data-iso-time="{{ file.expiry_datetime|date:"c" }}">{{ file.expiry_datetime|date:"M j, Y, g:i A T" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
