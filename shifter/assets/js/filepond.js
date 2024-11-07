@@ -88,17 +88,17 @@ export function setupFilepond(
         },
         timeout: 300 * 1000, // 5 minutes
         ondata: (formData) => {
+          let expiryFormField = document.querySelector(
+            'input[name="' + expiryDatetimeElementName + '"]'
+          );
+          let expiryDateTime = new Date(expiryFormField.value);
+
           // Add the rest of the form data
           formData.append(
             "csrfmiddlewaretoken",
             document.querySelector('input[name="csrfmiddlewaretoken"]').value
           );
-          formData.append(
-            "expiry_datetime",
-            document.querySelector(
-              'input[name="' + expiryDatetimeElementName + '"]'
-            ).value
-          );
+          formData.append("expiry_datetime", expiryDateTime.toISOString());
           return formData;
         },
         onload: (response) => {

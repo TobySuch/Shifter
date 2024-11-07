@@ -3,6 +3,7 @@ module.exports = {
     flowbite: "/app/shifter/assets/js/flowbite.js",
     filepond: "/app/shifter/assets/js/filepond.js",
     cleanupexpiredfiles: "/app/shifter/assets/js/cleanup-expired-files.js",
+    timezoneutils: "/app/shifter/assets/js/timezone-utils.js",
   },
   output: {
     filename: "[name]-bundle.js",
