@@ -18,7 +18,7 @@ class FileUploadForm(forms.ModelForm):
         widgets = {
             "expiry_datetime": ShifterDateTimeInput(
                 attrs={
-                    "class": ("input-primary localized-time"),
+                    "class": ("input-primary localized-time flex-grow"),
                 }
             )
         }

@@ -52,14 +52,27 @@ function combineFiles(pond) {
     return Promise.all(promises).then(async () => {
       await pond.removeFiles();
       let blob = await zip.generateAsync({ type: "blob" });
+      let zipFileNameFormElement = document.getElementById("zip-file-name");
+      let zipFileName = zipFileNameFormElement.value;
       await pond.addFile(
-        new File([blob], "combined.zip", { type: "application/zip" })
+        new File([blob], zipFileName + ".zip", { type: "application/zip" })
       );
     });
   }
 
   // If there is only one file, do nothing
   return Promise.resolve();
+}
+
+function handleFilesChanged(pond) {
+  const numFiles = pond.getFiles().length;
+  const zipFileName = document.getElementById("zip-file-name").parentElement;
+
+  if (numFiles > 1) {
+    zipFileName.classList.remove("hidden");
+  } else {
+    zipFileName.classList.add("hidden");
+  }
 }
 
 export function setupFilepond(
@@ -134,5 +147,9 @@ export function setupFilepond(
         console.error(error);
         showErrorBox("Error during upload.");
       });
+  });
+
+  pond.on("updatefiles", () => {
+    handleFilesChanged(pond);
   });
 }
