@@ -1,11 +1,12 @@
 import datetime
 import pathlib
+import tempfile
 from shutil import rmtree
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from shifter_files.models import FileUpload
@@ -17,6 +18,7 @@ TEST_FILE_NAME = "mytestfile.txt"
 TEST_FILE_CONTENT = b"Hello, World!"
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class FileUploadModelTest(TestCase):
     def setUp(self):
         User = get_user_model()
@@ -54,7 +56,7 @@ class FileUploadModelTest(TestCase):
             delta=datetime.timedelta(minutes=1),
         )
         # Ensure file has been uploaded to the correct location
-        path = pathlib.Path("media/uploads/" + TEST_FILE_NAME)
+        path = pathlib.Path(settings.MEDIA_ROOT + "/uploads/" + TEST_FILE_NAME)
         self.assertTrue(path.is_file())
 
     def test_is_expired_false(self):

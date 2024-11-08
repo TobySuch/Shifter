@@ -1,11 +1,12 @@
 import datetime
 import pathlib
+import tempfile
 from shutil import rmtree
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from shifter_files.cron import delete_expired_files
@@ -18,6 +19,7 @@ TEST_FILE_NAME = "mytestfile.txt"
 TEST_FILE_CONTENT = b"Hello, World!"
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class DeleteExpiredFilesTest(TestCase):
     def setUp(self):
         User = get_user_model()

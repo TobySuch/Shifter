@@ -1,4 +1,5 @@
 import datetime
+import tempfile
 from io import StringIO
 from shutil import rmtree
 
@@ -6,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from shifter_files.models import FileUpload
@@ -18,6 +19,7 @@ TEST_FILE_NAME = "mytestfile.txt"
 TEST_FILE_CONTENT = b"Hello, World!"
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class CleanUpExpiredCommandTest(TestCase):
     def setUp(self):
         User = get_user_model()

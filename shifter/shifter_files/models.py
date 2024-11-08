@@ -38,6 +38,10 @@ class FileUpload(models.Model):
         return cls.objects.filter(expiry_datetime__lte=Now())
 
     @classmethod
+    def get_non_expired_files(cls):
+        return cls.objects.filter(expiry_datetime__gt=Now())
+
+    @classmethod
     def delete_expired_files(cls):
         files = cls.get_expired_files()
         num_files = files.count()

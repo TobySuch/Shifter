@@ -1,18 +1,19 @@
 name: shifter-test
-   
+
 services:
   web:
     build:
       context: ../../
       dockerfile: docker/Dockerfile
     entrypoint: /home/app/web/entrypoint.sh
-    command: python manage.py test
+    command: python manage.py test --parallel
     restart: always
     env_file:
       - "../../.env EXAMPLE"
     environment:
       - DJANGO_LOG_LEVEL=OFF
       - TEST_MODE=1
+      - APP_VERSION=TESTING
   nginx:
     image: nginx:1.19.0-alpine
     restart: always

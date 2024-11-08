@@ -16,6 +16,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from django import forms
+from django.utils import timezone
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -262,3 +263,9 @@ CRONJOBS = [
         "shifter_files.cron.delete_expired_files",
     )
 ]
+
+# Environment information
+SHIFTER_VERSION = os.environ.get("APP_VERSION", "Unknown")
+PYTHON_VERSION = os.environ.get("PYTHON_VERSION", "Unknown")
+DB_OPTION = db_option.upper()
+STARTUP_TIME = timezone.now()
