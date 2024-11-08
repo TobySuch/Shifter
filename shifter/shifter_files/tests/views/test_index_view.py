@@ -1,12 +1,13 @@
 import datetime
 import json
 import pathlib
+import tempfile
 from shutil import rmtree
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -23,6 +24,7 @@ TEST_FILE_NAME = "mytestfile.txt"
 TEST_FILE_CONTENT = b"Hello, World!"
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class IndexViewTest(TestCase):
     def setUp(self):
         User = get_user_model()
@@ -82,7 +84,11 @@ class IndexViewTest(TestCase):
         )
         # Ensure file has been uploaded to the correct location
         path = pathlib.Path(
-            "media/uploads/" + TEST_FILE_NAME + "_" + file_upload.file_hex
+            settings.MEDIA_ROOT
+            + "/uploads/"
+            + TEST_FILE_NAME
+            + "_"
+            + file_upload.file_hex
         )
         self.assertTrue(path.is_file())
 

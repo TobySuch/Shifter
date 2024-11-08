@@ -6,7 +6,7 @@ services:
       context: ../../
       dockerfile: docker/Dockerfile
     entrypoint: /home/app/web/entrypoint.sh
-    command: python manage.py test
+    command: python manage.py test --parallel
     restart: always
     env_file:
       - "../../.env EXAMPLE"
