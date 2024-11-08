@@ -18,4 +18,4 @@ jobs:
         run: docker compose -f docker/dev/docker-compose.test.yml build
 
       - name: Run Tests
-        run: docker compose -f docker/dev//docker-compose.test.yml run web
+        run: docker compose -f docker/dev//docker-compose.test.yml run shifter

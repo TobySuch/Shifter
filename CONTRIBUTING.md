@@ -11,7 +11,7 @@ Thanks for considering contributing to this project! I really appreciate any and
 5. Before submitting your pull request, make sure your code works. You can check your linting and the unit tests with the following command:
 
 ```
-docker compose -f docker/dev/docker-compose.test.yml build && docker compose -f docker/dev/docker-compose.test.yml run web; docker compose -f docker/dev/docker-compose.test.yml down
+docker compose -f docker/dev/docker-compose.test.yml build && docker compose -f docker/dev/docker-compose.test.yml run shifter; docker compose -f docker/dev/docker-compose.test.yml down
 ```
 
 6. Create a pull request into this repository. In your PR, please leave a comment describing the changes you have made and link to the original issue if there is one. Once the PR has been raised, Github will run the tests to ensure everything is working, and then I (or someone else in the future) will review the code. If everything looks good, we will merge it in.

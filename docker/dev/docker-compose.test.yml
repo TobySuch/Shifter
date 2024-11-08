@@ -1,7 +1,7 @@
 name: shifter-test
 
 services:
-  web:
+  shifter:
     build:
       context: ../../
       dockerfile: docker/Dockerfile
