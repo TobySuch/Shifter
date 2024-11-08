@@ -14,6 +14,7 @@ import logging
 import os
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlparse
 
 from django import forms
 from django.utils import timezone
@@ -31,17 +32,28 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(" ")
+# Also set by the SHIFTER_URL environment variable.
+ALLOWED_HOSTS = []
+if os.environ.get("DJANGO_ALLOWED_HOSTS"):
+    ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
-# Not required when running in DEBUG mode, removes requirement for dev envs.
-if not DEBUG:
-    CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(
-        " "
-    )
+# Also set by the SHIFTER_URL environment variable.
+CSRF_TRUSTED_ORIGINS = []
+if os.environ.get("CSRF_TRUSTED_ORIGINS"):
+    CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
 
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+SHIFTER_URL = os.environ.get("SHIFTER_URL", "")
+if SHIFTER_URL != "":
+    # Remove trailing slash if present
+    if SHIFTER_URL[-1] == "/":
+        SHIFTER_URL = SHIFTER_URL[:-1]
+
+    ALLOWED_HOSTS.append(urlparse(SHIFTER_URL).hostname)
+    CSRF_TRUSTED_ORIGINS.append(SHIFTER_URL)
 
 # Application definition
 
@@ -240,14 +252,6 @@ DATETIME_INPUT_FORMATS = [
 ]
 
 SITE_SETTINGS = {
-    "domain": {
-        "default": os.environ.get(
-            "SHIFTER_FULL_DOMAIN", default="localhost:1337"
-        ),
-        "label": "Full Domain",
-        "tooltip": "This is prepended to the download URL. Include the \
-            protocol (e.g. https://) and the port if it is not standard.",
-    },
     "max_file_size": {
         "default": "5120MB",  # 5GB
         "label": "Maximum File Size",

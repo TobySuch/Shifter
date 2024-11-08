@@ -10,7 +10,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from shifter_files.models import FileUpload
-from shifter_site_settings.models import SiteSetting
 
 TEST_USER_EMAIL = "iama@test.com"
 TEST_USER_PASSWORD = "mytemporarypassword"
@@ -90,7 +89,7 @@ class FileDetailsViewTest(TestCase):
             expiry_datetime=timezone.now() + datetime.timedelta(weeks=1),
             filename=TEST_FILE_NAME,
         )
-        file_full_url = SiteSetting.get_setting("domain") + reverse(
+        file_full_url = settings.SHIFTER_URL + reverse(
             "shifter_files:file-download-landing", args=[file_upload.file_hex]
         )
         url = reverse(

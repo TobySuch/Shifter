@@ -29,11 +29,6 @@ class SiteSettingsTestCase(TestCase):
         )
 
     def test_site_settings_created(self):
-        domain = SiteSetting.objects.get(name="domain")
-        self.assertEqual(
-            domain.value, settings.SITE_SETTINGS["domain"]["default"]
-        )
-
         max_file_size = SiteSetting.objects.get(name="max_file_size")
         self.assertEqual(
             max_file_size.value,
@@ -95,19 +90,19 @@ class SiteSettingsViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Change setting values
-        new_domain = "testdomain.com"
+        new_max_file_size = "10MB"
         response = client.post(
             url,
             {
-                "setting_domain": new_domain,
-                "setting_max_file_size": "100MB",
+                "setting_max_file_size": new_max_file_size,
                 "setting_default_expiry_offset": "1",
                 "setting_max_expiry_offset": "2",
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(SiteSetting.get_setting("domain"), new_domain)
-        self.assertEqual(SiteSetting.get_setting("max_file_size"), "100MB")
+        self.assertEqual(
+            SiteSetting.get_setting("max_file_size"), new_max_file_size
+        )
         self.assertEqual(SiteSetting.get_setting("default_expiry_offset"), "1")
         self.assertEqual(SiteSetting.get_setting("max_expiry_offset"), "2")
 

@@ -2,6 +2,12 @@
 
 echo "Starting Shifter version v$APP_VERSION"
 
+if [ -z "$SHIFTER_URL" ]
+then
+    echo "SHIFTER_URL environment variable is not set. Exiting."
+    exit 1
+fi
+
 if [ "$DATABASE" = "postgres" ]
 then
     echo "Waiting for postgres..."

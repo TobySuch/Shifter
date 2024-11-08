@@ -2,6 +2,7 @@ name: shifter
 
 volumes:
   db:
+  media:
 
 services:
   ## Uncomment this if you want to use postgres
@@ -16,6 +17,7 @@ services:
     image: ghcr.io/tobysuch/shifter:latest
     restart: always
     volumes:
+      - media:/home/app/web/media
       - db:/home/app/web/db # Comment this out if you are using postgres
     ports:
       - 8000:8000
