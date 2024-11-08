@@ -47,9 +47,21 @@
         
         {{ form.file_content }}
 
-        <div class="flex flex-wrap justify-center sm:justify-between py-2">
-            <p class="font-medium m-3">Expiry: {{ form.expiry_datetime }}</p>
-            <button id="upload-btn" class="btn-primary m-3">Upload</button>
+        <div class="flex flex-col py-2">
+            <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between w-full">
+                <div class="flex items-center w-full xl:w-auto">
+                    <label for="{{ form.expiry_datetime.name }}" class="font-medium mr-2">Expiry:</label>
+                    {{ form.expiry_datetime }}
+                </div>
+                <div class="flex items-center w-full xl:w-auto flex-grow hidden">
+                    <label for="zip-file-name" class="font-medium mr-2">Zip File Name:</label>
+                    <input id="zip-file-name" name="zip-file-name" class="rounded-l-lg p-2 border-2 bg-sky-100 border-sky-200 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-l-lg flex-grow" value="combined" />
+                    <span class="rounded-r-lg p-2 border-y-2 border-r-2 bg-gray-100 border-gray-200">.zip</span>
+                </div>
+                <div class="flex justify-center xl:justify-end w-full xl:w-auto">
+                    <button id="upload-btn" class="btn-primary">Upload</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
