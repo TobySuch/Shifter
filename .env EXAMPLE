@@ -9,12 +9,6 @@ DJANGO_LOG_LOCATION=/var/log/shifter.log
 TIMEZONE=UTC
 EXPIRED_FILE_CLEANUP_SCHEDULE=*/15 * * * *  # Cron schedule for cleaning up expired files. Default is every 15 minutes.
 
-
-
-### Nginx settings ###
-CLIENT_MAX_BODY_SIZE=5G  # Max size of uploaded file allowed by Nginx
-
-
 ### Database settings ###
 DATABASE=sqlite  # Possible values: sqlite, postgres
 

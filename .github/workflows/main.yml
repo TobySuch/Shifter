@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
   workflow_dispatch:
 
@@ -19,6 +19,3 @@ jobs:
 
       - name: Run Tests
         run: docker compose -f docker/dev//docker-compose.test.yml run web
-
-      - name: Check Nginx Config
-        run: docker compose -f docker/dev/docker-compose.test.yml run nginx
