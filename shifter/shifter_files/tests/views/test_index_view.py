@@ -47,7 +47,7 @@ class IndexViewTest(TestCase):
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         response = client.get(reverse("shifter_files:index"))
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('<h1 class="title">Upload File</h1>')
+        self.assertTemplateUsed(response, "shifter_files/file_upload.html")
 
     def test_file_upload(self):
         client = Client()
