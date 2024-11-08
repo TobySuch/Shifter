@@ -1,5 +1,5 @@
 name: shifter-test
-   
+
 services:
   web:
     build:
@@ -13,6 +13,7 @@ services:
     environment:
       - DJANGO_LOG_LEVEL=OFF
       - TEST_MODE=1
+      - APP_VERSION=TESTING
   nginx:
     image: nginx:1.19.0-alpine
     restart: always

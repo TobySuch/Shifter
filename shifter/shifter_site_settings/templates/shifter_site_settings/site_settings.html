@@ -63,6 +63,45 @@
             </div>
         </form>
     </div>
+    <div>
+        <h2 class="text-gray-800 text-2xl font-medium border-t-2 border-gray-400 py-4">Site Information</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
+            <div class="flex flex-col justify-between rounded-lg p-2 border-2 border-sky-200 bg-sky-100 w-full text-center space-y-2">
+                <p class="font-semibold">Debug Mode</p>
+                <p class="font-black text-4xl {% if debug_mode %}text-red-600{% else %}text-primary{% endif %}">{{ debug_mode }}</p>
+            </div>
+            <div class="flex flex-col justify-between rounded-lg p-2 border-2 border-sky-200 bg-sky-100 w-full text-center space-y-2">
+                <p class="font-semibold">Shifter Version</p>
+                <p class="font-black text-4xl text-primary">{{ shifter_version }}</p>
+            </div>
+            <div class="flex flex-col justify-between rounded-lg p-2 border-2 border-sky-200 bg-sky-100 w-full text-center space-y-2">
+                <p class="font-semibold">Python Version</p>
+                <p class="font-black text-4xl text-primary">{{ python_version }}</p>
+            </div>
+            <div class="flex flex-col justify-between rounded-lg p-2 border-2 border-sky-200 bg-sky-100 w-full text-center space-y-2">
+                <p class="font-semibold">DB Engine</p>
+                <p class="font-black text-4xl text-primary">{{ db_engine }}</p>
+            </div>
+            <div class="relative flex flex-col justify-between rounded-lg p-2 border-2 border-sky-200 bg-sky-100 w-full text-center space-y-2" data-tooltip-target="tooltip-uptime">
+                <span class="absolute top-0 right-0 mt-1 mr-1 w-2 h-2 bg-primary rounded-full"></span>
+                <p class="font-semibold">Uptime</p>
+                <p class="font-black text-4xl text-primary">{{ uptime }}</p>
+            </div>
+            <div class="relative flex flex-col justify-between rounded-lg p-2 border-2 border-sky-200 bg-sky-100 w-full text-center space-y-2" data-tooltip-target="tooltip-expired-files">
+                <span class="absolute top-0 right-0 mt-1 mr-1 w-2 h-2 bg-primary rounded-full"></span>
+                <p class="font-semibold">Active Files</p>
+                <p class="font-black text-4xl text-primary">{{ num_active_files }}</p>
+            </div>
+        </div>
+        <div id="tooltip-uptime" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+            Started at: {{ startup_time }}
+            <div class="tooltip-arrow" data-popper-arrow></div>
+        </div>
+        <div id="tooltip-expired-files" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+            {{ num_expired_files }} file(s) to be cleaned up.
+            <div class="tooltip-arrow" data-popper-arrow></div>
+        </div>
+    </div>
 </div>
 <script>
     document.getElementById('cleanup-expired-files-btn').addEventListener('click', Shifter.cleanupExpiredFiles);
