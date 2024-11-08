@@ -46,7 +46,7 @@ else
         python manage.py crontab add
         crond -b
     else
-        echo "In testing mode - not setting up con."
+        echo "In testing mode - not setting up cron."
     fi
     python manage.py collectstatic --no-input --clear > /dev/null
 fi
