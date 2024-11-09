@@ -16,7 +16,7 @@
     <body class="flex flex-col font-sans leading-normal tracking-normal bg-white h-screen">
         <nav class="px-2 py-2.5">
             <div class="container flex flex-wrap justify-between items-center mx-auto">
-                <a href="/" class="flex items-center">
+                <a href="{% url 'shifter_files:index' %}" class="flex items-center">
                     <img src="{% static 'img/logo.svg' %}" class="mr-3 h-6 sm:h-10" alt="Shifter Logo">
                 </a>
                 {% if user.is_authenticated %}

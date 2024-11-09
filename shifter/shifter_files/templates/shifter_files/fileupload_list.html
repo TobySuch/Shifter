@@ -8,7 +8,8 @@
         <h1 class="title">My Files</h1>
     </div>
     <div class="p-2">
-    <table class="table-auto w-full text-center">
+        {% if object_list %}
+        <table class="table-auto w-full text-center">
             <thead>
                 <tr class="border-b">
                     <th class="py-2">File</th>
@@ -26,6 +27,12 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <div class="text-center mt-16">
+            <p class="mb-4">No files uploaded yet.</p>
+            <p><a class="btn-primary" href="{% url 'shifter_files:index' %}">Upload A File</a></p>
+        </div>
+        {% endif %}
     </div>
     {% if page_obj.paginator.num_pages > 1 %}
         <div class="flex justify-center items-center mt-3">
