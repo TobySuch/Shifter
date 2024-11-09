@@ -9,7 +9,7 @@ from django.views.generic.edit import DeleteView, FormView
 
 from shifter_site_settings.models import SiteSetting
 
-from .forms import FileUploadForm
+from .forms import FileSearchForm, FileUploadForm
 from .models import FileUpload, generate_hex_uuid
 
 
@@ -61,10 +61,27 @@ class FileListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        current_datetime = timezone.now()
-        return FileUpload.objects.filter(
-            owner=self.request.user, expiry_datetime__gte=current_datetime
-        ).order_by(self.ordering)
+        queryset = (
+            FileUpload.get_non_expired_files()
+            .filter(owner=self.request.user)
+            .order_by(self.ordering)
+        )
+
+        query = self.request.GET.get("search")
+        if query:
+            queryset = queryset.filter(filename__icontains=query)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_form"] = FileSearchForm(self.request.GET)
+        context["total_files"] = (
+            FileUpload.get_non_expired_files()
+            .filter(owner=self.request.user)
+            .count()
+        )
+        return context
 
 
 class FileDetailView(LoginRequiredMixin, DetailView):
