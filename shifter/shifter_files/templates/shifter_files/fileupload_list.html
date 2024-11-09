@@ -8,7 +8,24 @@
         <h1 class="title">My Files</h1>
     </div>
     <div class="p-2">
-    <table class="table-auto w-full text-center">
+        {% if total_files == 0 %}
+        <div class="text-center mt-16">
+            <p class="mb-4">No files uploaded yet.</p>
+            <p><a class="btn-primary" href="{% url 'shifter_files:index' %}">Upload A File</a></p>
+        </div>
+        {% else %}
+        <form method="get" class="flex items-stretch flex-wrap justify-center my-4 gap-2">
+            {{ search_form.search}}
+            {% if request.GET.search %}
+            <a href="{% url 'shifter_files:myfiles' %}" class="btn-red">
+                <span class="sr-only">Close</span>
+                <svg aria-hidden="true" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </a>
+            {% endif %}
+            <button type="submit" class="btn-primary">Search</button>
+        </form>
+        {% if object_list %}
+        <table class="table-auto w-full text-center">
             <thead>
                 <tr class="border-b">
                     <th class="py-2">File</th>
@@ -26,11 +43,17 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <div class="text-center mt-16">
+            <p class="mb-4">No files found.</p>
+        </div>
+        {% endif %}
+        {% endif %}
     </div>
     {% if page_obj.paginator.num_pages > 1 %}
         <div class="flex justify-center items-center mt-3">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}" class="flex w-fit self-center text-gray-100 whitespace-nowrap bg-primary p-2 mx-2 rounded-lg cursor-pointer">
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="flex w-fit self-center text-gray-100 whitespace-nowrap bg-primary p-2 mx-2 rounded-lg cursor-pointer">
                     <svg class="text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
                     </svg>
@@ -42,7 +65,7 @@
             </span>
 
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}" class="flex w-fit self-center text-gray-100 whitespace-nowrap bg-primary p-2 mx-2 rounded-lg cursor-pointer">
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="flex w-fit self-center text-gray-100 whitespace-nowrap bg-primary p-2 mx-2 rounded-lg cursor-pointer">
                     <svg class="text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m14 0-4 4m4-4-4-4"/>
                     </svg>

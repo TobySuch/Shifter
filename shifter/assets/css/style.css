@@ -3,46 +3,50 @@
 @tailwind utilities;
 
 .btn-primary {
-    @apply self-center text-gray-100 whitespace-nowrap bg-primary px-5 py-2 rounded-lg cursor-pointer
+  @apply self-center text-gray-100 whitespace-nowrap bg-primary px-5 py-2 rounded-lg cursor-pointer;
+}
+
+.btn-red {
+  @apply self-center text-gray-100 whitespace-nowrap bg-red-600 px-5 py-2 rounded-lg cursor-pointer;
 }
 
 .btn-primary:disabled {
-    @apply bg-neutral-300
+  @apply bg-neutral-300;
 }
 
 .input-primary {
-    @apply rounded-lg p-2 border-2 bg-sky-100 border-sky-200 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-lg
+  @apply rounded-lg p-2 border-2 bg-sky-100 border-sky-200 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-lg;
 }
 
-.error-box{
-    @apply rounded text-center font-semibold bg-red-500 text-white p-4 mb-4
+.error-box {
+  @apply rounded text-center font-semibold bg-red-500 text-white p-4 mb-4;
 }
 
-.info-box{
-    @apply rounded text-center font-semibold bg-primary text-white p-4 mb-4
+.info-box {
+  @apply rounded text-center font-semibold bg-primary text-white p-4 mb-4;
 }
 
-[data-filepond-item-state*='error'] .filepond--item-panel,
-[data-filepond-item-state*='invalid'] .filepond--item-panel {
-    @apply bg-red-500
+[data-filepond-item-state*="error"] .filepond--item-panel,
+[data-filepond-item-state*="invalid"] .filepond--item-panel {
+  @apply bg-red-500;
 }
 
 .filepond--panel-root {
-    @apply input-primary
+  @apply input-primary;
 }
 
 .filepond--root {
-    @apply h-56
+  @apply h-56;
 }
 
 .filepond--item-panel {
-    @apply bg-primary
+  @apply bg-primary;
 }
 
 h1.title {
-    @apply text-5xl text-center text-gray-700
+  @apply text-5xl text-center text-gray-700;
 }
 
 div.standard-page-width {
-    @apply w-11/12 sm:w-2/3 m-auto
+  @apply w-11/12 sm:w-2/3 m-auto;
 }

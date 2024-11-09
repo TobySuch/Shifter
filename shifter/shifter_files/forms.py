@@ -89,3 +89,16 @@ class FileUploadForm(forms.ModelForm):
                 code="file-size-too-large",
             )
         return file_content
+
+
+class FileSearchForm(forms.Form):
+    search = forms.CharField(
+        required=False,
+        label="Search",
+        widget=forms.TextInput(
+            attrs={
+                "class": "input-primary flex-grow",
+                "placeholder": "Search files",
+            }
+        ),
+    )
