@@ -1,6 +1,11 @@
 from django.contrib.auth import get_user, get_user_model
-from django.test import Client, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
+
+from shifter_auth.middleware import (
+    ensure_first_time_setup_completed,
+    is_first_time_setup_required,
+)
 
 TEST_USER_EMAIL = "iama@test.com"
 TEST_STAFF_USER_EMAIL = "iamastaff@test.com"
@@ -221,3 +226,43 @@ class CreateNewUserViewTest(TestCase):
         self.assertEqual(
             User.objects.filter(email=TEST_ADDITIONAL_USER_EMAIL).count(), 0
         )
+
+
+class FirstTimeSetupTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_is_first_time_setup_required_true(self):
+        User = get_user_model()
+        User.objects.all().delete()
+        self.assertTrue(is_first_time_setup_required())
+
+    def test_is_first_time_setup_required_false(self):
+        User = get_user_model()
+        User.objects.create_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        self.assertFalse(is_first_time_setup_required())
+
+    def test_ensure_first_time_setup_completed_redirect(self):
+        User = get_user_model()
+        User.objects.all().delete()
+
+        middleware = ensure_first_time_setup_completed(lambda request: None)
+        request = self.factory.get(reverse("shifter_files:index"))
+        response = middleware(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url, reverse("shifter_auth:first-time-setup")
+        )
+
+    def test_ensure_first_time_setup_completed_no_redirect(self):
+        User = get_user_model()
+        User.objects.create_user(
+            TEST_ADDITIONAL_USER_EMAIL, TEST_USER_PASSWORD
+        )
+        middleware = ensure_first_time_setup_completed(lambda request: None)
+        request = self.factory.get(reverse("shifter_files:index"))
+        request.user = get_user_model().objects.create_user(
+            TEST_USER_EMAIL, TEST_USER_PASSWORD
+        )
+        response = middleware(request)
+        self.assertIsNone(response)

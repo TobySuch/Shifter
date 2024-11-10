@@ -22,7 +22,7 @@
 Shifter is a simple self-hosted file-sharing web app built using Django and Tailwind. It allows you to quickly and easily upload files and share download links with others.
 
 <p align="center">
-  <img alt="Shifter Demo GIF" src="docs/ShifterDemo.gif"/>
+  <img alt="Shifter Demo GIF" src="docs/ShifterDemo.gif" style="width: 100%;"/>
 </p>
 
 ## Features:
@@ -58,13 +58,7 @@ By default, the `docker-compose.yml` will use the latest image from GHCR. Howeve
 docker compose -f docker/docker-compose.yml up
 ```
 
-5. To create an admin user, run the following command and follow the prompts:
-
-```
-docker compose -f docker/docker-compose.yml exec web python manage.py createsuperuser
-```
-
-6. After creating the admin user, you will be able to log into the site using the credentials you entered.
+5. Access the site on the configured port. You will be asked to setup an admin user when you first visit the site.
 
 ### Using Postgresql
 
@@ -80,7 +74,7 @@ These instructions are for setting up the project in development mode which may 
 
 1. Download or clone this repository.
 2. Make a copy of the `.env EXAMPLE` file and name it `.env.dev`. In your new copy, make sure `DEBUG` is set to 1, and change any values that are set to `CHANGEME` to the appropriate values for your development environment.
-3. In the .env.dev file, add values for the following variables: `DJANGO_SUPERUSER_EMAIL` and `DJANGO_SUPERUSER_PASSWORD`. These will be used to create an admin user when the containers are started. For example:
+3. (Optional) In the .env.dev file, add values for the following variables: `DJANGO_SUPERUSER_EMAIL` and `DJANGO_SUPERUSER_PASSWORD`. These will be used to create an admin user when the containers are started. For example:
 
 ```
 DJANGO_SUPERUSER_EMAIL=admin@mydomain.com
@@ -93,6 +87,6 @@ DJANGO_SUPERUSER_PASSWORD=CHANGEME
 docker compose -f docker/dev/docker-compose.dev.yml up --build
 ```
 
-4. Once the containers are running, you should be able to access the site in your web browser at `127.0.0.1:8000`. By default, the admin user will automatically be created and you will be able to log in using the credentials you entered in the .env.dev file.
+4. Once the containers are running, you should be able to access the site in your web browser at `127.0.0.1:8000`. If you added environment variables for the superuser, you should be able to login with those credentials. Otherwise you will be prompted to create a super user every time to start up the server.
 
 If you would like contribute to this project, please read the [contributing guidelines](CONTRIBUTING.md) for more information.
