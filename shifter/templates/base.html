@@ -58,7 +58,7 @@
                     </ul>
                 </div>
                 {% else %}
-                    {% if request.resolver_match.url_name != 'login' %}
+                    {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'first-time-setup' %}
                     <a href="{% url 'shifter_auth:login' %}" class="flex">
                         <span class="btn-primary">Sign In</span>
                     </a>
