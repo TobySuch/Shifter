@@ -245,11 +245,9 @@ class FirstTimeSetupTest(TestCase):
     def test_ensure_first_time_setup_completed_redirect(self):
         User = get_user_model()
         User.objects.all().delete()
+
         middleware = ensure_first_time_setup_completed(lambda request: None)
         request = self.factory.get(reverse("shifter_files:index"))
-        request.user = get_user_model().objects.create_user(
-            TEST_USER_EMAIL, TEST_USER_PASSWORD
-        )
         response = middleware(request)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
@@ -258,7 +256,9 @@ class FirstTimeSetupTest(TestCase):
 
     def test_ensure_first_time_setup_completed_no_redirect(self):
         User = get_user_model()
-        User.objects.create_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        User.objects.create_user(
+            TEST_ADDITIONAL_USER_EMAIL, TEST_USER_PASSWORD
+        )
         middleware = ensure_first_time_setup_completed(lambda request: None)
         request = self.factory.get(reverse("shifter_files:index"))
         request.user = get_user_model().objects.create_user(

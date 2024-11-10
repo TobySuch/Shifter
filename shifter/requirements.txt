@@ -6,3 +6,4 @@ psycopg==3.2.3
 psycopg-binary==3.2.3
 sqlparse==0.5.1
 typing_extensions==4.12.2
+tblib==3.0.0
