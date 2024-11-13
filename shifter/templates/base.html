@@ -6,6 +6,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="icon" href="{% static 'img/favicon.ico' %}" sizes="32x32">
+        <link rel="icon" href="{% static 'img/logo.svg' %}" type="image/svg+xml">
+        <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
         <script src="{% static 'js/timezoneutils-bundle.js' %}"></script>
         {% block head %}
         {% endblock %}
@@ -17,7 +20,7 @@
         <nav class="px-2 py-2.5">
             <div class="container flex flex-wrap justify-between items-center mx-auto">
                 <a href="{% url 'shifter_files:index' %}" class="flex items-center">
-                    <img src="{% static 'img/logo.svg' %}" class="mr-3 h-6 sm:h-10" alt="Shifter Logo">
+                    <img src="{% static 'img/logo-large.svg' %}" class="mr-3 w-32 md:w-40 lg:w-60" alt="Shifter Logo">
                 </a>
                 {% if user.is_authenticated %}
                 <button data-collapse-toggle="mobile-menu" type="button" class="inline-flex justify-center items-center ml-3 text-gray-400 rounded-lg md:hidden hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300" aria-controls="mobile-menu-2" aria-expanded="false">
