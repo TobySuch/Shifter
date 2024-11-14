@@ -51,19 +51,35 @@
             </div>
         </div>
     </div>
+
+    <div id="notification" class="fixed bottom-4 inset-x-0 flex justify-center transition-opacity duration-500 opacity-0 hidden">
+        <span class="bg-primary text-white p-4 rounded-lg shadow-lg">
+            Copied link to clipboard.
+        </span>
+    </div>
 </div>
 
-<!-- Select text on click -->
 <script>
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(
-            function() {
+            () => {
                 console.log('Copied link to clipboard');
+                var notification = document.getElementById('notification');
+                notification.classList.remove('hidden');
+                setTimeout(() => {
+                    notification.classList.remove('opacity-0');
+                }, 10);
+                setTimeout(() => {
+                    notification.classList.add('opacity-0');
+                    setTimeout(() => {
+                        notification.classList.add('hidden');
+                    }, 500);
+                }, 3000);
             },
-            function(err) {
+            (err) => {
                 console.error('Could not copy link to clipboard: ', err);
             }
         );
-    };
+    }
 </script>
 {% endblock %}
