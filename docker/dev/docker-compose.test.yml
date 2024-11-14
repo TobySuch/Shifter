@@ -1,7 +1,7 @@
 name: shifter-test
 
 services:
-  web:
+  shifter:
     build:
       context: ../../
       dockerfile: docker/Dockerfile
@@ -14,13 +14,3 @@ services:
       - DJANGO_LOG_LEVEL=OFF
       - TEST_MODE=1
       - APP_VERSION=TESTING
-  nginx:
-    image: nginx:1.19.0-alpine
-    restart: always
-    command: nginx -t
-    volumes:
-      - ../nginx/nginx.conf:/etc/nginx/templates/default.conf.template
-    depends_on:
-      - web
-    env_file:
-      - "../../.env EXAMPLE"

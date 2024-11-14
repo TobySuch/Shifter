@@ -1,12 +1,12 @@
 name: shifter-dev
-   
+
 services:
   ## Uncomment this if you want to use postgres
   # db:
   #   image: postgres
   #   env_file:
   #     - ../../.env.dev
-  web:
+  shifter:
     build:
       context: ../../
       dockerfile: docker/dev/Dockerfile.dev
@@ -16,7 +16,7 @@ services:
       - ../../.env.dev
     ports:
       - "8000:8000"
-  
+
   frontend-tailwind:
     build:
       context: ../../

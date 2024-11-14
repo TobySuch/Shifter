@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -89,9 +90,7 @@ class FileDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        context["full_download_url"] = SiteSetting.get_setting(
-            "domain"
-        ) + reverse(
+        context["full_download_url"] = settings.SHIFTER_URL + reverse(
             "shifter_files:file-download-landing",
             args=[self.kwargs["file_hex"]],
         )

@@ -49,13 +49,13 @@ Before you begin, make sure you have installed Docker and Docker Compose on your
 
 By default, the `docker-compose.yml` will use the latest image from GHCR. However it still requires some config files from this repository, and the relative paths are important. This will be improved in the future.
 
-1. Download or clone this repository.
+1. Copy the contents of the [example docker-compose.yml file](/docker/docker-compose.yml) into a new file in your project directory.
 2. Make a copy of the `.env EXAMPLE` file and name it `.env`. In your new copy, make sure DEBUG is set to 0, and change any values that are set to `CHANGEME` to the appropriate values for your deployment.
-3. In the .env file, update the DJANGO_ALLOWED_HOSTS and CSRF_TRUSTED_ORIGINS values to match your deployment.
+3. In the .env file, update the SHIFTER_URL value to match your deployment.
 4. Start the containers using the following command:
 
 ```
-docker compose -f docker/docker-compose.yml up
+docker compose up
 ```
 
 5. Access the site on the configured port. You will be asked to setup an admin user when you first visit the site.
