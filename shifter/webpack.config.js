@@ -35,4 +35,9 @@ module.exports = {
       );
     },
   ],
+  // Seems to be a bug somewhere that causes builds to fail in production mode.
+  // This fixes it. I believe its related to flowbite.
+  optimization: {
+    concatenateModules: false,
+  },
 };
