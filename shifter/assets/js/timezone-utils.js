@@ -36,8 +36,10 @@ function convertDateTimeLocalFormElementToLocalTime(input) {
   const minVal = new Date(input.getAttribute("data-min-iso"));
   input.min = convertDateToFormFieldFormat(minVal);
 
-  const maxVal = new Date(input.getAttribute("data-max-iso"));
-  input.max = convertDateToFormFieldFormat(maxVal);
+  if (input.getAttribute("data-max-iso") != null) {
+    const maxVal = new Date(input.getAttribute("data-max-iso"));
+    input.max = convertDateToFormFieldFormat(maxVal);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {

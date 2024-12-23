@@ -179,3 +179,31 @@ class IndexViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(FileUpload.objects.count(), 0)
+
+    # #427 - Setting max expiry date in hours to large number causes 500 error
+    # when accessing file upload page.
+    def test_site_setting_max_expiry_too_big(self):
+        SiteSetting.objects.create(
+            name="max_expiry_offset",
+            value="2147483647",
+        )
+
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        url = reverse("shifter_files:index")
+        response = client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # Also test uploading a file
+        expiry_datetime = datetime.datetime(5000, 1, 1)
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        response = client.post(
+            reverse("shifter_files:index"),
+            {
+                "expiry_datetime": expiry_datetime.isoformat(
+                    sep=" ", timespec="minutes"
+                ),
+                "file_content": test_file,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
