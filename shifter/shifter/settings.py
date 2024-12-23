@@ -262,11 +262,15 @@ SITE_SETTINGS = {
         "default": 24 * 14,  # 2 weeks
         "label": "Default Expiry Offset (hours)",
         "field_type": forms.IntegerField,
+        "min_value": 0,
+        "max_value": 2147483647,
     },
     "max_expiry_offset": {
         "default": 24 * 365 * 5,  # 5 years
         "label": "Maximum Expiry Offset (hours)",
         "field_type": forms.IntegerField,
+        "min_value": 0,
+        "max_value": 2147483647,
     },
 }
 

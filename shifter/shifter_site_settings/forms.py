@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from .models import SiteSetting
 
@@ -19,3 +20,17 @@ class SiteSettingsForm(forms.Form):
                 self.fields[
                     f"setting_{setting.name}"
                 ].help_text = setting_config["tooltip"]
+            if "min_value" in setting_config:
+                self.fields[f"setting_{setting.name}"].validators.append(
+                    MinValueValidator(
+                        setting_config["min_value"],
+                        "Minimum value: %(limit_value)s",
+                    )
+                )
+            if "max_value" in setting_config:
+                self.fields[f"setting_{setting.name}"].validators.append(
+                    MaxValueValidator(
+                        setting_config["max_value"],
+                        "Maximum value: %(limit_value)s",
+                    )
+                )
