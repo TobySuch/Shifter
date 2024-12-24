@@ -114,6 +114,45 @@ class SiteSettingsViewTest(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 403)
 
+    # #427 - Setting max expiry date in hours to large number causes 500 error
+    # when accessing file upload page.
+    def test_max_expiry_limits(self):
+        # Test submitting the form changes the settings values
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        url = reverse("shifter_site_settings:site-settings")
+        response = client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # Change setting values
+        old_setting_max_expiry_offset = SiteSetting.get_setting(
+            "max_expiry_offset"
+        )
+        setting_max_expiry_offset = "99999999999999999999999999999999999999"
+        response = client.post(
+            url,
+            {
+                "setting_max_file_size": "5120MB",
+                "setting_default_expiry_offset": "336",
+                "setting_max_expiry_offset": setting_max_expiry_offset,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        # Check response contains error
+        self.assertContains(
+            response,
+            (
+                "Maximum value: "
+                f"{settings.SITE_SETTINGS["max_expiry_offset"]["max_value"]}"
+            ),
+        )
+
+        # Check that the setting was not changed
+        self.assertEqual(
+            SiteSetting.get_setting("max_expiry_offset"),
+            old_setting_max_expiry_offset,
+        )
+
 
 class SiteSettingsSiteInformationTest(TestCase):
     def setUp(self):

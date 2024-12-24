@@ -30,35 +30,48 @@ class FileUploadForm(forms.ModelForm):
         )
         exp_date_str = exp_date.strftime(settings.DATETIME_INPUT_FORMATS[0])
         self.fields["expiry_datetime"].initial = exp_date_str
+        self.fields["expiry_datetime"].widget.attrs["data-initial-iso"] = (
+            exp_date.isoformat()
+        )
+
         exp_date_min = timezone.now()
         exp_date_min_str = exp_date_min.strftime(
             settings.DATETIME_INPUT_FORMATS[0]
         )
         self.fields["expiry_datetime"].widget.attrs["min"] = exp_date_min_str
-        exp_date_max = timezone.now() + timedelta(
-            hours=int(SiteSetting.get_setting("max_expiry_offset"))
-        )
-        exp_date_max_str = exp_date_max.strftime(
-            settings.DATETIME_INPUT_FORMATS[0]
-        )
-        self.fields["expiry_datetime"].widget.attrs["max"] = exp_date_max_str
-        self.fields["expiry_datetime"].widget.attrs["data-initial-iso"] = (
-            exp_date.isoformat()
-        )
         self.fields["expiry_datetime"].widget.attrs["data-min-iso"] = (
             exp_date_min.isoformat()
         )
-        self.fields["expiry_datetime"].widget.attrs["data-max-iso"] = (
-            exp_date_max.isoformat()
-        )
+
+        try:
+            exp_date_max = timezone.now() + timedelta(
+                hours=int(SiteSetting.get_setting("max_expiry_offset"))
+            )
+            exp_date_max_str = exp_date_max.strftime(
+                settings.DATETIME_INPUT_FORMATS[0]
+            )
+            self.fields["expiry_datetime"].widget.attrs["max"] = (
+                exp_date_max_str
+            )
+            self.fields["expiry_datetime"].widget.attrs["data-max-iso"] = (
+                exp_date_max.isoformat()
+            )
+        except OverflowError:
+            # If the max expiry offset is too large, don't set a max expiry
+            # It is too far in the future to matter.
+            pass
 
     def clean_expiry_datetime(self):
         expiry_datetime = self.cleaned_data["expiry_datetime"]
         current_datetime = timezone.now()
         max_expiry_offset = SiteSetting.get_setting("max_expiry_offset")
-        max_expiry_time = current_datetime + timedelta(
-            hours=int(max_expiry_offset)
-        )
+        dont_validate_max_expiry = False
+        try:
+            max_expiry_time = current_datetime + timedelta(
+                hours=int(max_expiry_offset)
+            )
+        except OverflowError:
+            dont_validate_max_expiry = True
 
         if expiry_datetime < current_datetime:
             raise ValidationError(
@@ -66,7 +79,7 @@ class FileUploadForm(forms.ModelForm):
                 code="expiry-time-past",
             )
 
-        if expiry_datetime > max_expiry_time:
+        if not dont_validate_max_expiry and expiry_datetime > max_expiry_time:
             raise ValidationError(
                 "You can't upload a file with an expiry time more than "
                 f"{max_expiry_offset} hours in the future.",
