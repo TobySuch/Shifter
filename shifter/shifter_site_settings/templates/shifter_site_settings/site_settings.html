@@ -51,7 +51,7 @@
                 </div>
                 <input name="{{ field.html_name }}" type="text" class="w-full input-primary" {% if field.value %}value="{{ field.value }}"{% endif %}  {% if field.help_text %}data-tooltip-target="tooltip-{{ field.html_name }}" {% endif %}>
                 {% if field.help_text %}
-                <div id="tooltip-{{ field.html_name }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                <div id="tooltip-{{ field.html_name }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
                     {{ field.help_text }}
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>
@@ -93,11 +93,11 @@
                 <p class="font-black text-4xl text-primary">{{ num_active_files }}</p>
             </div>
         </div>
-        <div id="tooltip-uptime" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+        <div id="tooltip-uptime" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
             Started at: {{ startup_time }}
             <div class="tooltip-arrow" data-popper-arrow></div>
         </div>
-        <div id="tooltip-expired-files" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+        <div id="tooltip-expired-files" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
             {{ num_expired_files }} file(s) to be cleaned up.
             <div class="tooltip-arrow" data-popper-arrow></div>
         </div>

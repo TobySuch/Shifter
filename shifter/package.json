@@ -3,8 +3,8 @@
   "version": "0.4.1",
   "description": "A simple, self-hosted file-sharing web app, powered by Django.",
   "scripts": {
-    "tailwind-dev": "npx tailwindcss -i /app/shifter/assets/css/style.css -o /app/shifter/static/css/style.css --watch",
-    "tailwind-build": "npx tailwindcss -i /app/shifter/assets/css/style.css -o /app/shifter/static/css/style.css --minify",
+    "tailwind-dev": "npx @tailwindcss/cli -i /app/shifter/assets/css/style.css -o /app/shifter/static/css/style.css --watch",
+    "tailwind-build": "npx @tailwindcss/cli -i /app/shifter/assets/css/style.css -o /app/shifter/static/css/style.css --minify",
     "js-dev": "webpack --mode development --watch",
     "js-build": "webpack --mode production"
   },
@@ -22,14 +22,15 @@
     "css-loader": "^7.1.2",
     "source-map-loader": "^5.0.0",
     "style-loader": "^4.0.0",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.0.0",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
+    "@tailwindcss/cli": "^4.0.0",
     "filepond": "^4.32.7",
     "filepond-plugin-file-validate-size": "^2.2.8",
-    "flowbite": "^2.5.2",
+    "flowbite": "^3.0.0",
     "jszip": "^3.10.1"
   }
 }

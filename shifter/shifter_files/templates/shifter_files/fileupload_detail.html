@@ -22,7 +22,7 @@
             <div><span class="font-semibold">File Size:</span> {{ object.file_content.size | pretty_file_size }}</div>
             <div class="flex flex-col align-center">
                 <span class="mb-2"><span class="font-semibold">Expires At:</span> <span class="localized-time" data-iso-time="{{ object.expiry_datetime|date:"c" }}">{{ object.expiry_datetime|date:"M j, Y, g:i A T" }}</span></span>
-                <span><button class="w-fit lg:w-full text-white bg-red-500 shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="button" data-modal-target="delete-file-modal" data-modal-toggle="delete-file-modal">Delete File</button></span>
+                <span><button class="w-fit lg:w-full text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="button" data-modal-target="delete-file-modal" data-modal-toggle="delete-file-modal">Delete File</button></span>
             </div>
         </div>
     </div>
@@ -30,8 +30,8 @@
     <!-- Confirm deletion modal -->
     <div id="delete-file-modal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full">
         <div class="relative w-full h-full max-w-2xl md:h-auto">
-            <div class="relative bg-white rounded-lg shadow">
-                <div class="flex items-center justify-center p-4 border-b rounded-t">
+            <div class="relative bg-white rounded-lg">
+                <div class="flex items-center justify-center p-4 border-b border-gray-200 rounded-t">
                     <h3 class="text-xl font-semibold text-gray-900">
                         Are You Sure?
                     </h3>
@@ -44,7 +44,7 @@
                 <div class="flex flex-row-reverse p-6 space-x-2 border-t border-gray-200 rounded-b">
                     <form method="post" action="{% url 'shifter_files:file-delete' object.file_hex %}">
                         {% csrf_token %}
-                        <input type="submit" value="Delete File" class="inline-flex justify-center m-2 text-white bg-red-600 shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer">
+                        <input type="submit" value="Delete File" class="inline-flex justify-center m-2 text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer">
                     </form>
                     <button data-modal-toggle="delete-file-modal" type="button" class="inline-flex justify-center m-2 text-gray-900 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-primary rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">Cancel</button>
                 </div>
@@ -53,7 +53,7 @@
     </div>
 
     <div id="notification" class="fixed bottom-4 inset-x-0 flex justify-center transition-opacity duration-500 opacity-0 hidden">
-        <span class="bg-primary text-white p-4 rounded-lg shadow-lg">
+        <span class="bg-primary text-white p-4 rounded-lg">
             Download link copied to clipboard.
         </span>
     </div>
