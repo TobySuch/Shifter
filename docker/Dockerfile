@@ -33,7 +33,6 @@ COPY ./shifter/package-lock.json .
 
 RUN npm install
 
-COPY ./shifter/tailwind.config.js .
 COPY ./shifter/webpack.config.js .
 COPY ./shifter ./shifter
 

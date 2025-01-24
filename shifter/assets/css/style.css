@@ -1,6 +1,28 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin 'flowbite/plugin';
+
+@theme {
+  --color-primary: #114c92;
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
 
 .btn-primary {
   @apply self-center text-gray-100 whitespace-nowrap bg-primary px-5 py-2 rounded-lg cursor-pointer;
@@ -15,15 +37,15 @@
 }
 
 .input-primary {
-  @apply rounded-lg p-2 border-2 bg-sky-100 border-sky-200 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-lg;
+  @apply rounded-lg p-2 border-2 bg-sky-100 border-sky-200 focus:outline-hidden focus:border-primary focus:ring-0 focus:rounded-lg;
 }
 
 .error-box {
-  @apply rounded text-center font-semibold bg-red-500 text-white p-4 mb-4;
+  @apply rounded-sm text-center font-semibold bg-red-500 text-white p-4 mb-4;
 }
 
 .info-box {
-  @apply rounded text-center font-semibold bg-primary text-white p-4 mb-4;
+  @apply rounded-sm text-center font-semibold bg-primary text-white p-4 mb-4;
 }
 
 [data-filepond-item-state*="error"] .filepond--item-panel,
