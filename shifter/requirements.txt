@@ -7,4 +7,4 @@ psycopg-binary==3.2.4
 sqlparse==0.5.3
 typing_extensions==4.12.2
 tblib==3.0.0
-whitenoise==6.8.2
+whitenoise==6.9.0
