@@ -30,7 +30,7 @@
     "@tailwindcss/cli": "^4.0.4",
     "filepond": "^4.32.7",
     "filepond-plugin-file-validate-size": "^2.2.8",
-    "flowbite": "^3.1.1",
+    "flowbite": "^3.1.2",
     "jszip": "^3.10.1"
   }
 }
