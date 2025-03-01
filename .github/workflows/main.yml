@@ -19,3 +19,21 @@ jobs:
 
       - name: Run Tests
         run: docker compose -f docker/dev//docker-compose.test.yml run shifter
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: run-tests
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Set up Docker Buildx
+        run: |
+          docker buildx create --name shifterbuilder --use --bootstrap
+
+      - name: Build and Push Docker Image
+        run: |
+          docker buildx build --file docker/Dockerfile --platform linux/amd64,linux/arm64 --build-arg="APP_VERSION=dev" --tag ghcr.io/${{ github.repository }}/shifter:dev --push .
