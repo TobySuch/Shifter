@@ -23,7 +23,7 @@
     "source-map-loader": "^5.0.0",
     "style-loader": "^4.0.0",
     "tailwindcss": "^4.0.0",
-    "webpack": "^5.99.6",
+    "webpack": "^5.99.7",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
