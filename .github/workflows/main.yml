@@ -19,3 +19,19 @@ jobs:
 
       - name: Run Tests
         run: docker compose -f docker/dev//docker-compose.test.yml run shifter
+
+  build-and-push-image:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: run-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ github.repository }}/shifter:dev -f docker/dev/Dockerfile .
+
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ github.repository }}/shifter:dev
