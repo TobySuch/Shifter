@@ -7,8 +7,8 @@ FROM python:3.13.3-alpine AS builder
 WORKDIR /app
 
 # set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 RUN apk add --update postgresql-dev gcc python3-dev musl-dev
 
@@ -72,8 +72,8 @@ COPY --from=nodebuilder /app/shifter/static/js $APP_HOME/static/js
 COPY --from=nodebuilder /app/shifter/static/css $APP_HOME/static/css
 
 # Labels
-LABEL org.opencontainers.image.title Shifter
-LABEL org.opencontainers.image.source https://github.com/TobySuch/Shifter
+LABEL org.opencontainers.image.title=Shifter
+LABEL org.opencontainers.image.source=https://github.com/TobySuch/Shifter
 LABEL org.opencontainers.image.description="Shifter - A simple, self-hosted file-sharing web app, powered by Django"
 LABEL org.opencontainers.image.licenses=MIT
 LABEL org.opencontainers.image.version=${APP_VERSION}
