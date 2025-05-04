@@ -39,7 +39,7 @@ jobs:
       - name: Build Docker image
         run: |
           APP_VERSION=$(git rev-parse --short HEAD)
-          docker build -t ghcr.io/${{ github.repository }}/shifter:dev -t ghcr.io/${{ github.repository }}/shifter:$APP_VERSION -f docker/Dockerfile .
+          docker build -t ghcr.io/tobysuch/shifter:dev -t ghcr.io/${{ github.repository }}/shifter:$APP_VERSION -f docker/Dockerfile .
 
       - name: Push Docker image
-        run: docker push ghcr.io/${{ github.repository }}/shifter:dev
+        run: docker push ghcr.io/tobysuch/shifter:dev
