@@ -23,6 +23,30 @@ jobs:
       - name: Run Tests
         run: docker compose -f docker/dev//docker-compose.test.yml run shifter
 
+  dependabot-auto-merge:
+    needs: run-tests
+    if: |
+      github.event_name == 'pull_request' &&
+      github.actor == 'dependabot[bot]' &&
+      needs.run-tests.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for patch updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          merge-method: squash
+
   build-and-push-image:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: run-tests
