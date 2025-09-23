@@ -46,6 +46,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           merge-method: squash
+          pull-request-number: ${{ github.event.pull_request.number }}
 
   build-and-push-image:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
