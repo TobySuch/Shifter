@@ -2,7 +2,7 @@ module.exports = {
   entry: {
     flowbite: "/app/shifter/assets/js/flowbite.js",
     filepond: "/app/shifter/assets/js/filepond.js",
-    cleanupexpiredfiles: "/app/shifter/assets/js/cleanup-expired-files.js",
+    sitesettings: "/app/shifter/assets/js/site-settings.js",
     timezoneutils: "/app/shifter/assets/js/timezone-utils.js",
   },
   output: {
