@@ -1,5 +1,5 @@
 asgiref==3.9.2
-Django==5.2.6
+Django==5.2.7
 django-crontab==0.7.1
 gunicorn==23.0.0
 psycopg==3.2.10
