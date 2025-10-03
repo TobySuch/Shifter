@@ -104,14 +104,26 @@ export function setupFilepond(
           let expiryFormField = document.querySelector(
             'input[name="' + expiryDatetimeElementName + '"]'
           );
-          let expiryDateTime = new Date(expiryFormField.value);
+          let expiryValue = expiryFormField.value;
 
           // Add the rest of the form data
           formData.append(
             "csrfmiddlewaretoken",
             document.querySelector('input[name="csrfmiddlewaretoken"]').value
           );
-          formData.append("expiry_datetime", expiryDateTime.toISOString());
+          if (expiryValue) {
+            const expiryDateTime = new Date(expiryValue);
+            if (Number.isNaN(expiryDateTime.getTime())) {
+              formData.append("expiry_datetime", expiryValue);
+            } else {
+              formData.append(
+                "expiry_datetime",
+                expiryDateTime.toISOString()
+              );
+            }
+          } else {
+            formData.append("expiry_datetime", "");
+          }
           return formData;
         },
         onload: (response) => {

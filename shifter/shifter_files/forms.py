@@ -25,14 +25,28 @@ class FileUploadForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(FileUploadForm, self).__init__(*args, **kwargs)
-        exp_date = timezone.now() + timedelta(
-            hours=int(SiteSetting.get_setting("default_expiry_offset"))
+        self.fields["expiry_datetime"].required = False
+        self.fields[
+            "expiry_datetime"
+        ].help_text = "Leave blank to keep the file available indefinitely."
+
+        default_expiry_offset = int(
+            SiteSetting.get_setting("default_expiry_offset")
         )
-        exp_date_str = exp_date.strftime(settings.DATETIME_INPUT_FORMATS[0])
-        self.fields["expiry_datetime"].initial = exp_date_str
-        self.fields["expiry_datetime"].widget.attrs["data-initial-iso"] = (
-            exp_date.isoformat()
-        )
+        if default_expiry_offset > 0:
+            exp_date = timezone.now() + timedelta(hours=default_expiry_offset)
+            exp_date_str = exp_date.strftime(
+                settings.DATETIME_INPUT_FORMATS[0]
+            )
+            self.fields["expiry_datetime"].initial = exp_date_str
+            self.fields["expiry_datetime"].widget.attrs["data-initial-iso"] = (
+                exp_date.isoformat()
+            )
+        else:
+            self.fields["expiry_datetime"].initial = None
+            self.fields["expiry_datetime"].widget.attrs.pop(
+                "data-initial-iso", None
+            )
 
         exp_date_min = timezone.now()
         exp_date_min_str = exp_date_min.strftime(
@@ -62,7 +76,11 @@ class FileUploadForm(forms.ModelForm):
             pass
 
     def clean_expiry_datetime(self):
-        expiry_datetime = self.cleaned_data["expiry_datetime"]
+        expiry_datetime = self.cleaned_data.get("expiry_datetime")
+
+        if expiry_datetime is None:
+            return expiry_datetime
+
         current_datetime = timezone.now()
         max_expiry_offset = SiteSetting.get_setting("max_expiry_offset")
         dont_validate_max_expiry = False
@@ -98,7 +116,7 @@ class FileUploadForm(forms.ModelForm):
 
         if file_content.size > max_file_size:
             raise ValidationError(
-                "You can't upload a file larger than " f"{max_file_size_str}",
+                f"You can't upload a file larger than {max_file_size_str}",
                 code="file-size-too-large",
             )
         return file_content

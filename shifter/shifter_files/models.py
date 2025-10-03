@@ -21,7 +21,7 @@ class FileUpload(models.Model):
     )
     filename = models.CharField(max_length=255)
     upload_datetime = models.DateTimeField()
-    expiry_datetime = models.DateTimeField()
+    expiry_datetime = models.DateTimeField(blank=True, null=True)
     file_content = models.FileField(upload_to="uploads/")
     file_hex = models.CharField(
         default=generate_hex_uuid, editable=False, unique=True, max_length=32
@@ -31,15 +31,22 @@ class FileUpload(models.Model):
         return self.filename
 
     def is_expired(self):
+        if self.expiry_datetime is None:
+            return False
         return self.expiry_datetime < timezone.now()
 
     @classmethod
     def get_expired_files(cls):
-        return cls.objects.filter(expiry_datetime__lte=Now())
+        return cls.objects.filter(
+            expiry_datetime__isnull=False, expiry_datetime__lte=Now()
+        )
 
     @classmethod
     def get_non_expired_files(cls):
-        return cls.objects.filter(expiry_datetime__gt=Now())
+        return cls.objects.filter(
+            models.Q(expiry_datetime__gt=Now())
+            | models.Q(expiry_datetime__isnull=True)
+        )
 
     @classmethod
     def delete_expired_files(cls):

@@ -101,6 +101,42 @@ class IndexViewTest(TestCase):
             json.dumps(expected_response), response.content.decode()
         )
 
+    def test_file_upload_without_expiry(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        SiteSetting.objects.update_or_create(
+            name="default_expiry_offset", defaults={"value": "0"}
+        )
+        current_datetime = timezone.now()
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+
+        response = client.post(
+            reverse("shifter_files:index"),
+            {
+                "expiry_datetime": "",
+                "file_content": test_file,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        uploaded_file = FileUpload.objects.first()
+        self.assertIsNotNone(uploaded_file)
+        self.assertIsNone(uploaded_file.expiry_datetime)
+        self.assertAlmostEqual(
+            uploaded_file.upload_datetime,
+            current_datetime,
+            delta=datetime.timedelta(minutes=1),
+        )
+
+        expected_response = {
+            "redirect_url": reverse(
+                "shifter_files:file-details", args=[uploaded_file.file_hex]
+            )
+        }
+        self.assertEqual(
+            json.dumps(expected_response), response.content.decode()
+        )
+
     def test_expiry_date_in_past(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
