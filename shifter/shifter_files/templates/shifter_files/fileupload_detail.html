@@ -21,7 +21,13 @@
             <div><span class="font-semibold">Uploaded At:</span> <span class="localized-time" data-iso-time="{{ object.upload_datetime|date:"c" }}">{{ object.upload_datetime|date:"M j, Y, g:i A T" }}</span></div>
             <div><span class="font-semibold">File Size:</span> {{ object.file_content.size | pretty_file_size }}</div>
             <div class="flex flex-col align-center">
-                <span class="mb-2"><span class="font-semibold">Expires At:</span> <span class="localized-time" data-iso-time="{{ object.expiry_datetime|date:"c" }}">{{ object.expiry_datetime|date:"M j, Y, g:i A T" }}</span></span>
+                <span class="mb-2"><span class="font-semibold">Expires At:</span>
+                    {% if object.expiry_datetime %}
+                    <span class="localized-time" data-iso-time="{{ object.expiry_datetime|date:"c" }}">{{ object.expiry_datetime|date:"M j, Y, g:i A T" }}</span>
+                    {% else %}
+                    <span class="text-gray-600">Does not expire</span>
+                    {% endif %}
+                </span>
                 <span><button class="w-fit lg:w-full text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="button" data-modal-target="delete-file-modal" data-modal-toggle="delete-file-modal">Delete File</button></span>
             </div>
         </div>

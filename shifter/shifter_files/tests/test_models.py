@@ -87,6 +87,19 @@ class FileUploadModelTest(TestCase):
 
         self.assertTrue(file_upload.is_expired())
 
+    def test_is_expired_none(self):
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+        file_upload = FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=current_datetime,
+            expiry_datetime=None,
+            filename=TEST_FILE_NAME,
+        )
+
+        self.assertFalse(file_upload.is_expired())
+
     def test_get_expired_files(self):
         expired_files = FileUpload.get_expired_files()
         self.assertEqual(expired_files.count(), 0)
@@ -118,6 +131,21 @@ class FileUploadModelTest(TestCase):
         self.assertEqual(expired_files.count(), 2)
         self.assertEqual(expired_files.last(), file_upload2)
 
+    def test_get_expired_files_ignores_non_expiring(self):
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+
+        FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=current_datetime,
+            expiry_datetime=None,
+            filename=TEST_FILE_NAME,
+        )
+
+        expired_files = FileUpload.get_expired_files()
+        self.assertEqual(expired_files.count(), 0)
+
     def test_delete_expired_files_empty(self):
         self.assertEqual(FileUpload.get_expired_files().count(), 0)
         num_files_deleted = FileUpload.delete_expired_files()
@@ -141,3 +169,36 @@ class FileUploadModelTest(TestCase):
         num_files_deleted = FileUpload.delete_expired_files()
         self.assertEqual(num_files_deleted, 2)
         self.assertEqual(FileUpload.get_expired_files().count(), 0)
+
+    def test_get_non_expired_files_includes_non_expiring(self):
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+        future_datetime = current_datetime + datetime.timedelta(days=1)
+
+        future_file = FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=current_datetime,
+            expiry_datetime=future_datetime,
+            filename=TEST_FILE_NAME,
+        )
+        non_expiring_file = FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=current_datetime,
+            expiry_datetime=None,
+            filename=TEST_FILE_NAME,
+        )
+        FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=current_datetime,
+            expiry_datetime=current_datetime - datetime.timedelta(days=1),
+            filename=TEST_FILE_NAME,
+        )
+
+        non_expired = list(FileUpload.get_non_expired_files())
+
+        self.assertIn(future_file, non_expired)
+        self.assertIn(non_expiring_file, non_expired)
+        self.assertEqual(len(non_expired), 2)

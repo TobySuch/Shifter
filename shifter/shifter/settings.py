@@ -264,6 +264,7 @@ SITE_SETTINGS = {
         "field_type": forms.IntegerField,
         "min_value": 0,
         "max_value": 2147483647,
+        "tooltip": "Set to 0 to make expiry optional when uploading files.",
     },
     "max_expiry_offset": {
         "default": 24 * 365 * 5,  # 5 years

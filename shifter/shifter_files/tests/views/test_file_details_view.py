@@ -104,6 +104,24 @@ class FileDetailsViewTest(TestCase):
             response, "shifter_files/fileupload_detail.html"
         )
 
+    def test_correct_user_file_without_expiry(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        file_upload = FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=timezone.now(),
+            expiry_datetime=None,
+            filename=TEST_FILE_NAME,
+        )
+        url = reverse(
+            "shifter_files:file-details", args=[file_upload.file_hex]
+        )
+        response = client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
     def test_file_does_not_exist(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)

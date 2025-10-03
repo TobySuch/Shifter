@@ -52,6 +52,9 @@
                 <div class="flex items-center w-full xl:w-auto">
                     <label for="{{ form.expiry_datetime.name }}" class="font-medium mr-2">Expiry:</label>
                     {{ form.expiry_datetime }}
+                    {% if form.expiry_datetime.help_text %}
+                    <span class="ml-2 text-sm text-gray-600">{{ form.expiry_datetime.help_text }}</span>
+                    {% endif %}
                 </div>
                 <div class="flex items-center w-full xl:w-auto flex-grow hidden">
                     <label for="zip-file-name" class="font-medium mr-2">Zip File Name:</label>
