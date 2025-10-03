@@ -46,4 +46,22 @@ class SiteSettingsView(UserPassesTestMixin, FormView):
         )
         context["num_expired_files"] = FileUpload.get_expired_files().count()
 
+        site_information_lines = [
+            "## Site Information",
+            "Debug Mode: {}".format(
+                "True" if context["debug_mode"] else "False"
+            ),
+            f"Shifter Version: {context['shifter_version']}",
+            f"Python Version: {context['python_version']}",
+            f"DB Engine: {context['db_engine']}",
+            f"Uptime: {context['uptime']}",
+            f"Startup Time: {context['startup_time']}",
+            f"Active Files: {context['num_active_files']}",
+            f"Expired Files Pending Cleanup: {context['num_expired_files']}",
+        ]
+
+        context["site_information_clipboard"] = "\n".join(
+            site_information_lines
+        )
+
         return context

@@ -5,7 +5,7 @@
 {% block title %}<title>Site Settings | Shifter</title>{% endblock %}
 
 {% block head %}
-<script src="{% static 'js/cleanupexpiredfiles-bundle.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/sitesettings-bundle.js' %}" type="text/javascript"></script>
 {% endblock %}
 
 {% block content %}
@@ -64,7 +64,10 @@
         </form>
     </div>
     <div>
-        <h2 class="text-gray-800 text-2xl font-medium border-t-2 border-gray-400 py-4">Site Information</h2>
+        <div class="flex items-center justify-between border-t-2 border-gray-400 py-4">
+            <h2 class="text-gray-800 text-2xl font-medium">Site Information</h2>
+            <button id="copy-site-info-btn" type="button" class="btn-primary">Copy Site Info</button>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2">
             <div class="flex flex-col justify-between rounded-lg p-2 border-2 border-sky-200 bg-sky-100 w-full text-center space-y-2">
                 <p class="font-semibold">Debug Mode</p>
@@ -102,8 +105,10 @@
             <div class="tooltip-arrow" data-popper-arrow></div>
         </div>
     </div>
+    {{ site_information_clipboard|json_script:"site-information-data" }}
 </div>
 <script>
     document.getElementById('cleanup-expired-files-btn').addEventListener('click', Shifter.cleanupExpiredFiles);
+    document.getElementById('copy-site-info-btn').addEventListener('click', Shifter.copySiteInformation);
 </script>
 {% endblock %}
