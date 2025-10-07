@@ -1,4 +1,4 @@
-asgiref==3.9.2
+asgiref==3.10.0
 Django==5.2.7
 django-crontab==0.7.1
 gunicorn==23.0.0
