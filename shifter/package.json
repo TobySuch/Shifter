@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.16",
-    "filepond": "^4.32.9",
+    "filepond": "^4.32.10",
     "filepond-plugin-file-validate-size": "^2.2.8",
     "flowbite": "^3.1.2",
     "jszip": "^3.10.1"
