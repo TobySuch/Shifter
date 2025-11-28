@@ -2,3 +2,4 @@ shifter/media/
 shifter/static/css
 shifter/static/js
 .DS_Store
+shifter/db/*
