@@ -13,7 +13,7 @@ updates:
       - "backend"
       - "dependencies"
     commit-message:
-      prefix: ":arrow_up:"
+      prefix: "chore(deps-backend):"
     groups:
       python-dependencies:
         applies-to: version-updates
@@ -28,7 +28,7 @@ updates:
       - "frontend"
       - "dependencies"
     commit-message:
-      prefix: ":arrow_up:"
+      prefix: "chore(deps-frontend):"
     groups:
       js-dependencies:
         applies-to: version-updates
@@ -42,7 +42,7 @@ updates:
     labels:
       - "dependencies"
     commit-message:
-      prefix: ":arrow_up:"
+      prefix: "chore(deps-docker):"
     groups:
       docker-dependencies:
         applies-to: version-updates
@@ -56,7 +56,7 @@ updates:
     labels:
       - "dependencies"
     commit-message:
-      prefix: ":arrow_up:"
+      prefix: "chore(deps-docker-dev):"
     groups:
       docker-dev-dependencies:
         applies-to: version-updates
