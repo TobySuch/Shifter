@@ -1,4 +1,5 @@
 {% load static %}
+{% load django_vite %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -9,11 +10,11 @@
         <link rel="icon" href="{% static 'img/favicon.ico' %}" sizes="32x32">
         <link rel="icon" href="{% static 'img/logo.svg' %}" type="image/svg+xml">
         <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
-        <script src="{% static 'js/timezoneutils-bundle.js' %}"></script>
         {% block head %}
         {% endblock %}
-        {# Loaded after head, so that tailwind can override css classes. #}
-        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        {% vite_asset 'assets/js/shifter.js' %}
+        {% vite_hmr_client %}
+        
     </head>
 
     <body class="flex flex-col font-sans leading-normal tracking-normal bg-white h-screen">
@@ -91,6 +92,5 @@
                 </a>
             </div>
         </footer>
-        <script src="{% static 'js/flowbite-bundle.js' %}"></script>
-    </body>
+     </body>
 </html>

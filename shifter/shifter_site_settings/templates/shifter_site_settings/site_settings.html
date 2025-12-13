@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
-{% load static %}
+{% load django_vite %}
 
 {% block title %}<title>Site Settings | Shifter</title>{% endblock %}
 
 {% block head %}
-<script src="{% static 'js/sitesettings-bundle.js' %}" type="text/javascript"></script>
+{% vite_asset 'assets/js/site-settings.js' %}
 {% endblock %}
 
 {% block content %}
@@ -107,8 +107,4 @@
     </div>
     {{ site_information_clipboard|json_script:"site-information-data" }}
 </div>
-<script>
-    document.getElementById('cleanup-expired-files-btn').addEventListener('click', Shifter.cleanupExpiredFiles);
-    document.getElementById('copy-site-info-btn').addEventListener('click', Shifter.copySiteInformation);
-</script>
 {% endblock %}

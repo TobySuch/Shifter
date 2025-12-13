@@ -14,7 +14,7 @@ services:
   #   env_file:
   #     - .env
   shifter:
-    image: ghcr.io/tobysuch/shifter:latest
+    image: ghcr.io/tobysuch/shifter:latest # Recommend you pin this to a specific version
     restart: always
     volumes:
       - media:/home/app/web/media
