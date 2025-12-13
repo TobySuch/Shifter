@@ -15,7 +15,10 @@ function getCookie(name) {
 }
 
 export async function cleanupExpiredFiles() {
-  this.disabled = true;
+  const button = this instanceof HTMLElement ? this : null;
+  if (button) {
+    button.disabled = true;
+  }
 
   const result = await fetch("/api/cleanup-files", {
     method: "POST",
@@ -40,11 +43,13 @@ export async function cleanupExpiredFiles() {
     expiredFilesInfo.classList.remove("opacity-0");
   }
 
-  this.disabled = false;
+  if (button) {
+    button.disabled = false;
+  }
 }
 
 export async function copySiteInformation() {
-  const button = this;
+  const button = this instanceof HTMLElement ? this : null;
   const siteInfoElement = document.getElementById("site-information-data");
 
   if (!siteInfoElement) {
@@ -105,4 +110,26 @@ export async function copySiteInformation() {
   }
 
   resetButton();
+}
+
+function initSiteSettings() {
+  const cleanupButton = document.getElementById("cleanup-expired-files-btn");
+  if (cleanupButton) {
+    cleanupButton.addEventListener("click", function () {
+      cleanupExpiredFiles.call(this);
+    });
+  }
+
+  const copyButton = document.getElementById("copy-site-info-btn");
+  if (copyButton) {
+    copyButton.addEventListener("click", function () {
+      copySiteInformation.call(this);
+    });
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initSiteSettings);
+} else {
+  initSiteSettings();
 }

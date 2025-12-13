@@ -2,35 +2,34 @@
   "name": "shifter",
   "version": "0.4.2",
   "description": "A simple, self-hosted file-sharing web app, powered by Django.",
-  "scripts": {
-    "tailwind-dev": "npx @tailwindcss/cli -i /app/shifter/assets/css/style.css -o /app/shifter/static/css/style.css --watch",
-    "tailwind-build": "npx @tailwindcss/cli -i /app/shifter/assets/css/style.css -o /app/shifter/static/css/style.css --minify",
-    "js-dev": "webpack --mode development --watch",
-    "js-build": "webpack --mode production"
+  "homepage": "https://github.com/TobySuch/Shifter#readme",
+  "bugs": {
+    "url": "https://github.com/TobySuch/Shifter/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TobySuch/Shifter.git"
   },
-  "author": "TobySuch",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/TobySuch/Shifter/issues"
+  "author": "TobySuch",
+  "type": "commonjs",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
   },
-  "homepage": "https://github.com/TobySuch/Shifter#readme",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build"
+  },
   "devDependencies": {
-    "css-loader": "^7.1.2",
-    "source-map-loader": "^5.0.0",
-    "style-loader": "^4.0.0",
-    "tailwindcss": "^4.1.18",
-    "webpack": "^5.103.0",
-    "webpack-cli": "^6.0.1"
+    "@tailwindcss/vite": "^4.1.18",
+    "vite": "^7.2.7"
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.1.18",
     "filepond": "^4.32.10",
     "filepond-plugin-file-validate-size": "^2.2.8",
     "flowbite": "^4.0.1",
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "tailwindcss": "^4.1.18"
   }
 }

@@ -17,24 +17,36 @@ services:
     ports:
       - "8000:8000"
 
-  frontend-tailwind:
+  frontend:
     build:
       context: ../../
       dockerfile: docker/dev/Dockerfile.frontend.dev
-    command: npm run tailwind-dev
     volumes:
       - ../../shifter:/app/shifter
+      - /app/shifter/node_modules
     env_file:
       - ../../.env.dev
     tty: true
+    ports:
+      - "5173:5173"
+    command: >
+      sh -lc '
+        set -e;
+        cd /app/shifter;
 
-  frontend-js:
-    build:
-      context: ../../
-      dockerfile: docker/dev/Dockerfile.frontend.dev
-    command: npm run js-dev
-    volumes:
-      - ../../shifter:/app/shifter
-    env_file:
-      - ../../.env.dev
-    tty: true
+        LOCK=package-lock.json;
+        HASH_FILE=node_modules/.lockhash;
+
+        mkdir -p node_modules;
+
+        NEW_HASH="$$(sha256sum "$$LOCK" | awk "{print \$$1}")";
+        OLD_HASH="$$(cat "$$HASH_FILE" 2>/dev/null || true)";
+
+        if [ "$$NEW_HASH" != "$$OLD_HASH" ]; then
+          echo "Lockfile changed (or first run). Installing deps...";
+          npm ci;
+          echo "$$NEW_HASH" > "$$HASH_FILE";
+        fi
+
+        npm run dev
+      '

@@ -1,12 +1,7 @@
 FROM node:25
 
-WORKDIR /app
+WORKDIR /app/shifter
 
-RUN npm install -g npm
+RUN npm install -g npm@latest
 
-COPY ./shifter/package.json .
-COPY ./shifter/package-lock.json .
-
-RUN npm install
-
-COPY ./shifter/webpack.config.js .
+EXPOSE 5173

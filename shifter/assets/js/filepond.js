@@ -153,3 +153,24 @@ export function setupFilepond(
     handleFilesChanged(pond);
   });
 }
+
+function autoInitFilepond() {
+  const host = document.querySelector("[data-filepond]");
+  if (!host) {
+    return;
+  }
+
+  const { fileField, expiryField, maxSize } = host.dataset;
+  if (!fileField || !expiryField || !maxSize) {
+    console.warn("Filepond init skipped: missing data attributes.");
+    return;
+  }
+
+  setupFilepond(fileField, expiryField, maxSize);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", autoInitFilepond);
+} else {
+  autoInitFilepond();
+}

@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
-{% load static %}
+{% load django_vite %}
 
 {% block head %}
-<script src="{% static 'js/filepond-bundle.js' %}" type="text/javascript"></script>
+{% vite_asset 'assets/js/filepond.js' %}
 {% endblock %}
 
 {% block title %}<title>Upload File | Shifter</title>{% endblock %}
 
 {% block content %}
-<div class="standard-page-width">
+<div class="standard-page-width" data-filepond data-file-field="{{ form.file_content.name }}" data-expiry-field="{{ form.expiry_datetime.name }}" data-max-size="{{ setting_max_file_size }}">
     <div class="py-2 rounded-t">
         <h1 class="title">Upload File</h1>
     </div>
@@ -65,7 +65,4 @@
         </div>
     </div>
 </div>
-<script>
-    Shifter.setupFilepond("{{ form.file_content.name }}", "{{ form.expiry_datetime.name }}", "{{ setting_max_file_size }}");
-</script>
 {% endblock %}

@@ -25,7 +25,7 @@ RUN ruff check .
 # NODE BUILDER #
 ################
 FROM node:25 AS nodebuilder
-WORKDIR /app
+WORKDIR /app/shifter
 
 RUN npm install -g npm
 COPY ./shifter/package.json .
@@ -33,11 +33,10 @@ COPY ./shifter/package-lock.json .
 
 RUN npm install
 
-COPY ./shifter/webpack.config.js .
-COPY ./shifter ./shifter
+COPY ./shifter/vite.config.js .
+COPY ./shifter .
 
-RUN npm run tailwind-build
-RUN npm run js-build
+RUN npm run build
 
 
 #########
@@ -70,6 +69,7 @@ COPY ./shifter/ $APP_HOME
 # copy static files
 COPY --from=nodebuilder /app/shifter/static/js $APP_HOME/static/js
 COPY --from=nodebuilder /app/shifter/static/css $APP_HOME/static/css
+COPY --from=nodebuilder /app/shifter/static/manifest.json $APP_HOME/static/manifest.json
 
 # Labels
 LABEL org.opencontainers.image.title=Shifter

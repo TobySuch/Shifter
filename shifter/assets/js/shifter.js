@@ -1,3 +1,8 @@
+// Global JS for Shifter required by all pages.
+
+import "../css/style.css";
+import "flowbite";
+
 let dtFormat = new Intl.DateTimeFormat(undefined, {
   year: "numeric",
   month: "2-digit",
@@ -23,13 +28,13 @@ function convertDateToFormFieldFormat(date) {
   );
 }
 
-function convertTextElementToLocalTime(element) {
+export function convertTextElementToLocalTime(element) {
   const isoTime = new Date(element.getAttribute("data-iso-time"));
   const localTime = dtFormat.format(isoTime);
   element.textContent = localTime;
 }
 
-function convertDateTimeLocalFormElementToLocalTime(input) {
+export function convertDateTimeLocalFormElementToLocalTime(input) {
   const initialVal = new Date(input.getAttribute("data-initial-iso"));
   input.value = convertDateToFormFieldFormat(initialVal);
 

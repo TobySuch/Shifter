@@ -43,5 +43,6 @@ venv.bak/
 shifter/media/
 shifter/static/css
 shifter/static/js
+shifter/static/manifest.json
 
 node_modules/
