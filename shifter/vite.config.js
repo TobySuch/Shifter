@@ -14,6 +14,10 @@ export default defineConfig(({ command }) => {
       },
     },
     clearScreen: false,
+    test: {
+      environment: "jsdom",
+      setupFiles: "./tests/setup.js",
+    },
     build: {
       // Where Vite will save its output files.
       // This should be something in your settings.STATICFILES_DIRS

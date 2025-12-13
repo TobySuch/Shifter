@@ -20,8 +20,15 @@ jobs:
       - name: Build Images
         run: docker compose -f docker/dev/docker-compose.test.yml build
 
-      - name: Run Tests
-        run: docker compose -f docker/dev//docker-compose.test.yml run shifter
+      - name: Run Backend Tests
+        run: docker compose -f docker/dev/docker-compose.test.yml run shifter
+
+      - name: Run Frontend Tests
+        run: docker compose -f docker/dev/docker-compose.test.yml run frontend-tests
+
+      - name: Cleanup
+        if: always()
+        run: docker compose -f docker/dev/docker-compose.test.yml down
 
   dependabot-auto-merge:
     needs: run-tests

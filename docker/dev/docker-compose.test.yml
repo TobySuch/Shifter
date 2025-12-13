@@ -14,3 +14,13 @@ services:
       - DJANGO_LOG_LEVEL=OFF
       - TEST_MODE=1
       - APP_VERSION=TESTING
+
+  frontend-tests:
+    build:
+      context: ../../
+      dockerfile: docker/Dockerfile
+      target: nodebuilder
+    working_dir: /app/shifter
+    command: npm test
+    environment:
+      - TZ=UTC
