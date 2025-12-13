@@ -19,11 +19,14 @@
   },
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build"
+    "build": "vite build",
+    "test": "vitest run"
   },
   "devDependencies": {
+    "jsdom": "^26.0.0",
     "@tailwindcss/vite": "^4.1.18",
-    "vite": "^7.2.7"
+    "vite": "^7.2.7",
+    "vitest": "^3.0.5"
   },
   "dependencies": {
     "filepond": "^4.32.10",
