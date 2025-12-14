@@ -17,7 +17,7 @@
         {% if messages %}
         {% for message in messages %}
         <div id="msgbox-{{ forloop.counter}}" class="flex {% if message.tags %}{{ message.tags }}-box{% endif %}" role="alert">
-            <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <svg aria-hidden="true" class="shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
                 <span class="sr-only">{{ message.tags | title }}</span>
             <div class="ml-3 text-sm font-medium text-center">
                 {{ message }}
@@ -32,14 +32,14 @@
 
         {% csrf_token %}
         <div id="info-box" class="flex info-box hidden" role="alert">
-            <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <svg aria-hidden="true" class="shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
             <span class="sr-only">Info</span>
             <div id="info-box-message" class="ml-3 text-sm font-medium text-center">
             </div>
         </div>
 
         <div id="error-box" class="flex error-box hidden" role="alert">
-            <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <svg aria-hidden="true" class="shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
             <span class="sr-only">Info</span>
             <div id="error-box-message" class="ml-3 text-sm font-medium text-center">
             </div>
@@ -53,9 +53,9 @@
                     <label for="{{ form.expiry_datetime.name }}" class="font-medium mr-2">Expiry:</label>
                     {{ form.expiry_datetime }}
                 </div>
-                <div class="flex items-center w-full xl:w-auto flex-grow hidden">
+                <div class="flex items-center w-full xl:w-auto grow hidden">
                     <label for="zip-file-name" class="font-medium mr-2">Zip File Name:</label>
-                    <input id="zip-file-name" name="zip-file-name" class="rounded-l-lg p-2 border-2 bg-sky-100 border-sky-200 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-l-lg flex-grow" value="combined" />
+                    <input id="zip-file-name" name="zip-file-name" class="rounded-l-lg p-2 border-2 bg-sky-100 border-sky-200 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-l-lg grow" value="combined" />
                     <span class="rounded-r-lg p-2 border-y-2 border-r-2 bg-gray-100 border-gray-200">.zip</span>
                 </div>
                 <div class="flex justify-center xl:justify-end w-full xl:w-auto">
