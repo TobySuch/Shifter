@@ -5,6 +5,25 @@ import "flowbite";
 import Alpine from "alpinejs";
 
 window.Alpine = Alpine;
+
+Alpine.data("clipboardNotification", (downloadUrl) => ({
+  downloadUrl,
+  showNotification: false,
+  copyToClipboard() {
+    navigator.clipboard.writeText(this.downloadUrl).then(
+      () => {
+        this.showNotification = true;
+        setTimeout(() => {
+          this.showNotification = false;
+        }, 3000);
+      },
+      (err) => {
+        console.error("Could not copy link to clipboard: ", err);
+      }
+    );
+  },
+}));
+
 Alpine.start();
 
 let dtFormat = new Intl.DateTimeFormat(undefined, {
