@@ -51,11 +51,12 @@ describe("convertDateTimeLocalFormElementToLocalTime", () => {
   it("populates value, min, and max attributes from ISO sources", () => {
     const input = document.createElement("input");
     input.type = "datetime-local";
-    input.setAttribute("data-initial-iso", "2024-06-15T09:45:00Z");
-    input.setAttribute("data-min-iso", "2024-06-01T00:00:00Z");
-    input.setAttribute("data-max-iso", "2024-06-30T23:59:00Z");
 
-    convertDateTimeLocalFormElementToLocalTime(input);
+    convertDateTimeLocalFormElementToLocalTime(input, {
+      initialIso: "2024-06-15T09:45:00Z",
+      minIso: "2024-06-01T00:00:00Z",
+      maxIso: "2024-06-30T23:59:00Z",
+    });
 
     expect(input.value).toBe(
       toLocalInputValue(new Date("2024-06-15T09:45:00Z")),
@@ -71,10 +72,11 @@ describe("convertDateTimeLocalFormElementToLocalTime", () => {
   it("leaves max unset when no limit is provided", () => {
     const input = document.createElement("input");
     input.type = "datetime-local";
-    input.setAttribute("data-initial-iso", "2024-01-02T03:04:00Z");
-    input.setAttribute("data-min-iso", "2024-01-01T00:00:00Z");
 
-    convertDateTimeLocalFormElementToLocalTime(input);
+    convertDateTimeLocalFormElementToLocalTime(input, {
+      initialIso: "2024-01-02T03:04:00Z",
+      minIso: "2024-01-01T00:00:00Z",
+    });
 
     expect(input.value).toBe(
       toLocalInputValue(new Date("2024-01-02T03:04:00Z")),
