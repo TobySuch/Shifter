@@ -75,3 +75,17 @@ jobs:
 
       - name: Push Docker image
         run: docker push ghcr.io/tobysuch/shifter:dev
+
+      - name: Delete untagged images
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: tobysuch
+          PACKAGE: shifter
+        run: |
+          versions=$(gh api -H "Accept: application/vnd.github+json" \
+            /users/$OWNER/packages/container/$PACKAGE/versions --paginate \
+            --jq '.[] | select(.metadata.container.tags | length == 0) | .id')
+          for id in $versions; do
+            gh api -X DELETE -H "Accept: application/vnd.github+json" \
+              /users/$OWNER/packages/container/$PACKAGE/versions/$id
+          done
