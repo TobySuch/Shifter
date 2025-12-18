@@ -75,24 +75,3 @@ jobs:
 
       - name: Push Docker image
         run: docker push ghcr.io/tobysuch/shifter:dev
-
-      - name: Delete untagged images
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-          PACKAGE: shifter
-        run: |
-          owner_type=$(gh api -H "Accept: application/vnd.github+json" \
-            /users/$OWNER --jq '.type')
-          if [ "$owner_type" = "Organization" ]; then
-            base_path="/orgs/$OWNER"
-          else
-            base_path="/users/$OWNER"
-          fi
-          versions=$(gh api -H "Accept: application/vnd.github+json" \
-            "$base_path/packages/container/$PACKAGE/versions" --paginate \
-            --jq '.[] | select(.metadata.container.tags | length == 0) | .id')
-          for id in $versions; do
-            gh api -X DELETE -H "Accept: application/vnd.github+json" \
-              "$base_path/packages/container/$PACKAGE/versions/$id"
-          done
