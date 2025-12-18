@@ -5,26 +5,73 @@ import "filepond/dist/filepond.min.css";
 
 FilePond.registerPlugin(FilePondPluginFileValidateSize);
 
+document.addEventListener("alpine:init", () => {
+  if (!window.Alpine) {
+    return;
+  }
+
+  window.Alpine.store("uploadAlerts", {
+    showInfo: false,
+    showError: false,
+    infoMessage: "",
+    errorMessage: "",
+    setInfo(message) {
+      this.infoMessage = message;
+      this.errorMessage = "";
+      this.showError = false;
+      this.showInfo = true;
+    },
+    setError(message) {
+      this.errorMessage = message;
+      this.infoMessage = "";
+      this.showInfo = false;
+      this.showError = true;
+    },
+    clear() {
+      this.infoMessage = "";
+      this.errorMessage = "";
+      this.showInfo = false;
+      this.showError = false;
+    },
+  });
+
+  window.Alpine.store("uploadState", {
+    showZipName: false,
+  });
+});
+
+function getUploadAlertsStore() {
+  if (!window.Alpine) {
+    return null;
+  }
+
+  return window.Alpine.store("uploadAlerts");
+}
+
+function getUploadStateStore() {
+  if (!window.Alpine) {
+    return null;
+  }
+
+  return window.Alpine.store("uploadState");
+}
+
 function showInfoBox(message) {
-  const errorBox = document.getElementById("error-box");
-  const infoBox = document.getElementById("info-box");
-  const errorBoxMessage = document.getElementById("error-box-message");
-  const infoBoxMessage = document.getElementById("info-box-message");
-  errorBoxMessage.innerHTML = "";
-  infoBoxMessage.innerHTML = message;
-  errorBox.classList.add("hidden");
-  infoBox.classList.remove("hidden");
+  const alerts = getUploadAlertsStore();
+  if (!alerts) {
+    return;
+  }
+
+  alerts.setInfo(message);
 }
 
 function showErrorBox(message) {
-  const errorBox = document.getElementById("error-box");
-  const infoBox = document.getElementById("info-box");
-  const errorBoxMessage = document.getElementById("error-box-message");
-  const infoBoxMessage = document.getElementById("info-box-message");
-  infoBoxMessage.innerHTML = "";
-  errorBoxMessage.innerHTML = message;
-  infoBox.classList.add("hidden");
-  errorBox.classList.remove("hidden");
+  const alerts = getUploadAlertsStore();
+  if (!alerts) {
+    return;
+  }
+
+  alerts.setError(message);
 }
 
 function combineFiles(pond) {
@@ -66,12 +113,10 @@ function combineFiles(pond) {
 
 function handleFilesChanged(pond) {
   const numFiles = pond.getFiles().length;
-  const zipFileName = document.getElementById("zip-file-name").parentElement;
+  const uploadState = getUploadStateStore();
 
-  if (numFiles > 1) {
-    zipFileName.classList.remove("hidden");
-  } else {
-    zipFileName.classList.add("hidden");
+  if (uploadState) {
+    uploadState.showZipName = numFiles > 1;
   }
 }
 
@@ -134,6 +179,11 @@ export function setupFilepond(
     instantUpload: false,
   });
   const uploadButton = document.getElementById("upload-btn");
+  let hasValidationError = false;
+
+  function updateUploadButtonState() {
+    uploadButton.disabled = hasValidationError || pond.getFiles().length === 0;
+  }
 
   uploadButton.addEventListener("click", () => {
     combineFiles(pond)
@@ -149,9 +199,43 @@ export function setupFilepond(
       });
   });
 
+  pond.on("addfile", (error) => {
+    if (error) {
+      const errorMessage =
+        typeof error === "string"
+          ? error
+          : error?.main || error?.message || "File could not be added.";
+      hasValidationError = true;
+      showErrorBox(errorMessage);
+      updateUploadButtonState();
+      return;
+    }
+
+    hasValidationError = false;
+    const alerts = getUploadAlertsStore();
+    if (alerts && alerts.showError) {
+      alerts.clear();
+    }
+    updateUploadButtonState();
+  });
+
+  pond.on("removefile", () => {
+    if (pond.getFiles().length === 0) {
+      hasValidationError = false;
+      const alerts = getUploadAlertsStore();
+      if (alerts && alerts.showError) {
+        alerts.clear();
+      }
+    }
+    updateUploadButtonState();
+  });
+
   pond.on("updatefiles", () => {
     handleFilesChanged(pond);
+    updateUploadButtonState();
   });
+
+  updateUploadButtonState();
 }
 
 function autoInitFilepond() {
