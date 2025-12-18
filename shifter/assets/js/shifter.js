@@ -34,12 +34,47 @@ Alpine.data("localizedTime", (isoTime) => ({
 }));
 
 Alpine.data("localizedDateTimeInput", (initialIso, minIso, maxIso) => ({
+  minOffsetMs: null,
+  maxOffsetMs: null,
+  intervalId: null,
   init() {
+    const now = Date.now();
+    if (minIso) {
+      this.minOffsetMs = new Date(minIso).getTime() - now;
+    }
+    if (maxIso) {
+      this.maxOffsetMs = new Date(maxIso).getTime() - now;
+    }
+
     convertDateTimeLocalFormElementToLocalTime(this.$el, {
       initialIso,
       minIso,
       maxIso,
     });
+
+    this.updateRelativeBounds();
+    this.intervalId = setInterval(() => {
+      this.updateRelativeBounds();
+    }, 1000);
+    this.$el.addEventListener(
+      "alpine:destroy",
+      () => {
+        if (this.intervalId) {
+          clearInterval(this.intervalId);
+        }
+      },
+      { once: true }
+    );
+  },
+  updateRelativeBounds() {
+    if (this.minOffsetMs !== null) {
+      const minTime = new Date(Date.now() + this.minOffsetMs);
+      this.$el.min = convertDateToFormFieldFormat(minTime);
+    }
+    if (this.maxOffsetMs !== null) {
+      const maxTime = new Date(Date.now() + this.maxOffsetMs);
+      this.$el.max = convertDateToFormFieldFormat(maxTime);
+    }
   },
 }));
 
