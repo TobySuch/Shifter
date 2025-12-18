@@ -1,3 +1,4 @@
+import json
 from datetime import timedelta
 
 from django import forms
@@ -30,19 +31,17 @@ class FileUploadForm(forms.ModelForm):
         )
         exp_date_str = exp_date.strftime(settings.DATETIME_INPUT_FORMATS[0])
         self.fields["expiry_datetime"].initial = exp_date_str
-        self.fields["expiry_datetime"].widget.attrs["data-initial-iso"] = (
-            exp_date.isoformat()
-        )
 
         exp_date_min = timezone.now()
         exp_date_min_str = exp_date_min.strftime(
             settings.DATETIME_INPUT_FORMATS[0]
         )
         self.fields["expiry_datetime"].widget.attrs["min"] = exp_date_min_str
-        self.fields["expiry_datetime"].widget.attrs["data-min-iso"] = (
-            exp_date_min.isoformat()
+        x_data = (
+            "localizedDateTimeInput("
+            f"{json.dumps(exp_date.isoformat())}, "
+            f"{json.dumps(exp_date_min.isoformat())}"
         )
-
         try:
             exp_date_max = timezone.now() + timedelta(
                 hours=int(SiteSetting.get_setting("max_expiry_offset"))
@@ -53,13 +52,13 @@ class FileUploadForm(forms.ModelForm):
             self.fields["expiry_datetime"].widget.attrs["max"] = (
                 exp_date_max_str
             )
-            self.fields["expiry_datetime"].widget.attrs["data-max-iso"] = (
-                exp_date_max.isoformat()
-            )
+            x_data += f", {json.dumps(exp_date_max.isoformat())})"
         except OverflowError:
             # If the max expiry offset is too large, don't set a max expiry
             # It is too far in the future to matter.
-            pass
+            x_data += ", null)"
+
+        self.fields["expiry_datetime"].widget.attrs["x-data"] = x_data
 
     def clean_expiry_datetime(self):
         expiry_datetime = self.cleaned_data["expiry_datetime"]

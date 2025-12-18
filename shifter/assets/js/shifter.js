@@ -24,7 +24,24 @@ Alpine.data("clipboardNotification", (downloadUrl) => ({
   },
 }));
 
-Alpine.start();
+Alpine.data("localizedTime", (isoTime) => ({
+  init() {
+    if (isoTime) {
+      this.$el.setAttribute("datetime", isoTime);
+    }
+    convertTextElementToLocalTime(this.$el);
+  },
+}));
+
+Alpine.data("localizedDateTimeInput", (initialIso, minIso, maxIso) => ({
+  init() {
+    convertDateTimeLocalFormElementToLocalTime(this.$el, {
+      initialIso,
+      minIso,
+      maxIso,
+    });
+  },
+}));
 
 let dtFormat = new Intl.DateTimeFormat(undefined, {
   year: "numeric",
@@ -52,34 +69,38 @@ function convertDateToFormFieldFormat(date) {
 }
 
 export function convertTextElementToLocalTime(element) {
-  const isoTime = new Date(element.getAttribute("data-iso-time"));
+  const isoValue =
+    element.getAttribute("datetime") || element.getAttribute("data-iso-time");
+  const isoTime = new Date(isoValue);
   const localTime = dtFormat.format(isoTime);
   element.textContent = localTime;
 }
 
-export function convertDateTimeLocalFormElementToLocalTime(input) {
-  const initialVal = new Date(input.getAttribute("data-initial-iso"));
+export function convertDateTimeLocalFormElementToLocalTime(
+  input,
+  { initialIso, minIso, maxIso } = {}
+) {
+  const initialValue =
+    initialIso || input.getAttribute("data-initial-iso");
+  const minValue = minIso || input.getAttribute("data-min-iso");
+  const maxValue = maxIso || input.getAttribute("data-max-iso");
+
+  if (!initialValue) {
+    return;
+  }
+
+  const initialVal = new Date(initialValue);
   input.value = convertDateToFormFieldFormat(initialVal);
 
-  const minVal = new Date(input.getAttribute("data-min-iso"));
-  input.min = convertDateToFormFieldFormat(minVal);
+  if (minValue) {
+    const minVal = new Date(minValue);
+    input.min = convertDateToFormFieldFormat(minVal);
+  }
 
-  if (input.getAttribute("data-max-iso") != null) {
-    const maxVal = new Date(input.getAttribute("data-max-iso"));
+  if (maxValue) {
+    const maxVal = new Date(maxValue);
     input.max = convertDateToFormFieldFormat(maxVal);
   }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  document
-    .querySelectorAll(".localized-time[data-iso-time]")
-    .forEach(function (element) {
-      convertTextElementToLocalTime(element);
-    });
-
-  document
-    .querySelectorAll("input.localized-time[type=datetime-local]")
-    .forEach(function (input) {
-      convertDateTimeLocalFormElementToLocalTime(input);
-    });
-});
+Alpine.start();
