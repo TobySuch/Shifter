@@ -16,6 +16,7 @@ function getCookie(name) {
 
 export async function cleanupExpiredFiles() {
   const button = this instanceof HTMLElement ? this : null;
+  const alertsStore = window.Alpine?.store("siteSettingsAlerts") || null;
   if (button) {
     button.disabled = true;
   }
@@ -30,17 +31,14 @@ export async function cleanupExpiredFiles() {
   });
 
   let resultJson = await result.json();
-  const expiredFilesInfo = document.getElementById("expired-files-info");
-  const expiredFilesInfoMsg = document.getElementById("expired-files-info-msg");
-
   if (resultJson.success) {
-    if (resultJson.num_files_deleted === 1) {
-      expiredFilesInfoMsg.innerHTML = `Successfully deleted 1 file.`;
-    } else {
-      expiredFilesInfoMsg.innerHTML = `Successfully deleted ${resultJson.num_files_deleted} files.`;
+    if (alertsStore) {
+      const message =
+        resultJson.num_files_deleted === 1
+          ? "Successfully deleted 1 file."
+          : `Successfully deleted ${resultJson.num_files_deleted} files.`;
+      alertsStore.setExpiredInfo(message);
     }
-    expiredFilesInfo.classList.remove("hidden");
-    expiredFilesInfo.classList.remove("opacity-0");
   }
 
   if (button) {
@@ -50,6 +48,7 @@ export async function cleanupExpiredFiles() {
 
 export async function copySiteInformation() {
   const button = this instanceof HTMLElement ? this : null;
+  const copyStore = window.Alpine?.store("siteSettingsCopy") || null;
   const siteInfoElement = document.getElementById("site-information-data");
 
   if (!siteInfoElement) {
@@ -61,7 +60,10 @@ export async function copySiteInformation() {
     siteInfoText = JSON.parse(siteInfoElement.textContent || '""');
   } catch (error) {
     console.error("Failed to parse site information data", error);
-    if (button) {
+    if (copyStore) {
+      copyStore.setStatus("Copy Failed", true);
+      copyStore.resetAfterDelay();
+    } else if (button) {
       button.textContent = "Copy Failed";
       window.setTimeout(() => {
         button.textContent = "Copy Site Info";
@@ -70,9 +72,10 @@ export async function copySiteInformation() {
     return;
   }
 
-  const originalText = button ? button.textContent : "";
-
-  if (button) {
+  const originalText = button ? button.textContent : "Copy Site Info";
+  if (copyStore) {
+    copyStore.setStatus(copyStore.label || originalText, true);
+  } else if (button) {
     button.disabled = true;
   }
 
@@ -90,27 +93,79 @@ export async function copySiteInformation() {
   const clipboardApi = navigator.clipboard;
   if (!clipboardApi || typeof clipboardApi.writeText !== "function") {
     console.error("navigator.clipboard.writeText is unavailable in this browser");
-    if (button) {
+    if (copyStore) {
+      copyStore.setStatus("Copy Unavailable", true);
+      copyStore.resetAfterDelay();
+    } else if (button) {
       button.textContent = "Copy Unavailable";
+      resetButton();
     }
-    resetButton();
     return;
   }
 
   try {
     await clipboardApi.writeText(siteInfoText);
-    if (button) {
+    if (copyStore) {
+      copyStore.setStatus("Copied!", true);
+      copyStore.resetAfterDelay();
+    } else if (button) {
       button.textContent = "Copied!";
+      resetButton();
     }
   } catch (error) {
     console.error("Failed to copy site information", error);
-    if (button) {
+    if (copyStore) {
+      copyStore.setStatus("Copy Failed", true);
+      copyStore.resetAfterDelay();
+    } else if (button) {
       button.textContent = "Copy Failed";
+      resetButton();
     }
   }
-
-  resetButton();
 }
+
+document.addEventListener("alpine:init", () => {
+  if (!window.Alpine) {
+    return;
+  }
+
+  window.Alpine.store("siteSettingsAlerts", {
+    showExpiredInfo: false,
+    expiredInfoMessage: "",
+    setExpiredInfo(message) {
+      this.expiredInfoMessage = message;
+      this.showExpiredInfo = true;
+    },
+    clearExpiredInfo() {
+      this.expiredInfoMessage = "";
+      this.showExpiredInfo = false;
+    },
+  });
+
+  window.Alpine.store("siteSettingsCopy", {
+    label: "Copy Site Info",
+    disabled: false,
+    _resetTimer: null,
+    setStatus(label, disabled) {
+      this.label = label;
+      this.disabled = disabled;
+      if (this._resetTimer) {
+        window.clearTimeout(this._resetTimer);
+        this._resetTimer = null;
+      }
+    },
+    resetAfterDelay(delayMs = 2000) {
+      if (this._resetTimer) {
+        window.clearTimeout(this._resetTimer);
+      }
+      this._resetTimer = window.setTimeout(() => {
+        this.label = "Copy Site Info";
+        this.disabled = false;
+        this._resetTimer = null;
+      }, delayMs);
+    },
+  });
+});
 
 function initSiteSettings() {
   const cleanupButton = document.getElementById("cleanup-expired-files-btn");
