@@ -102,7 +102,7 @@ function combineFiles(pond) {
       let zipFileNameFormElement = document.getElementById("zip-file-name");
       let zipFileName = zipFileNameFormElement.value;
       await pond.addFile(
-        new File([blob], zipFileName + ".zip", { type: "application/zip" })
+        new File([blob], zipFileName + ".zip", { type: "application/zip" }),
       );
     });
   }
@@ -123,7 +123,7 @@ function handleFilesChanged(pond) {
 export function setupFilepond(
   filepondElementName,
   expiryDatetimeElementName,
-  max_file_size
+  max_file_size,
 ) {
   const inputElement = document.getElementsByName(filepondElementName)[0];
 
@@ -141,20 +141,20 @@ export function setupFilepond(
         withCredentials: false,
         headers: {
           "X-CSRFToken": document.querySelector(
-            'input[name="csrfmiddlewaretoken"]'
+            'input[name="csrfmiddlewaretoken"]',
           ).value,
         },
         timeout: 300 * 1000, // 5 minutes
         ondata: (formData) => {
           let expiryFormField = document.querySelector(
-            'input[name="' + expiryDatetimeElementName + '"]'
+            'input[name="' + expiryDatetimeElementName + '"]',
           );
           let expiryDateTime = new Date(expiryFormField.value);
 
           // Add the rest of the form data
           formData.append(
             "csrfmiddlewaretoken",
-            document.querySelector('input[name="csrfmiddlewaretoken"]').value
+            document.querySelector('input[name="csrfmiddlewaretoken"]').value,
           );
           formData.append("expiry_datetime", expiryDateTime.toISOString());
           return formData;
@@ -170,6 +170,13 @@ export function setupFilepond(
           for (const [key, value] of Object.entries(rObj.errors)) {
             errorMsg += value + "<br>";
           }
+          if (rObj.errors?.expiry_datetime) {
+            lastErrorSource = "expiry";
+          } else if (rObj.errors?.file_content) {
+            lastErrorSource = "file";
+          } else {
+            lastErrorSource = "server";
+          }
           showErrorBox(errorMsg);
         },
       },
@@ -180,9 +187,30 @@ export function setupFilepond(
   });
   const uploadButton = document.getElementById("upload-btn");
   let hasValidationError = false;
+  let lastErrorSource = null;
 
   function updateUploadButtonState() {
     uploadButton.disabled = hasValidationError || pond.getFiles().length === 0;
+  }
+
+  const expiryFormField = document.querySelector(
+    'input[name="' + expiryDatetimeElementName + '"]',
+  );
+  if (expiryFormField) {
+    const handleExpiryChange = () => {
+      updateUploadButtonState();
+      const expiryDateTime = new Date(expiryFormField.value);
+      const isValidDate = !Number.isNaN(expiryDateTime.getTime());
+      if (isValidDate && expiryFormField.checkValidity()) {
+        const alerts = getUploadAlertsStore();
+        if (alerts && alerts.showError && lastErrorSource === "expiry") {
+          alerts.clear();
+          lastErrorSource = null;
+        }
+      }
+    };
+    expiryFormField.addEventListener("input", handleExpiryChange);
+    expiryFormField.addEventListener("change", handleExpiryChange);
   }
 
   uploadButton.addEventListener("click", () => {
@@ -206,6 +234,7 @@ export function setupFilepond(
           ? error
           : error?.main || error?.message || "File could not be added.";
       hasValidationError = true;
+      lastErrorSource = "file";
       showErrorBox(errorMessage);
       updateUploadButtonState();
       return;
@@ -215,6 +244,7 @@ export function setupFilepond(
     const alerts = getUploadAlertsStore();
     if (alerts && alerts.showError) {
       alerts.clear();
+      lastErrorSource = null;
     }
     updateUploadButtonState();
   });
@@ -225,6 +255,7 @@ export function setupFilepond(
       const alerts = getUploadAlertsStore();
       if (alerts && alerts.showError) {
         alerts.clear();
+        lastErrorSource = null;
       }
     }
     updateUploadButtonState();
