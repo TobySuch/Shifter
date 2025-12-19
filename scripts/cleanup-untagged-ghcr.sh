@@ -40,7 +40,11 @@ if [[ "${DRY_RUN:-}" == "1" ]]; then
   exit 0
 fi
 
-mapfile -t version_ids <<< "$versions"
+version_ids=()
+while IFS= read -r id; do
+  [[ -n "$id" ]] || continue
+  version_ids+=("$id")
+done <<< "$versions"
 total="${#version_ids[@]}"
 echo "Found $total untagged version(s) to delete for $OWNER/$PACKAGE."
 
@@ -50,7 +54,7 @@ for id in "${version_ids[@]}"; do
     "$base_path/packages/container/$PACKAGE/versions/$id"
   deleted=$((deleted + 1))
   echo "$deleted. Deleted version $id."
-  
+
 done
 
 echo "Deleted $deleted untagged version(s) for $OWNER/$PACKAGE."
