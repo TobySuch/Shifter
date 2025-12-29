@@ -5,7 +5,7 @@ import "filepond/dist/filepond.min.css";
 
 FilePond.registerPlugin(FilePondPluginFileValidateSize);
 
-document.addEventListener("alpine:init", () => {
+function registerAlpineStores() {
   if (!window.Alpine) {
     return;
   }
@@ -38,7 +38,15 @@ document.addEventListener("alpine:init", () => {
   window.Alpine.store("uploadState", {
     showZipName: false,
   });
-});
+}
+
+// Register stores immediately if Alpine has already started
+if (window.Alpine && !window.Alpine.version.includes("loading")) {
+  registerAlpineStores();
+} else {
+  // Otherwise wait for alpine:init event
+  document.addEventListener("alpine:init", registerAlpineStores);
+}
 
 function getUploadAlertsStore() {
   if (!window.Alpine) {
