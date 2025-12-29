@@ -6,9 +6,12 @@ import Alpine from "alpinejs";
 
 window.Alpine = Alpine;
 
-Alpine.data("clipboardNotification", (downloadUrl) => ({
+Alpine.data("clipboardNotification", (downloadUrl, filename = null) => ({
   downloadUrl,
+  filename,
   showNotification: false,
+  showQRCode: false,
+  qrCodeDataUrl: null,
   copyToClipboard() {
     navigator.clipboard.writeText(this.downloadUrl).then(
       () => {
@@ -19,8 +22,37 @@ Alpine.data("clipboardNotification", (downloadUrl) => ({
       },
       (err) => {
         console.error("Could not copy link to clipboard: ", err);
-      }
+      },
     );
+  },
+  async generateQRCode() {
+    if (!this.qrCodeDataUrl) {
+      try {
+        const QRCode = (await import("qrcode")).default;
+        this.qrCodeDataUrl = await QRCode.toDataURL(this.downloadUrl, {
+          width: 256,
+          margin: 2,
+          color: {
+            dark: "#000000",
+            light: "#FFFFFF",
+          },
+        });
+      } catch (err) {
+        console.error("Could not generate QR code: ", err);
+        return;
+      }
+    }
+    this.showQRCode = !this.showQRCode;
+  },
+  downloadQRCodeImage() {
+    if (!this.qrCodeDataUrl) return;
+    const link = document.createElement("a");
+    const downloadName = this.filename
+      ? `${this.filename}-qrcode.png`
+      : "qrcode.png";
+    link.download = downloadName;
+    link.href = this.qrCodeDataUrl;
+    link.click();
   },
 }));
 
@@ -63,7 +95,7 @@ Alpine.data("localizedDateTimeInput", (initialIso, minIso, maxIso) => ({
           clearInterval(this.intervalId);
         }
       },
-      { once: true }
+      { once: true },
     );
   },
   updateRelativeBounds() {
@@ -113,10 +145,9 @@ export function convertTextElementToLocalTime(element) {
 
 export function convertDateTimeLocalFormElementToLocalTime(
   input,
-  { initialIso, minIso, maxIso } = {}
+  { initialIso, minIso, maxIso } = {},
 ) {
-  const initialValue =
-    initialIso || input.getAttribute("data-initial-iso");
+  const initialValue = initialIso || input.getAttribute("data-initial-iso");
   const minValue = minIso || input.getAttribute("data-min-iso");
   const maxValue = maxIso || input.getAttribute("data-max-iso");
 
