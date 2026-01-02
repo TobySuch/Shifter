@@ -33,6 +33,8 @@ export default defineConfig(({ command }) => {
         output: {
           // Output JS bundles to js/ directory with -bundle suffix
           entryFileNames: `js/[name]-bundle.js`,
+          // Handle code-split chunks (like dynamic imports)
+          chunkFileNames: `js/[name]-[hash].js`,
           assetFileNames: `css/[name].css`,
         },
       },
