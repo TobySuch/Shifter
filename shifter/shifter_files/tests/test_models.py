@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import pathlib
 import tempfile
 from shutil import rmtree
@@ -141,3 +142,100 @@ class FileUploadModelTest(TestCase):
         num_files_deleted = FileUpload.delete_expired_files()
         self.assertEqual(num_files_deleted, 2)
         self.assertEqual(FileUpload.get_expired_files().count(), 0)
+
+    def test_calculate_file_hash_returns_md5_hex(self):
+        """Test calculate_file_hash returns 32-character MD5 hex."""
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        calculated_hash = FileUpload.calculate_file_hash(test_file)
+
+        # Verify hash is 32 characters (MD5 hex digest length)
+        self.assertEqual(len(calculated_hash), 32)
+        # Verify it's a valid hex string
+        self.assertTrue(all(c in "0123456789abcdef" for c in calculated_hash))
+
+    def test_calculate_file_hash_consistent(self):
+        """Test calculate_file_hash returns same hash for same content."""
+        test_file1 = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        test_file2 = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+
+        calculated_hash1 = FileUpload.calculate_file_hash(test_file1)
+        calculated_hash2 = FileUpload.calculate_file_hash(test_file2)
+
+        self.assertEqual(calculated_hash1, calculated_hash2)
+
+    def test_calculate_file_hash_matches_expected(self):
+        """Test calculate_file_hash returns correct MD5."""
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        calculated_hash = FileUpload.calculate_file_hash(test_file)
+
+        # Calculate expected hash using hashlib directly
+        expected_hash = hashlib.md5(TEST_FILE_CONTENT).hexdigest()
+
+        self.assertEqual(calculated_hash, expected_hash)
+
+    def test_calculate_file_hash_different_content(self):
+        """Test that different content produces different hashes."""
+        test_file1 = SimpleUploadedFile(
+            TEST_FILE_NAME, b"First content"
+        )
+        test_file2 = SimpleUploadedFile(
+            TEST_FILE_NAME, b"Second content"
+        )
+
+        hash1 = FileUpload.calculate_file_hash(test_file1)
+        hash2 = FileUpload.calculate_file_hash(test_file2)
+
+        self.assertNotEqual(hash1, hash2)
+
+    def test_calculate_file_hash_large_file(self):
+        """Test calculate_file_hash works with large files."""
+        # Create a file larger than 8KB chunk size (use 10KB)
+        large_content = b"A" * 10240
+        test_file = SimpleUploadedFile("largefile.txt", large_content)
+
+        calculated_hash = FileUpload.calculate_file_hash(test_file)
+        expected_hash = hashlib.md5(large_content).hexdigest()
+
+        self.assertEqual(calculated_hash, expected_hash)
+
+    def test_file_upload_without_hash(self):
+        """Test FileUpload can be created without hash."""
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime + datetime.timedelta(days=1)
+        file_upload = FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=current_datetime,
+            expiry_datetime=expiry_datetime,
+            filename=TEST_FILE_NAME,
+        )
+
+        # Hash should be None when not explicitly set
+        self.assertIsNone(file_upload.file_hash)
+
+    def test_file_upload_with_hash(self):
+        """Test that FileUpload can be created with hash."""
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime + datetime.timedelta(days=1)
+
+        # Calculate hash
+        file_hash = FileUpload.calculate_file_hash(test_file)
+
+        file_upload = FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=current_datetime,
+            expiry_datetime=expiry_datetime,
+            filename=TEST_FILE_NAME,
+            file_hash=file_hash,
+        )
+
+        # Verify hash was stored
+        self.assertIsNotNone(file_upload.file_hash)
+        self.assertEqual(len(file_upload.file_hash), 32)
+        self.assertEqual(
+            file_upload.file_hash,
+            hashlib.md5(TEST_FILE_CONTENT).hexdigest()
+        )

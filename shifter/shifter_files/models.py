@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 
 from django.conf import settings
@@ -26,12 +27,23 @@ class FileUpload(models.Model):
     file_hex = models.CharField(
         default=generate_hex_uuid, editable=False, unique=True, max_length=32
     )
+    file_hash = models.CharField(max_length=32, null=True, blank=True)
 
     def __str__(self):
         return self.filename
 
     def is_expired(self):
         return self.expiry_datetime < timezone.now()
+
+    @staticmethod
+    def calculate_file_hash(file_obj):
+        """Calculate MD5 hash of file content in chunks."""
+        hash_md5 = hashlib.md5()
+        file_obj.seek(0)  # Reset file pointer to start
+        for chunk in iter(lambda: file_obj.read(8192), b""):
+            hash_md5.update(chunk)
+        file_obj.seek(0)  # Reset for subsequent operations
+        return hash_md5.hexdigest()
 
     @classmethod
     def get_expired_files(cls):

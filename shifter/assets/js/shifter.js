@@ -56,6 +56,28 @@ Alpine.data("clipboardNotification", (downloadUrl, filename = null) => ({
   },
 }));
 
+Alpine.data("checksumDisplay", (checksum) => ({
+  checksum,
+  showChecksum: false,
+  showNotification: false,
+  toggleChecksum() {
+    this.showChecksum = !this.showChecksum;
+  },
+  copyChecksum() {
+    navigator.clipboard.writeText(this.checksum).then(
+      () => {
+        this.showNotification = true;
+        setTimeout(() => {
+          this.showNotification = false;
+        }, 3000);
+      },
+      (err) => {
+        console.error("Could not copy checksum to clipboard: ", err);
+      },
+    );
+  },
+}));
+
 Alpine.data("localizedTime", (isoTime) => ({
   init() {
     if (isoTime) {
