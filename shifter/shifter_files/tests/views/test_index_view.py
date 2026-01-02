@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import json
 import pathlib
 import tempfile
@@ -207,3 +208,105 @@ class IndexViewTest(TestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_file_upload_calculates_hash(self):
+        """Test that file upload automatically calculates MD5 hash."""
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime + datetime.timedelta(days=1)
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+
+        response = client.post(
+            reverse("shifter_files:index"),
+            {
+                "expiry_datetime": expiry_datetime.isoformat(
+                    sep=" ", timespec="minutes"
+                ),
+                "file_content": test_file,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(FileUpload.objects.count(), 1)
+
+        file_upload = FileUpload.objects.first()
+
+        # Verify hash was calculated and stored
+        self.assertIsNotNone(file_upload.file_hash)
+        self.assertEqual(len(file_upload.file_hash), 32)
+
+        # Verify hash is correct
+        expected_hash = hashlib.md5(TEST_FILE_CONTENT).hexdigest()
+        self.assertEqual(file_upload.file_hash, expected_hash)
+
+    def test_file_upload_hash_different_files(self):
+        """Test that different files produce different hashes."""
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime + datetime.timedelta(days=1)
+
+        # Upload first file
+        test_file1 = SimpleUploadedFile("file1.txt", b"Content 1")
+        client.post(
+            reverse("shifter_files:index"),
+            {
+                "expiry_datetime": expiry_datetime.isoformat(
+                    sep=" ", timespec="minutes"
+                ),
+                "file_content": test_file1,
+            },
+        )
+
+        # Upload second file with different content
+        test_file2 = SimpleUploadedFile("file2.txt", b"Content 2")
+        client.post(
+            reverse("shifter_files:index"),
+            {
+                "expiry_datetime": expiry_datetime.isoformat(
+                    sep=" ", timespec="minutes"
+                ),
+                "file_content": test_file2,
+            },
+        )
+
+        self.assertEqual(FileUpload.objects.count(), 2)
+
+        file1 = FileUpload.objects.first()
+        file2 = FileUpload.objects.last()
+
+        # Verify both have hashes
+        self.assertIsNotNone(file1.file_hash)
+        self.assertIsNotNone(file2.file_hash)
+
+        # Verify hashes are different
+        self.assertNotEqual(file1.file_hash, file2.file_hash)
+
+    def test_file_upload_hash_large_file(self):
+        """Test that hash is calculated correctly for large files."""
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        current_datetime = timezone.now()
+        expiry_datetime = current_datetime + datetime.timedelta(days=1)
+
+        # Create a file larger than 8KB chunk size
+        large_content = b"X" * 10240
+        test_file = SimpleUploadedFile("largefile.bin", large_content)
+
+        response = client.post(
+            reverse("shifter_files:index"),
+            {
+                "expiry_datetime": expiry_datetime.isoformat(
+                    sep=" ", timespec="minutes"
+                ),
+                "file_content": test_file,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        file_upload = FileUpload.objects.first()
+
+        # Verify hash is correct
+        expected_hash = hashlib.md5(large_content).hexdigest()
+        self.assertEqual(file_upload.file_hash, expected_hash)

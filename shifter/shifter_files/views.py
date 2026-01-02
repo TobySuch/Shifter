@@ -25,6 +25,9 @@ class FileUploadView(LoginRequiredMixin, FormView):
         file_hex = generate_hex_uuid()
         file._name = file.name + "_" + file_hex
 
+        # Calculate MD5 hash
+        file_hash = FileUpload.calculate_file_hash(file)
+
         upload_datetime = timezone.now()
         expiry_datetime = form.cleaned_data["expiry_datetime"]
         file_upload = FileUpload(
@@ -34,6 +37,7 @@ class FileUploadView(LoginRequiredMixin, FormView):
             expiry_datetime=expiry_datetime,
             filename=filename,
             file_hex=file_hex,
+            file_hash=file_hash,
         )
         file_upload.save()
         self.file_hex = file_upload.file_hex
