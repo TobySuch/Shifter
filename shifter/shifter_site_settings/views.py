@@ -23,7 +23,13 @@ class SiteSettingsView(UserPassesTestMixin, FormView):
         for field in form:
             setting_name = field.name.split("_", maxsplit=1)[1]
             setting = SiteSetting.objects.get(name=setting_name)
-            setting.value = field.value()
+
+            # Convert boolean values to strings for storage
+            value = field.value()
+            if isinstance(value, bool):
+                value = str(value)  # "True" or "False"
+
+            setting.value = value
             setting.save()
 
         context = self.get_context_data()

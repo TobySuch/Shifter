@@ -13,9 +13,22 @@ class SiteSettingsForm(forms.Form):
             setting_config: dict = settings.SITE_SETTINGS[setting.name]
             label = setting_config["label"]
             form_field_type = setting_config.get("field_type", forms.CharField)
-            self.fields[f"setting_{setting.name}"] = form_field_type(
-                label=label, initial=setting.value
-            )
+
+            # Handle BooleanField initialization differently
+            if form_field_type == forms.BooleanField:
+                # Convert string value from DB to boolean for initial state
+                initial_value = str(setting.value).lower() in ["true", "1"]
+                self.fields[f"setting_{setting.name}"] = form_field_type(
+                    label=label,
+                    initial=initial_value,
+                    required=False,  # Checkboxes should not be required
+                )
+            else:
+                # Existing behavior for other field types
+                self.fields[f"setting_{setting.name}"] = form_field_type(
+                    label=label, initial=setting.value
+                )
+
             if "tooltip" in setting_config:
                 self.fields[
                     f"setting_{setting.name}"
