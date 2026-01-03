@@ -271,6 +271,14 @@ SITE_SETTINGS = {
         "min_value": 0,
         "max_value": 2147483647,
     },
+    "allow_optional_expiry": {
+        "default": "False",  # Must be string since DB stores as CharField
+        "label": "Allow Optional File Expiry",
+        "field_type": forms.BooleanField,
+        "tooltip": "When enabled, users can upload files without setting an \
+            expiry date. Files without expiry will never be automatically \
+            deleted.",
+    },
 }
 
 DEFAULT_EXPIRY_OFFSET = timedelta(weeks=2)

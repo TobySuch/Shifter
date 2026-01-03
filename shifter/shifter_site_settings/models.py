@@ -10,9 +10,24 @@ class SiteSetting(models.Model):
         return self.name
 
     @classmethod
-    def get_setting(cls, name: str) -> str:
+    def get_setting(cls, name: str):
         try:
-            return cls.objects.get(name=name).value
+            value = cls.objects.get(name=name).value
         except cls.DoesNotExist:
             # If the setting doesn't exist, return the default value
-            return settings.SITE_SETTINGS[name]["default"]
+            value = settings.SITE_SETTINGS[name]["default"]
+
+        # Convert boolean strings to actual booleans if needed
+        from django import forms
+
+        field_type = settings.SITE_SETTINGS[name].get(
+            "field_type", forms.CharField
+        )
+        if field_type == forms.BooleanField:
+            # Handle both boolean and string representations
+            if isinstance(value, bool):
+                return value
+            # String "True" or "true" or "1" evaluates to True
+            return str(value).lower() in ["true", "1"]
+
+        return value
