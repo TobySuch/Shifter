@@ -46,16 +46,38 @@
         {{ form.file_content }}
 
         <div class="flex flex-col py-2">
-            <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between w-full">
-                <div class="flex items-center w-full xl:w-auto">
-                    <label for="{{ form.expiry_datetime.name }}" class="font-medium mr-2">Expiry:</label>
-                    {{ form.expiry_datetime }}
+            <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between w-full">
+                <div class="flex flex-col gap-2 w-full xl:w-auto" x-data="{ enableExpiry: {% if form.fields.enable_expiry.widget.input_type != 'hidden' %}false{% else %}true{% endif %} }">
+                    {% if form.fields.enable_expiry.widget.input_type != 'hidden' %}
+                    <div class="flex items-center">
+                        <label for="{{ form.enable_expiry.id_for_label }}" class="mr-2 font-medium text-gray-900">
+                            {{ form.enable_expiry.label }}:
+                        </label>
+                        <input
+                            type="checkbox"
+                            name="{{ form.enable_expiry.name }}"
+                            id="{{ form.enable_expiry.id_for_label }}"
+                            class="w-6 h-6 my-2.5 text-primary bg-sky-100 border-sky-200 rounded focus:ring-primary focus:ring-2 cursor-pointer"
+                            x-model="enableExpiry"
+                        >
+                    </div>
+                    {% else %}
+                    {# Hidden input when optional expiry is disabled #}
+                    {{ form.enable_expiry }}
+                    {% endif %}
+
+                    <div class="flex items-center w-full xl:w-auto" x-show="enableExpiry" x-transition>
+                        <label for="{{ form.expiry_datetime.name }}" class="font-medium mr-2">Expiry:</label>
+                        {{ form.expiry_datetime }}
+                    </div>
                 </div>
+
                 <div class="flex items-center w-full xl:w-auto grow" x-cloak x-show="$store.uploadState.showZipName">
                     <label for="zip-file-name" class="font-medium mr-2">Zip File Name:</label>
                     <input id="zip-file-name" name="zip-file-name" class="rounded-l-lg p-2 border-2 bg-sky-100 border-sky-200 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-l-lg grow" value="combined" />
                     <span class="rounded-r-lg p-2 border-y-2 border-r-2 bg-gray-100 border-gray-200">.zip</span>
                 </div>
+
                 <div class="flex justify-center xl:justify-end w-full xl:w-auto">
                     <button id="upload-btn" class="btn-primary">Upload</button>
                 </div>

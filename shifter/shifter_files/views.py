@@ -105,7 +105,11 @@ class FileDetailView(LoginRequiredMixin, DetailView):
         obj = get_object_or_404(FileUpload, file_hex=file_hex)
         if obj.owner != self.request.user:
             raise Http404
-        if obj.expiry_datetime <= timezone.now():
+
+        if (
+            obj.expiry_datetime is not None
+            and obj.expiry_datetime <= timezone.now()
+        ):
             raise Http404
         return obj
 
@@ -133,7 +137,11 @@ class FileDownloadLandingView(DetailView):
         file_hex = self.kwargs["file_hex"]
         obj = get_object_or_404(FileUpload, file_hex=file_hex)
 
-        if obj.expiry_datetime <= timezone.now():
+        # Only check expiry if expiry_datetime is set
+        if (
+            obj.expiry_datetime is not None
+            and obj.expiry_datetime <= timezone.now()
+        ):
             raise Http404
         return obj
 
@@ -149,7 +157,11 @@ class FileDeleteView(DeleteView):
             raise Http404
 
         # File has already expired - do nothing.
-        if obj.expiry_datetime <= timezone.now():
+        # Only check expiry if expiry_datetime is set
+        if (
+            obj.expiry_datetime is not None
+            and obj.expiry_datetime <= timezone.now()
+        ):
             raise Http404
         return obj
 

@@ -13,9 +13,13 @@ from .widgets import ShifterDateTimeInput
 
 
 class FileUploadForm(forms.ModelForm):
+    enable_expiry = forms.BooleanField(
+        required=False, initial=False, label="Set file expiry"
+    )
+
     class Meta:
         model = FileUpload
-        fields = ["expiry_datetime", "file_content"]
+        fields = ["enable_expiry", "expiry_datetime", "file_content"]
         widgets = {
             "expiry_datetime": ShifterDateTimeInput(
                 attrs={
@@ -26,6 +30,19 @@ class FileUploadForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(FileUploadForm, self).__init__(*args, **kwargs)
+
+        # Check if optional expiry is allowed
+        allow_optional = SiteSetting.get_setting("allow_optional_expiry")
+
+        # Always set expiry_datetime as not required initially
+        # Validation happens in clean_expiry_datetime based on enable_expiry
+        self.fields["expiry_datetime"].required = False
+
+        if not allow_optional:
+            # If optional expiry is disabled, hide checkbox
+            self.fields["enable_expiry"].widget = forms.HiddenInput()
+            self.fields["enable_expiry"].initial = True
+
         exp_date = timezone.now() + timedelta(
             hours=int(SiteSetting.get_setting("default_expiry_offset"))
         )
@@ -61,8 +78,38 @@ class FileUploadForm(forms.ModelForm):
         self.fields["expiry_datetime"].widget.attrs["x-data"] = x_data
 
     def clean_expiry_datetime(self):
-        expiry_datetime = self.cleaned_data["expiry_datetime"]
+        expiry_datetime = self.cleaned_data.get("expiry_datetime")
+        enable_expiry = self.cleaned_data.get("enable_expiry", False)
+        allow_optional = SiteSetting.get_setting("allow_optional_expiry")
+
+        # If expiry is disabled and optional expiry is allowed, return None
+        if not enable_expiry and allow_optional:
+            return None
+
+        # If expiry is required (either checkbox is checked OR
+        # optional not allowed)
+        if not expiry_datetime:
+            if allow_optional:
+                raise ValidationError(
+                    "You must provide an expiry date or uncheck "
+                    "'Set file expiry'.",
+                    code="expiry-required",
+                )
+            else:
+                raise ValidationError(
+                    "You must provide an expiry date.",
+                    code="expiry-required",
+                )
+
+        # Validate expiry date is not in the past
         current_datetime = timezone.now()
+        if expiry_datetime < current_datetime:
+            raise ValidationError(
+                "You can't upload a file with an expiry time in the past.",
+                code="expiry-time-past",
+            )
+
+        # Validate expiry is not too far in the future
         max_expiry_offset = SiteSetting.get_setting("max_expiry_offset")
         dont_validate_max_expiry = False
         try:
@@ -71,12 +118,6 @@ class FileUploadForm(forms.ModelForm):
             )
         except OverflowError:
             dont_validate_max_expiry = True
-
-        if expiry_datetime < current_datetime:
-            raise ValidationError(
-                "You can't upload a file with an expiry time in the past.",
-                code="expiry-time-past",
-            )
 
         if not dont_validate_max_expiry and expiry_datetime > max_expiry_time:
             raise ValidationError(
@@ -97,7 +138,7 @@ class FileUploadForm(forms.ModelForm):
 
         if file_content.size > max_file_size:
             raise ValidationError(
-                "You can't upload a file larger than " f"{max_file_size_str}",
+                f"You can't upload a file larger than {max_file_size_str}",
                 code="file-size-too-large",
             )
         return file_content

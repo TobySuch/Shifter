@@ -154,17 +154,44 @@ export function setupFilepond(
         },
         timeout: 300 * 1000, // 5 minutes
         ondata: (formData) => {
-          let expiryFormField = document.querySelector(
-            'input[name="' + expiryDatetimeElementName + '"]',
+          // Check if expiry is enabled
+          let enableExpiryCheckbox = document.querySelector(
+            'input[name="enable_expiry"]',
           );
-          let expiryDateTime = new Date(expiryFormField.value);
 
-          // Add the rest of the form data
+          // If checkbox is a visible checkbox, check if it's checked
+          // If it's hidden (type="hidden"), the value will be "on" by default
+          let enableExpiry = true;
+          if (enableExpiryCheckbox) {
+            if (enableExpiryCheckbox.type === "checkbox") {
+              enableExpiry = enableExpiryCheckbox.checked;
+            } else if (enableExpiryCheckbox.type === "hidden") {
+              // Hidden input means expiry is required (setting is disabled)
+              enableExpiry = true;
+            }
+          }
+
+          if (enableExpiry) {
+            // Only add expiry_datetime if checkbox is checked or hidden (required)
+            let expiryFormField = document.querySelector(
+              'input[name="' + expiryDatetimeElementName + '"]',
+            );
+            if (expiryFormField && expiryFormField.value) {
+              let expiryDateTime = new Date(expiryFormField.value);
+              formData.append("expiry_datetime", expiryDateTime.toISOString());
+            }
+          }
+          // If not enabled, don't send expiry_datetime (will be NULL in DB)
+
+          // Add CSRF token
           formData.append(
             "csrfmiddlewaretoken",
             document.querySelector('input[name="csrfmiddlewaretoken"]').value,
           );
-          formData.append("expiry_datetime", expiryDateTime.toISOString());
+
+          // Add enable_expiry field
+          formData.append("enable_expiry", enableExpiry ? "on" : "");
+
           return formData;
         },
         onload: (response) => {
@@ -219,6 +246,24 @@ export function setupFilepond(
     };
     expiryFormField.addEventListener("input", handleExpiryChange);
     expiryFormField.addEventListener("change", handleExpiryChange);
+  }
+
+  // Add checkbox listener for enable_expiry
+  const enableExpiryCheckbox = document.querySelector(
+    'input[name="enable_expiry"]',
+  );
+  if (enableExpiryCheckbox) {
+    enableExpiryCheckbox.addEventListener("change", () => {
+      updateUploadButtonState();
+      // Clear expiry-related errors when checkbox is unchecked
+      if (!enableExpiryCheckbox.checked) {
+        const alerts = getUploadAlertsStore();
+        if (alerts && alerts.showError && lastErrorSource === "expiry") {
+          alerts.clear();
+          lastErrorSource = null;
+        }
+      }
+    });
   }
 
   uploadButton.addEventListener("click", () => {
