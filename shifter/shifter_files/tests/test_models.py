@@ -236,6 +236,113 @@ class FileUploadModelTest(TestCase):
         self.assertIsNotNone(file_upload.file_hash)
         self.assertEqual(len(file_upload.file_hash), 32)
         self.assertEqual(
-            file_upload.file_hash,
-            hashlib.md5(TEST_FILE_CONTENT).hexdigest()
+            file_upload.file_hash, hashlib.md5(TEST_FILE_CONTENT).hexdigest()
+        )
+
+    def test_file_without_expiry_is_not_expired(self):
+        """Test that files without expiry_datetime are never expired."""
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        file_upload = FileUpload.objects.create(
+            owner=self.user,
+            filename="no_expiry.txt",
+            upload_datetime=timezone.now(),
+            expiry_datetime=None,  # No expiry
+            file_content=test_file,
+        )
+        self.assertFalse(file_upload.is_expired())
+
+    def test_get_expired_files_excludes_null_expiry(self):
+        """Test that get_expired_files excludes files without expiry."""
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+
+        # Create file with NULL expiry
+        FileUpload.objects.create(
+            owner=self.user,
+            filename="no_expiry.txt",
+            upload_datetime=current_datetime,
+            expiry_datetime=None,
+            file_content=test_file,
+        )
+
+        # Create expired file
+        FileUpload.objects.create(
+            owner=self.user,
+            filename="expired.txt",
+            upload_datetime=current_datetime - datetime.timedelta(days=2),
+            expiry_datetime=current_datetime - datetime.timedelta(days=1),
+            file_content=test_file,
+        )
+
+        expired_files = FileUpload.get_expired_files()
+        self.assertEqual(expired_files.count(), 1)
+        self.assertEqual(expired_files.first().filename, "expired.txt")
+
+    def test_get_non_expired_files_includes_null_expiry(self):
+        """Test that get_non_expired_files includes files without expiry."""
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+
+        # Create file with NULL expiry
+        FileUpload.objects.create(
+            owner=self.user,
+            filename="no_expiry.txt",
+            upload_datetime=current_datetime,
+            expiry_datetime=None,
+            file_content=test_file,
+        )
+
+        # Create non-expired file
+        FileUpload.objects.create(
+            owner=self.user,
+            filename="future.txt",
+            upload_datetime=current_datetime,
+            expiry_datetime=current_datetime + datetime.timedelta(days=1),
+            file_content=test_file,
+        )
+
+        # Create expired file
+        FileUpload.objects.create(
+            owner=self.user,
+            filename="expired.txt",
+            upload_datetime=current_datetime - datetime.timedelta(days=2),
+            expiry_datetime=current_datetime - datetime.timedelta(days=1),
+            file_content=test_file,
+        )
+
+        non_expired_files = FileUpload.get_non_expired_files()
+        self.assertEqual(non_expired_files.count(), 2)
+        filenames = [f.filename for f in non_expired_files]
+        self.assertIn("no_expiry.txt", filenames)
+        self.assertIn("future.txt", filenames)
+
+    def test_delete_expired_files_preserves_null_expiry(self):
+        """Test that cleanup doesn't delete files without expiry."""
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        current_datetime = timezone.now()
+
+        # Create file with NULL expiry
+        no_expiry = FileUpload.objects.create(
+            owner=self.user,
+            filename="no_expiry.txt",
+            upload_datetime=current_datetime,
+            expiry_datetime=None,
+            file_content=test_file,
+        )
+
+        # Create expired file
+        FileUpload.objects.create(
+            owner=self.user,
+            filename="expired.txt",
+            upload_datetime=current_datetime - datetime.timedelta(days=2),
+            expiry_datetime=current_datetime - datetime.timedelta(days=1),
+            file_content=test_file,
+        )
+
+        num_deleted = FileUpload.delete_expired_files()
+        self.assertEqual(num_deleted, 1)
+
+        # File without expiry should still exist
+        self.assertTrue(
+            FileUpload.objects.filter(file_hex=no_expiry.file_hex).exists()
         )

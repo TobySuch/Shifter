@@ -47,9 +47,13 @@
                         </time>
                     </td>
                     <td class="py-3 hidden md:table-cell">
-                        <time class="localized-time" x-data="localizedTime('{{ file.expiry_datetime|date:"c" }}')">
-                            
-                        </time>
+                        {% if file.expiry_datetime %}
+                            <time class="localized-time" x-data="localizedTime('{{ file.expiry_datetime|date:"c" }}')">
+
+                            </time>
+                        {% else %}
+                            <span class="text-gray-500">No expiry</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}

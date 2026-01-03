@@ -16,7 +16,13 @@
         <div class="flex flex-wrap justify-center md:justify-between pt-8">
             <div><span class="font-semibold">Uploaded At:</span> <time class="localized-time" x-data="localizedTime('{{ object.upload_datetime|date:"c" }}')">{{ object.upload_datetime|date:"M j, Y, g:i A T" }}</time></div>
             <div><span class="font-semibold">File Size:</span> {{ object.file_content.size | pretty_file_size }}</div>
-            <div><span class="font-semibold">Expires At:</span> <time class="localized-time" x-data="localizedTime('{{ object.expiry_datetime|date:"c" }}')">{{ object.expiry_datetime|date:"M j, Y, g:i A T" }}</time></div>
+            <div><span class="font-semibold">Expires At:</span>
+                {% if object.expiry_datetime %}
+                    <time class="localized-time" x-data="localizedTime('{{ object.expiry_datetime|date:"c" }}')">{{ object.expiry_datetime|date:"M j, Y, g:i A T" }}</time>
+                {% else %}
+                    <span class="text-gray-500">No expiry</span>
+                {% endif %}
+            </div>
         </div>
         {% if object.file_hash %}  
         <div x-data="checksumDisplay('{{ object.file_hash }}')" class="flex flex-col text-center justify-between pt-8 gap-2 lg:flex-row">
