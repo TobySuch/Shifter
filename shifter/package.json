@@ -1,6 +1,6 @@
 {
   "name": "shifter",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "A simple, self-hosted file-sharing web app, powered by Django.",
   "homepage": "https://github.com/TobySuch/Shifter#readme",
   "bugs": {
