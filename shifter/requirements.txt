@@ -1,5 +1,5 @@
 asgiref==3.11.0
-Django==6.0
+Django==6.0.1
 django-crontab==0.7.1
 django-vite==3.1.0
 gunicorn==23.0.0
