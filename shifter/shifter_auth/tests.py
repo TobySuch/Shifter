@@ -83,6 +83,26 @@ class EnsurePasswordResetMiddlewareTest(TestCase):
         response = client.get(reverse("shifter_auth:settings"))
         self.assertEqual(response.status_code, 200)
 
+    def test_allow_file_download_landing(self):
+        """Test that file download landing pages are accessible."""
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        # Use a fake hex - the middleware should allow it through
+        fake_hex = "a" * 32
+        response = client.get(f"/download/{fake_hex}")
+        # Should not redirect to password change (404 is fine)
+        self.assertNotEqual(response.status_code, 302)
+
+    def test_allow_direct_file_download(self):
+        """Test that direct file downloads are accessible."""
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        # Use a fake hex - the middleware should allow it through
+        fake_hex = "b" * 32
+        response = client.get(f"/f/{fake_hex}")
+        # Should not redirect to password change (404 is fine)
+        self.assertNotEqual(response.status_code, 302)
+
 
 class ChangePasswordViewTest(TestCase):
     def setUp(self):
