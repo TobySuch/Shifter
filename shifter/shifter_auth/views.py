@@ -62,12 +62,13 @@ class CreateNewUserView(UserPassesTestMixin, FormView):
     def form_valid(self, form):
         User = get_user_model()
         email = form.cleaned_data["email"]
+        is_staff = form.cleaned_data.get("is_staff", False)
 
         # Generate a random password (12 characters, alphanumeric + special)
         alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
         password = "".join(secrets.choice(alphabet) for _ in range(12))
 
-        user = User.objects.create_user(email, password)
+        user = User.objects.create_user(email, password, is_staff=is_staff)
         user.change_password_on_login = True
         user.save()
 

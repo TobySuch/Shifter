@@ -215,6 +215,58 @@ class CreateNewUserViewTest(TestCase):
             User.objects.filter(email=TEST_ADDITIONAL_USER_EMAIL).count(), 0
         )
 
+    def test_create_new_user_as_admin(self):
+        """Test creating a new user with admin privileges."""
+        client = Client()
+        client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.post(
+            reverse("shifter_auth:create-new-user"),
+            {
+                "email": TEST_ADDITIONAL_USER_EMAIL,
+                "is_staff": True,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("new_password", response.context)
+
+        User = get_user_model()
+        new_user = User.objects.get(email=TEST_ADDITIONAL_USER_EMAIL)
+        self.assertTrue(new_user.is_staff)
+        self.assertTrue(new_user.change_password_on_login)
+
+    def test_create_new_user_as_regular_user_default(self):
+        """Test creating user without admin toggle defaults to regular."""
+        client = Client()
+        client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.post(
+            reverse("shifter_auth:create-new-user"),
+            {
+                "email": TEST_ADDITIONAL_USER_EMAIL,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+
+        User = get_user_model()
+        new_user = User.objects.get(email=TEST_ADDITIONAL_USER_EMAIL)
+        self.assertFalse(new_user.is_staff)
+
+    def test_create_new_user_explicitly_not_admin(self):
+        """Test creating a new user with is_staff explicitly set to False."""
+        client = Client()
+        client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.post(
+            reverse("shifter_auth:create-new-user"),
+            {
+                "email": TEST_ADDITIONAL_USER_EMAIL,
+                "is_staff": False,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+
+        User = get_user_model()
+        new_user = User.objects.get(email=TEST_ADDITIONAL_USER_EMAIL)
+        self.assertFalse(new_user.is_staff)
+
 
 class FirstTimeSetupTest(TestCase):
     def setUp(self):
