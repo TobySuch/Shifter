@@ -1,5 +1,6 @@
 ### Django settings ###
 DEBUG=0    # 1 for dev, 0 for prod
+ADMIN_ENABLED=0    # Enable Django admin interface. Defaults to DEBUG value if not set. Set to 1 to enable, 0 to disable.
 SECRET_KEY=CHANGEME # Generate a long random string of characters for this. Example command: openssl rand -base64 64
 SHIFTER_URL=https://shifter.mydomain.com # The URL of your Shifter instance. Include protocol and port if not standard.
 DJANGO_LOG_LEVEL=INFO

@@ -32,6 +32,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.environ.get("DEBUG", default=0))
 
+# Admin interface control - defaults to DEBUG value if not explicitly set
+ADMIN_ENABLED = bool(int(os.environ.get("ADMIN_ENABLED", str(int(DEBUG)))))
+
 # Also set by the SHIFTER_URL environment variable.
 ALLOWED_HOSTS = []
 if os.environ.get("DJANGO_ALLOWED_HOSTS"):
@@ -58,7 +61,6 @@ if SHIFTER_URL != "":
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -70,6 +72,10 @@ INSTALLED_APPS = [
     "shifter_files",
     "shifter_site_settings",
 ]
+
+# Conditionally include admin app if enabled
+if ADMIN_ENABLED:
+    INSTALLED_APPS.insert(0, "django.contrib.admin")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
