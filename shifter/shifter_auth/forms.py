@@ -59,6 +59,11 @@ class CreateUserForm(forms.Form):
     """Form for creating new users with auto-generated passwords."""
 
     email = forms.EmailField(label="Email")
+    is_staff = forms.BooleanField(
+        label="Administrator",
+        required=False,
+        help_text="Administrators can manage users and change site settings",
+    )
 
     def clean_email(self):
         email = self.cleaned_data["email"]
