@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}<title>Register New User | Shifter</title>{% endblock %}
+{% block title %}<title>Create New User | Shifter</title>{% endblock %}
 
 {% block content %}
 <div class="standard-page-width">
     <div class="py-2">
-        <h1 class="title">Register New User</h1>
+        <h1 class="title">Create New User</h1>
     </div>
     <div>
-        <p class="text-gray-800 border-b-2 border-gray-400 pb-2">New users will be able to upload their own files to share. They will not be able to change site settings, or create new users.</p>
+        <p class="text-gray-800 border-b-2 border-gray-400 pb-2">New users will be able to upload their own files to share. They will not be able to change site settings, or create new users. A temporary password will be automatically generated.</p>
     </div>
     <div class="p-2">
         <form class="space-y-1 p2" method="post">
@@ -21,20 +21,8 @@
             </div>
             <input name="{{ form.email.html_name }}" class="w-full input-primary" placeholder="your@email.com">
 
-            <div class="flex">
-                <p class="text-gray-800">{{ form.password.label }}:</p>
-                {% if form.password.errors %}<div class="ml-2 error-box grow">{{ form.password.errors }}</div>{% endif %}
-            </div>
-            <input name="{{ form.password.html_name }}" type="password" class="w-full input-primary" placeholder="••••••••">
-
-            <div class="flex">
-                <p class="text-gray-800">{{ form.confirm_password.label }}:</p>
-                {% if form.confirm_password.errors %}<div class="ml-2 error-box grow">{{ form.confirm_password.errors }}</div>{% endif %}
-            </div>
-            <input name="{{ form.confirm_password.html_name }}" type="password" class="w-full input-primary" placeholder="••••••••">
-
             <div class="flex justify-end py-2">
-                <input type="submit" value="Register User" class="btn-primary">
+                <input type="submit" value="Create User" class="btn-primary">
             </div>
         </form>
     </div>
