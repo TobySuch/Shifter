@@ -15,12 +15,21 @@ def ensure_password_changed(get_response):
         reverse(CHANGE_PASSWORD_URL)
     ]
 
+    # Allow file download paths (public downloads don't require password)
+    ALLOW_PATH_PREFIXES = ["/download/", "/f/"]
+
     def middleware(request):
         if not request.user.is_anonymous:
-            if (
-                request.user.change_password_on_login
-                and request.path not in ALLOW_LIST
-            ):
+            # Check if path is in allow list or starts with allowed prefix
+            path_allowed = (
+                request.path in ALLOW_LIST
+                or any(
+                    request.path.startswith(prefix)
+                    for prefix in ALLOW_PATH_PREFIXES
+                )
+            )
+
+            if request.user.change_password_on_login and not path_allowed:
                 return redirect(CHANGE_PASSWORD_URL)
 
         response = get_response(request)
