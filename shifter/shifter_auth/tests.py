@@ -576,6 +576,22 @@ class UserDetailViewTest(TestCase):
         # Verify active help text
         self.assertIn("Inactive users cannot log in", content)
 
+    def test_admin_nav_visible_when_viewing_non_admin_user(self):
+        """Admin nav should remain visible when viewing non-admin."""
+        client = Client()
+        client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
+        url = reverse(
+            "shifter_auth:user-detail", kwargs={"pk": self.regular_user.pk}
+        )
+        response = client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        content = response.content.decode()
+        # Admin dropdown should be visible in nav
+        self.assertIn("Admin", content)
+        self.assertIn("Manage Users", content)
+        self.assertIn("Site Settings", content)
+
 
 class UserDeleteViewTest(TestCase):
     def setUp(self):
