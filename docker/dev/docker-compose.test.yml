@@ -11,6 +11,7 @@ services:
     env_file:
       - "../../.env EXAMPLE"
     environment:
+      - DEBUG=0
       - DJANGO_LOG_LEVEL=OFF
       - TEST_MODE=1
       - APP_VERSION=TESTING
