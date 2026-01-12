@@ -137,7 +137,8 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             .annotate(
                 active_files_count=Count(
                     "fileupload",
-                    filter=Q(fileupload__expiry_datetime__gt=timezone.now()),
+                    filter=Q(fileupload__expiry_datetime__gt=timezone.now())
+                    | Q(fileupload__expiry_datetime__isnull=True),
                 )
             )
             .order_by("email")
