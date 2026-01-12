@@ -141,7 +141,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                     | Q(fileupload__expiry_datetime__isnull=True),
                 )
             )
-            .order_by("email")
+            .order_by("date_joined")
         )
 
         query = self.request.GET.get("search")
