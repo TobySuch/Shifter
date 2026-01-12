@@ -429,6 +429,64 @@ class UserListViewTest(TestCase):
         # Staff user should have 1 active file
         self.assertIn(">1<", content)
 
+    @override_settings(MEDIA_ROOT="/tmp/test_media")
+    def test_list_counts_files_with_no_expiry_date(self):
+        """Test that files with no expiration date are counted as active."""
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        from shifter_files.models import FileUpload
+
+        # Create 2 files with expiry dates
+        for i in range(2):
+            file_content = SimpleUploadedFile(
+                f"test_file_{i}.txt",
+                b"Test content",
+                content_type="text/plain",
+            )
+            FileUpload.objects.create(
+                owner=self.regular_user,
+                filename=f"test_file_{i}.txt",
+                upload_datetime=timezone.now(),
+                expiry_datetime=timezone.now() + timezone.timedelta(days=7),
+                file_content=file_content,
+            )
+
+        # Create 2 files with NO expiry date (NULL)
+        for i in range(2):
+            file_content = SimpleUploadedFile(
+                f"no_expiry_{i}.txt",
+                b"No expiry content",
+                content_type="text/plain",
+            )
+            FileUpload.objects.create(
+                owner=self.regular_user,
+                filename=f"no_expiry_{i}.txt",
+                upload_datetime=timezone.now(),
+                expiry_datetime=None,
+                file_content=file_content,
+            )
+
+        # Create 1 expired file (should not be counted)
+        expired_file = SimpleUploadedFile(
+            "expired.txt", b"Expired", content_type="text/plain"
+        )
+        FileUpload.objects.create(
+            owner=self.regular_user,
+            filename="expired.txt",
+            upload_datetime=timezone.now(),
+            expiry_datetime=timezone.now() - timezone.timedelta(days=1),
+            file_content=expired_file,
+        )
+
+        client = Client()
+        client.login(email=TEST_STAFF_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_auth:user-list"))
+
+        # Regular user should have 4 active files
+        # (2 with expiry + 2 with no expiry)
+        content = response.content.decode()
+        self.assertIn(">4<", content)
+
 
 class UserDetailViewTest(TestCase):
     def setUp(self):
