@@ -83,4 +83,4 @@ ENV APP_VERSION=${APP_VERSION}
 RUN chown -R app:app $APP_HOME
 
 ENTRYPOINT [ "/home/app/web/entrypoint.sh" ]
-CMD [ "gunicorn", "shifter.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "600" ]
+CMD ["sh", "-c", "exec gunicorn shifter.wsgi:application --bind 0.0.0.0:8000 --timeout ${GUNICORN_TIMEOUT:-600}"]

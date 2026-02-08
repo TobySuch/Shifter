@@ -283,6 +283,37 @@ class IndexViewTest(TestCase):
         # Verify hashes are different
         self.assertNotEqual(file1.file_hash, file2.file_hash)
 
+    def test_context_contains_upload_timeout_default(self):
+        """Test that upload page context includes the default timeout."""
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_files:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("setting_upload_timeout", response.context)
+        self.assertEqual(
+            response.context["setting_upload_timeout"],
+            settings.UPLOAD_TIMEOUT,
+        )
+
+    @override_settings(UPLOAD_TIMEOUT=900)
+    def test_context_contains_custom_upload_timeout(self):
+        """Test that a custom UPLOAD_TIMEOUT is passed to context."""
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_files:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["setting_upload_timeout"], 900)
+
+    def test_upload_timeout_in_template(self):
+        """Test that the upload timeout is rendered in data attr."""
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_files:index"))
+        self.assertContains(
+            response,
+            f'data-upload-timeout="{settings.UPLOAD_TIMEOUT}"',
+        )
+
     def test_file_upload_hash_large_file(self):
         """Test that hash is calculated correctly for large files."""
         client = Client()

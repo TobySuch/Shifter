@@ -9,7 +9,7 @@
 {% block title %}<title>Upload File | Shifter</title>{% endblock %}
 
 {% block content %}
-<div class="standard-page-width" x-data data-filepond data-file-field="{{ form.file_content.name }}" data-expiry-field="{{ form.expiry_datetime.name }}" data-max-size="{{ setting_max_file_size }}">
+<div class="standard-page-width" x-data data-filepond data-file-field="{{ form.file_content.name }}" data-expiry-field="{{ form.expiry_datetime.name }}" data-max-size="{{ setting_max_file_size }}" data-upload-timeout="{{ setting_upload_timeout }}">
     <div class="py-2 rounded-t">
         <h1 class="title">Upload File</h1>
     </div>

@@ -8,6 +8,10 @@ DJANGO_LOG_LOCATION=/var/log/shifter.log
 TIMEZONE=UTC
 EXPIRED_FILE_CLEANUP_SCHEDULE=*/15 * * * *  # Cron schedule for cleaning up expired files. Default is every 15 minutes.
 
+### Timeout settings ###
+UPLOAD_TIMEOUT=300  # Upload timeout in seconds for the browser file upload (FilePond). Default is 300 (5 minutes).
+GUNICORN_TIMEOUT=600  # Gunicorn worker timeout in seconds. Default is 600 (10 minutes). Should be >= UPLOAD_TIMEOUT.
+
 ### Database settings ###
 DATABASE=sqlite  # Possible values: sqlite, postgres
 

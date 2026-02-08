@@ -132,6 +132,7 @@ export function setupFilepond(
   filepondElementName,
   expiryDatetimeElementName,
   max_file_size,
+  upload_timeout,
 ) {
   const inputElement = document.getElementsByName(filepondElementName)[0];
 
@@ -152,7 +153,7 @@ export function setupFilepond(
             'input[name="csrfmiddlewaretoken"]',
           ).value,
         },
-        timeout: 300 * 1000, // 5 minutes
+        timeout: upload_timeout * 1000,
         ondata: (formData) => {
           // Check if expiry is enabled
           let enableExpiryCheckbox = document.querySelector(
@@ -328,13 +329,14 @@ function autoInitFilepond() {
     return;
   }
 
-  const { fileField, expiryField, maxSize } = host.dataset;
+  const { fileField, expiryField, maxSize, uploadTimeout } = host.dataset;
   if (!fileField || !expiryField || !maxSize) {
     console.warn("Filepond init skipped: missing data attributes.");
     return;
   }
 
-  setupFilepond(fileField, expiryField, maxSize);
+  const timeout = uploadTimeout ? Number(uploadTimeout) : 300;
+  setupFilepond(fileField, expiryField, maxSize, timeout);
 }
 
 if (document.readyState === "loading") {
