@@ -303,6 +303,10 @@ DJANGO_VITE_DEV_SERVER = "http://localhost:5173"
 DJANGO_VITE_ASSETS_PATH = BASE_DIR / "assets"
 DJANGO_VITE_MANIFEST_PATH = BASE_DIR / "static" / "manifest.json"
 
+# Timeout configuration
+UPLOAD_TIMEOUT = int(os.environ.get("UPLOAD_TIMEOUT", 300))  # seconds
+GUNICORN_TIMEOUT = int(os.environ.get("GUNICORN_TIMEOUT", 600))  # seconds
+
 # Environment information
 SHIFTER_VERSION = os.environ.get("APP_VERSION", "Unknown")
 PYTHON_VERSION = os.environ.get("PYTHON_VERSION", "Unknown")

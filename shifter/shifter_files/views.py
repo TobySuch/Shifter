@@ -57,6 +57,7 @@ class FileUploadView(LoginRequiredMixin, FormView):
         context["setting_max_file_size"] = SiteSetting.get_setting(
             "max_file_size"
         )
+        context["setting_upload_timeout"] = settings.UPLOAD_TIMEOUT
         return context
 
 
