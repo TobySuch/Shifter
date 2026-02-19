@@ -1,0 +1,59 @@
+name: Release Please
+
+on:
+  push:
+    branches: [main]
+
+  workflow_dispatch:
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-push-release-image:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG="${{ needs.release-please.outputs.tag_name }}"
+          VERSION="${TAG#v}"
+          MAJOR="${VERSION%%.*}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "major=$MAJOR" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ghcr.io/tobysuch/shifter:${{ steps.version.outputs.version }} \
+            -t ghcr.io/tobysuch/shifter:${{ steps.version.outputs.major }} \
+            -t ghcr.io/tobysuch/shifter:latest \
+            --build-arg="APP_VERSION=${{ steps.version.outputs.version }}" \
+            -f docker/Dockerfile .
+
+      - name: Push Docker images
+        run: |
+          docker push ghcr.io/tobysuch/shifter:${{ steps.version.outputs.version }}
+          docker push ghcr.io/tobysuch/shifter:${{ steps.version.outputs.major }}
+          docker push ghcr.io/tobysuch/shifter:latest
