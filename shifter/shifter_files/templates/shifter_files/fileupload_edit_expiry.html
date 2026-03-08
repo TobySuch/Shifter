@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}<title>Edit Expiry | Shifter</title>{% endblock %}
+
+{% block content %}
+<div class="standard-page-width">
+    <div class="py-2 rounded-t gap-8 flex flex-col items-center">
+        <h1 class="title">Edit Expiry</h1>
+        <p class="text-gray-600 text-center text-3xl">{{ object.filename }}</p>
+    </div>
+    <div class="p-2">
+        {% if form.errors %}
+        <div class="flex error-box mb-4" role="alert">
+            <svg aria-hidden="true" class="shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <span class="sr-only">Error</span>
+            <div class="ml-3 text-sm font-medium">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex flex-col gap-3 py-2 lg:flex-row lg:gap-8 lg:justify-between" x-data="{ enableExpiry: {% if form.fields.enable_expiry.widget.input_type != 'hidden' %}{{ form.enable_expiry.value|yesno:'true,false' }}{% else %}true{% endif %} }">
+                {% if form.fields.enable_expiry.widget.input_type != 'hidden' %}
+                <div class="flex items-center">
+                    <label for="{{ form.enable_expiry.id_for_label }}" class="mr-2 font-medium text-gray-900 text-nowrap">
+                        {{ form.enable_expiry.label }}:
+                    </label>
+                    <input
+                        type="checkbox"
+                        name="{{ form.enable_expiry.name }}"
+                        id="{{ form.enable_expiry.id_for_label }}"
+                        class="w-6 h-6 my-2.5 text-primary bg-sky-100 border-sky-200 rounded focus:ring-primary focus:ring-2 cursor-pointer"
+                        x-model="enableExpiry"
+                        {% if form.enable_expiry.value %}checked{% endif %}
+                    >
+                </div>
+                {% else %}
+                {{ form.enable_expiry }}
+                {% endif %}
+
+                <div class="flex items-center w-full" x-show="enableExpiry" x-transition>
+                    <label for="{{ form.expiry_datetime.name }}" class="font-medium mr-2">Expiry:</label>
+                    {{ form.expiry_datetime }}
+                </div>
+
+                <div class="flex gap-3 mt-2 justify-center">
+                    <button type="submit" class="btn-primary">Save</button>
+                    <a href="{% url 'shifter_files:file-details' object.file_hex %}" class="text-gray-900 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-primary rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 cursor-pointer">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

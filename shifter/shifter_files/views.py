@@ -10,7 +10,7 @@ from django.views.generic.edit import DeleteView, FormView
 
 from shifter_site_settings.models import SiteSetting
 
-from .forms import FileSearchForm, FileUploadForm
+from .forms import FileExpiryEditForm, FileSearchForm, FileUploadForm
 from .models import FileUpload, generate_hex_uuid
 
 
@@ -178,6 +178,43 @@ class FileDeleteView(DeleteView):
         obj.expiry_datetime = timezone.now()
         obj.save()
         return redirect(self.success_url)
+
+
+class FileEditExpiryView(LoginRequiredMixin, FormView):
+    template_name = "shifter_files/fileupload_edit_expiry.html"
+    form_class = FileExpiryEditForm
+
+    def get_object(self):
+        file_hex = self.kwargs["file_hex"]
+        obj = get_object_or_404(FileUpload, file_hex=file_hex)
+        if obj.owner != self.request.user:
+            raise Http404
+        if (
+            obj.expiry_datetime is not None
+            and obj.expiry_datetime <= timezone.now()
+        ):
+            raise Http404
+        return obj
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.get_object()
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object"] = self.get_object()
+        return context
+
+    def form_valid(self, form):
+        obj = self.get_object()
+        obj.expiry_datetime = form.cleaned_data["expiry_datetime"]
+        obj.save()
+        return redirect(
+            reverse(
+                "shifter_files:file-details", args=[self.kwargs["file_hex"]]
+            )
+        )
 
 
 class CleanupExpiredFilesView(UserPassesTestMixin, View):

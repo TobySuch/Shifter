@@ -27,6 +27,11 @@ urlpatterns = [
         name="file-delete",
     ),
     path(
+        "files/<str:file_hex>/edit-expiry",
+        views.FileEditExpiryView.as_view(),
+        name="file-edit-expiry",
+    ),
+    path(
         "api/cleanup-files",
         views.CleanupExpiredFilesView.as_view(),
         name="cleanup-files",
