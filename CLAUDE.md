@@ -269,16 +269,20 @@ Key variables in `.env` or `.env.dev`:
 - DJANGO_SUPERUSER_EMAIL, DJANGO_SUPERUSER_PASSWORD (dev only)
 - TIMEZONE (default: UTC)
 
-# Git Guidance
+## Development Guidelines
+- Whenever you make a change, ensure there is proper test coverage for it.
+- When fixing a bug, write a test that reproduces the bug before fixing it.
+- Break changes up into small, focused commits with clear messages.
 
-- Use feature branches for new features/bugfixes
-- Write descriptive commit messages using conventional commit messages
+## Git Workflow Guidelines
+- ALWAYS use feature branches for new features or significant changes (`git switch -c feature/your-feature-name`)
+- If you are on main, create a new branch for your work before making changes (`git switch -c feature/your-feature-name`)
+- Keep commits small and focused, with clear messages
+- Use semantic commit messages (e.g., `feat: add form field to change username`, `fix: resolve path traversal issue in file download view`)
 - **IMPORTANT: Do NOT push the code to remote, or raise a pull request until the user has reviewed the code locally**
 - Open pull requests for code review before merging to main
+- Ensure all tests pass and code is linted before merging.
+- When raising a PR, do not include a test plan section.
 - When raising pull requests relating to issues, ensure the pull request will close the issue (e.g. "Closes #123" in description)
 - Use the GH cli for interfacing with GitHub
 - Co-sign commits as Claude
-
-# Development Guidance
-
-When implementing a feature or fixing a bug, please attempt to use test driven development (TDD) where it makes sense. Write tests that cover the new functionality or bug fix first, then implement the code to make the tests pass. This helps ensure code quality and prevents regressions.
