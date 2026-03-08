@@ -144,6 +144,122 @@ class FileUploadForm(forms.ModelForm):
         return file_content
 
 
+class FileExpiryEditForm(forms.ModelForm):
+    enable_expiry = forms.BooleanField(
+        required=False, initial=False, label="Set file expiry"
+    )
+
+    class Meta:
+        model = FileUpload
+        fields = ["enable_expiry", "expiry_datetime"]
+        widgets = {
+            "expiry_datetime": ShifterDateTimeInput(
+                attrs={
+                    "class": "input-primary localized-time flex-grow",
+                }
+            )
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        allow_optional = SiteSetting.get_setting("allow_optional_expiry")
+        self.fields["expiry_datetime"].required = False
+
+        if not allow_optional:
+            self.fields["enable_expiry"].widget = forms.HiddenInput()
+            self.fields["enable_expiry"].initial = True
+        elif (
+            self.instance
+            and self.instance.pk
+            and self.instance.expiry_datetime
+        ):
+            self.fields["enable_expiry"].initial = True
+
+        if (
+            self.instance
+            and self.instance.pk
+            and self.instance.expiry_datetime
+        ):
+            initial_dt = self.instance.expiry_datetime
+        else:
+            initial_dt = timezone.now() + timedelta(
+                hours=int(SiteSetting.get_setting("default_expiry_offset"))
+            )
+
+        exp_date_min = timezone.now()
+        self.fields["expiry_datetime"].initial = initial_dt.strftime(
+            settings.DATETIME_INPUT_FORMATS[0]
+        )
+        self.fields["expiry_datetime"].widget.attrs["min"] = (
+            exp_date_min.strftime(settings.DATETIME_INPUT_FORMATS[0])
+        )
+
+        x_data = (
+            "localizedDateTimeInput("
+            f"{json.dumps(initial_dt.isoformat())}, "
+            f"{json.dumps(exp_date_min.isoformat())}"
+        )
+        try:
+            exp_date_max = timezone.now() + timedelta(
+                hours=int(SiteSetting.get_setting("max_expiry_offset"))
+            )
+            self.fields["expiry_datetime"].widget.attrs["max"] = (
+                exp_date_max.strftime(settings.DATETIME_INPUT_FORMATS[0])
+            )
+            x_data += f", {json.dumps(exp_date_max.isoformat())})"
+        except OverflowError:
+            x_data += ", null)"
+
+        self.fields["expiry_datetime"].widget.attrs["x-data"] = x_data
+
+    def clean_expiry_datetime(self):
+        expiry_datetime = self.cleaned_data.get("expiry_datetime")
+        enable_expiry = self.cleaned_data.get("enable_expiry", False)
+        allow_optional = SiteSetting.get_setting("allow_optional_expiry")
+
+        if not enable_expiry and allow_optional:
+            return None
+
+        if not expiry_datetime:
+            if allow_optional:
+                raise ValidationError(
+                    "You must provide an expiry date or uncheck "
+                    "'Set file expiry'.",
+                    code="expiry-required",
+                )
+            else:
+                raise ValidationError(
+                    "You must provide an expiry date.",
+                    code="expiry-required",
+                )
+
+        current_datetime = timezone.now()
+        if expiry_datetime < current_datetime:
+            raise ValidationError(
+                "You can't set an expiry time in the past.",
+                code="expiry-time-past",
+            )
+
+        max_expiry_offset = SiteSetting.get_setting("max_expiry_offset")
+        dont_validate_max_expiry = False
+        try:
+            max_expiry_time = current_datetime + timedelta(
+                hours=int(max_expiry_offset)
+            )
+        except OverflowError:
+            dont_validate_max_expiry = True
+
+        if not dont_validate_max_expiry and expiry_datetime > max_expiry_time:
+            raise ValidationError(
+                "You can't set an expiry time more than "
+                f"{max_expiry_offset} hours in the future.",
+                code="expiry-time-too-far",
+            )
+
+        return expiry_datetime
+
+
 class FileSearchForm(forms.Form):
     search = forms.CharField(
         required=False,
