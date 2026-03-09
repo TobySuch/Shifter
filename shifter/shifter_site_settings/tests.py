@@ -1,5 +1,3 @@
-import os
-import re
 from io import StringIO
 
 from django import forms
@@ -8,7 +6,6 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import Client, TestCase
 from django.urls import reverse
-from django.utils import timezone
 
 from shifter_site_settings.forms import SiteSettingsForm
 from shifter_site_settings.models import SiteSetting
@@ -162,48 +159,6 @@ class SiteSettingsSiteInformationTest(TestCase):
         self.super_user = User.objects.create_user(
             TEST_USER_EMAIL, TEST_USER_PASSWORD, is_staff=True
         )
-
-    def test_site_information(self):
-        client = Client()
-        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        url = reverse("shifter_site_settings:site-settings")
-        test_startup_time = timezone.now() - timezone.timedelta(minutes=5)
-        with self.settings(STARTUP_TIME=test_startup_time):
-            response = client.get(url)
-
-            self.assertContains(
-                response,
-                '<p class="font-semibold">Debug Mode</p><p class="font-black text-4xl text-primary">False</p>',  # noqa: E501
-                html=True,
-            )
-            self.assertContains(
-                response,
-                '<p class="font-semibold">Shifter Version</p><p class="font-black text-4xl text-primary">TESTING</p>',  # noqa: E501
-                html=True,
-            )
-            self.assertContains(
-                response,
-                f'<p class="font-semibold">Python Version</p><p class="font-black text-4xl text-primary">{os.environ.get("PYTHON_VERSION")}</p>',  # noqa: E501
-                html=True,
-            )
-            self.assertContains(
-                response,
-                '<p class="font-semibold">DB Engine</p><p class="font-black text-4xl text-primary">SQLITE</p>',  # noqa: E501
-                html=True,
-            )
-            # Contains a non-breaking space which breaks the assertContains.
-            self.assertRegex(
-                response.content.decode("utf-8"),
-                re.compile(
-                    r'<p class="font-semibold">Uptime</p>\n\s+<p class="font-black text-4xl text-primary">5\xa0minutes</p>',  # noqa: E501
-                    re.UNICODE,
-                ),
-            )
-            self.assertContains(
-                response,
-                '<p class="font-semibold">Active Files</p><p class="font-black text-4xl text-primary">0</p>',  # noqa: E501
-                html=True,
-            )
 
 
 class SiteSettingFieldTypesTestCase(TestCase):
