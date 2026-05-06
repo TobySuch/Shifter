@@ -24,7 +24,7 @@ RUN ruff check .
 ################
 # NODE BUILDER #
 ################
-FROM node:25 AS nodebuilder
+FROM node:26 AS nodebuilder
 WORKDIR /app/shifter
 
 RUN npm install -g npm
