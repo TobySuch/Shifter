@@ -1,4 +1,4 @@
-FROM python:3.14.4-alpine
+FROM python:3.14.5-alpine
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 COPY ./shifter/requirements.txt .
