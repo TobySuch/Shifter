@@ -1,4 +1,4 @@
-asgiref==3.11.1
+asgiref==3.12.1
 Django==6.0.7
 django-crontab==0.7.1
 django-vite==3.1.0
