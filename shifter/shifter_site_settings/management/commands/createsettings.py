@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Create new settings
-        for setting_key in settings.SITE_SETTINGS.keys():
+        for setting_key in settings.SITE_SETTINGS:
             # Check if setting_key already exists
             if not SiteSetting.objects.filter(name=setting_key).exists():
                 # Create setting_key
@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
         # Delete old settings
         for setting in SiteSetting.objects.all():
-            if setting.name not in settings.SITE_SETTINGS.keys():
+            if setting.name not in settings.SITE_SETTINGS:
                 setting.delete()
                 self.stdout.write(
                     self.style.SUCCESS(f'Deleted setting "{setting.name}"')

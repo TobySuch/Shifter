@@ -196,7 +196,9 @@ class IndexViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Also test uploading a file
-        expiry_datetime = datetime.datetime(5000, 1, 1)
+        expiry_datetime = datetime.datetime(
+            5000, 1, 1, tzinfo=datetime.timezone.utc
+        )
         test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
         response = client.post(
             reverse("shifter_files:index"),

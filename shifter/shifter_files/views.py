@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import FileResponse, Http404, JsonResponse
@@ -116,7 +118,7 @@ class FileDetailView(LoginRequiredMixin, DetailView):
 
 
 class FileDownloadView(View):
-    http_method_names = ["get", "head", "options"]
+    http_method_names: ClassVar[list[str]] = ["get", "head", "options"]
 
     def setup(self, request, *args, **kwargs):
         self.obj = get_object_or_404(FileUpload, file_hex=kwargs["file_hex"])
@@ -218,7 +220,7 @@ class FileEditExpiryView(LoginRequiredMixin, FormView):
 
 
 class CleanupExpiredFilesView(UserPassesTestMixin, View):
-    http_method_names = ["post"]
+    http_method_names: ClassVar[list[str]] = ["post"]
 
     def test_func(self):
         return self.request.user.is_staff
