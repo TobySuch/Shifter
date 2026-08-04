@@ -20,7 +20,7 @@ class AdminSettingsTestCase(TestCase):
                 from django.conf import settings
 
                 # Reload settings to pick up changes
-                settings.DEBUG = int(os.environ.get("DEBUG", 0))
+                settings.DEBUG = int(os.environ.get("DEBUG", "0"))
                 expected_admin_enabled = bool(settings.DEBUG)
                 self.assertTrue(expected_admin_enabled)
 
@@ -49,7 +49,7 @@ class AdminSettingsTestCase(TestCase):
             os.environ.pop("ADMIN_ENABLED", None)
             from django.conf import settings
 
-            settings.DEBUG = int(os.environ.get("DEBUG", 0))
+            settings.DEBUG = int(os.environ.get("DEBUG", "0"))
             # When not explicitly set and DEBUG is False,
             # admin should be disabled
             admin_enabled = bool(

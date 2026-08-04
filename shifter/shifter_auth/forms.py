@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django import forms
 from django.contrib.auth import get_user_model
 
@@ -11,14 +13,17 @@ class ChangePasswordForm(forms.Form):
     )
 
     def clean(self):
-        cleaned_data = super(ChangePasswordForm, self).clean()
+        cleaned_data = super().clean()
 
         new_password = cleaned_data.get("new_password")
         confirm_password = cleaned_data.get("confirm_password")
 
-        if new_password and confirm_password:
-            if new_password != confirm_password:
-                raise forms.ValidationError("Passwords do not match!")
+        if (
+            new_password
+            and confirm_password
+            and new_password != confirm_password
+        ):
+            raise forms.ValidationError("Passwords do not match!")
 
         return cleaned_data
 
@@ -33,14 +38,13 @@ class NewUserForm(forms.Form):
     )
 
     def clean(self):
-        cleaned_data = super(NewUserForm, self).clean()
+        cleaned_data = super().clean()
 
         password = cleaned_data.get("password")
         confirm_password = cleaned_data.get("confirm_password")
 
-        if password and confirm_password:
-            if password != confirm_password:
-                raise forms.ValidationError("Passwords do not match!")
+        if password and confirm_password and password != confirm_password:
+            raise forms.ValidationError("Passwords do not match!")
 
         return cleaned_data
 
@@ -96,8 +100,8 @@ class UserEditForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ["email", "is_staff", "is_active"]
-        labels = {
+        fields: ClassVar[list[str]] = ["email", "is_staff", "is_active"]
+        labels: ClassVar[dict[str, str]] = {
             "email": "Email",
             "is_staff": "Administrator",
             "is_active": "Active",

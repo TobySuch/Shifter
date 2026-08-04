@@ -52,7 +52,7 @@ class SiteSettingsTestCase(TestCase):
 class CreateSiteSettingsCommandTest(TestCase):
     def test_command_output(self):
         expected_output = ""
-        for setting_key in settings.SITE_SETTINGS.keys():
+        for setting_key in settings.SITE_SETTINGS:
             expected_output += f'Created setting "{setting_key}"\n'
 
         out = StringIO()

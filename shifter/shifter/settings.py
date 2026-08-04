@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get("DEBUG", default=0))
+DEBUG = int(os.environ.get("DEBUG", default="0"))
 
 # Admin interface control - defaults to DEBUG value if not explicitly set
 ADMIN_ENABLED = bool(int(os.environ.get("ADMIN_ENABLED", str(int(DEBUG)))))
@@ -304,8 +304,8 @@ DJANGO_VITE_ASSETS_PATH = BASE_DIR / "assets"
 DJANGO_VITE_MANIFEST_PATH = BASE_DIR / "static" / "manifest.json"
 
 # Timeout configuration
-UPLOAD_TIMEOUT = int(os.environ.get("UPLOAD_TIMEOUT", 300))  # seconds
-GUNICORN_TIMEOUT = int(os.environ.get("GUNICORN_TIMEOUT", 600))  # seconds
+UPLOAD_TIMEOUT = int(os.environ.get("UPLOAD_TIMEOUT", "300"))  # seconds
+GUNICORN_TIMEOUT = int(os.environ.get("GUNICORN_TIMEOUT", "600"))  # seconds
 
 # Environment information
 SHIFTER_VERSION = os.environ.get("APP_VERSION", "Unknown")

@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta
+from typing import ClassVar
 
 from django import forms
 from django.conf import settings
@@ -19,8 +20,12 @@ class FileUploadForm(forms.ModelForm):
 
     class Meta:
         model = FileUpload
-        fields = ["enable_expiry", "expiry_datetime", "file_content"]
-        widgets = {
+        fields: ClassVar[list[str]] = [
+            "enable_expiry",
+            "expiry_datetime",
+            "file_content",
+        ]
+        widgets: ClassVar[dict] = {
             "expiry_datetime": ShifterDateTimeInput(
                 attrs={
                     "class": ("input-primary localized-time flex-grow"),
@@ -29,7 +34,7 @@ class FileUploadForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(FileUploadForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Check if optional expiry is allowed
         allow_optional = SiteSetting.get_setting("allow_optional_expiry")
@@ -151,8 +156,8 @@ class FileExpiryEditForm(forms.ModelForm):
 
     class Meta:
         model = FileUpload
-        fields = ["enable_expiry", "expiry_datetime"]
-        widgets = {
+        fields: ClassVar[list[str]] = ["enable_expiry", "expiry_datetime"]
+        widgets: ClassVar[dict] = {
             "expiry_datetime": ShifterDateTimeInput(
                 attrs={
                     "class": "input-primary localized-time flex-grow",

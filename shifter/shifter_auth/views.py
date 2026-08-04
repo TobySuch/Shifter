@@ -1,5 +1,6 @@
 import secrets
 import string
+from typing import ClassVar
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, logout
@@ -192,7 +193,7 @@ class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, View):
     """Delete a user account."""
 
-    http_method_names = ["post"]
+    http_method_names: ClassVar[list[str]] = ["post"]
     permission_denied_message = "You do not have permission to delete users."
 
     def test_func(self):
@@ -226,7 +227,7 @@ class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, View):
 class UserResetPasswordView(LoginRequiredMixin, UserPassesTestMixin, View):
     """Reset a user's password to a random temporary password."""
 
-    http_method_names = ["post"]
+    http_method_names: ClassVar[list[str]] = ["post"]
     permission_denied_message = (
         "You do not have permission to reset passwords."
     )
