@@ -2,7 +2,7 @@
 # PYTHON BUILDER #
 ##################
 
-FROM python:3.14.6-alpine AS builder
+FROM python:3.14.7-alpine AS builder
 
 WORKDIR /app
 
@@ -42,7 +42,7 @@ RUN npm run build
 #########
 # FINAL #
 #########
-FROM python:3.14.6-alpine
+FROM python:3.14.7-alpine
 ARG APP_VERSION="0.0.0"
 # create directory for the app user
 RUN mkdir -p /home/app
