@@ -6,7 +6,7 @@ gunicorn==26.0.0
 packaging==26.3
 psycopg==3.3.4
 psycopg-binary==3.3.4
-sqlparse==0.5.5
+sqlparse==0.6.0
 tblib==3.2.2
 typing_extensions==4.16.0
 whitenoise==6.12.0
