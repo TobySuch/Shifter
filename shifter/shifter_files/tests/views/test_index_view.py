@@ -197,7 +197,7 @@ class IndexViewTest(TestCase):
 
         # Also test uploading a file
         expiry_datetime = datetime.datetime(
-            5000, 1, 1, tzinfo=datetime.timezone.utc
+            5000, 1, 1, tzinfo=datetime.UTC
         )
         test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
         response = client.post(
