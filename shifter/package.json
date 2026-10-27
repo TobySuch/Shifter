@@ -24,11 +24,11 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "jsdom": "^30.1.3",
-    "vite": "^8.3.4",
+    "vite": "^8.3.5",
     "vitest": "^5.0.5"
   },
   "dependencies": {
-    "alpinejs": "^3.17.4",
+    "alpinejs": "^3.17.5",
     "filepond": "^4.32.12",
     "filepond-plugin-file-validate-size": "^2.2.8",
     "flowbite": "^4.0.2",
