@@ -109,17 +109,26 @@ All the source code is contained within the `shifter/` directory. The project is
 
 - Vite 7.3 with three entry points (vite.config.js):
   - `shifter.js` - Global scripts (Alpine.js, datetime handling, clipboard)
-  - `filepond.js` - File upload handling
+  - `upload.jsx` - Upload page React island (FilePond + JSZip, see `assets/js/upload/`)
   - `site-settings.js` - Admin settings interface
 - Dev mode: Vite HMR on localhost:5173, Django on localhost:8000
 - Production: Vite builds to `./static/` (preserves existing files with emptyOutDir: false)
 - Output structure: `js/[name]-bundle.js` and `css/[name].css`
 
+**React islands (incremental migration from Alpine):**
+
+- Pages opt in with `{{ props|json_script:"<id>" }}` plus
+  `<div data-react-island="Component" data-props-id="<id>">`; the page's Vite
+  entry calls `mountIslands({ Component })` from `assets/js/react/mount.jsx`
+- Views build island props in Python (e.g. `FileUploadView.get_upload_props`)
+- `assets/js/react/api.js` provides `apiFetch` (CSRF header, Django form errors)
+- `{% vite_react_refresh %}` in `base.html` enables Fast Refresh in dev
+- Component tests use Vitest + Testing Library (`tests/**/*.test.jsx`)
+
 **Key Libraries:**
 
 - **Alpine.js 3.15** - Lightweight reactive framework for UI interactions
   - Custom Alpine components: `clipboardNotification`, `localizedTime`, `localizedDateTimeInput`
-  - Alpine stores manage upload state
 - **FilePond 4.32** - Drag-and-drop file uploads with size validation
 - **JSZip 3.10** - Client-side multi-file compression (automatic)
 - **Tailwind CSS 4.1** + **Flowbite 4.0** - Styling and components
