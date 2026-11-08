@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from shifter_files.models import FileUpload
+from shifter_files.models import ChunkedUpload, FileUpload
 
 
 class Command(BaseCommand):
@@ -8,6 +8,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         num_files_deleted = FileUpload.delete_expired_files()
+        num_stale_uploads = ChunkedUpload.delete_stale()
+        if num_stale_uploads > 0:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Deleted {num_stale_uploads} abandoned upload(s)"
+                )
+            )
         if num_files_deleted > 0:
             self.stdout.write(
                 self.style.SUCCESS(

@@ -13,7 +13,7 @@ from django.views.generic.edit import DeleteView, FormView
 from shifter_site_settings.models import SiteSetting
 
 from .forms import FileExpiryEditForm, FileSearchForm, FileUploadForm
-from .models import FileUpload, generate_hex_uuid
+from .models import ChunkedUpload, FileUpload, generate_hex_uuid
 
 
 class FileUploadView(LoginRequiredMixin, FormView):
@@ -248,6 +248,7 @@ class CleanupExpiredFilesView(UserPassesTestMixin, View):
 
     def post(self, request, *args, **kwargs):
         num_files_deleted = FileUpload.delete_expired_files()
+        ChunkedUpload.delete_stale()
         return JsonResponse(
             {"success": True, "num_files_deleted": num_files_deleted}
         )
