@@ -56,4 +56,9 @@ urlpatterns = [
         views.CleanupExpiredFilesView.as_view(),
         name="cleanup-files",
     ),
+    path(
+        "api/prune-task-results",
+        views.PruneTaskResultsView.as_view(),
+        name="prune-task-results",
+    ),
 ]

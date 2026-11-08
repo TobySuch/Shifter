@@ -146,7 +146,8 @@ All the source code is contained within the `shifter/` directory. The project is
      header, at most `UPLOAD_CHUNK_SIZE` bytes) to a temp file under
      `media/chunked_uploads/`; out-of-order offsets get 409 with `received`
    - `POST /api/uploads/<id>/complete` moves the file into `media/uploads/`,
-     computes the MD5, creates the FileUpload and returns `redirect_url`
+     creates the FileUpload and returns `redirect_url`; the MD5 is filled in
+     afterwards by the `calculate_file_hash` background task
    - `DELETE /api/uploads/<id>` aborts
 4. The browser retries failed chunks with backoff and shows progress
 5. Abandoned uploads are removed by the cleanup cron job after
@@ -195,6 +196,7 @@ SiteSetting (shifter_site_settings)
 | `/f/<hex>`            | Public   | Direct file download                            |
 | `/files/<hex>/delete` | Required | Soft-delete file                                |
 | `/api/cleanup-files`  | Staff    | Manual cleanup trigger                          |
+| `/api/prune-task-results` | Staff | Delete finished background task records    |
 | `/auth/setup`         | Special  | First-time admin setup (only if no users exist) |
 | `/auth/new-user`      | Staff    | Create new user                                 |
 | `/site-settings`      | Staff    | Admin configuration                             |
@@ -208,6 +210,21 @@ SiteSetting (shifter_site_settings)
 
 ### Background Tasks
 
+- **django.tasks** (built into Django 6) with the **django-tasks-db** backend
+  (settings.TASKS) runs one-off work outside requests, e.g.
+  `shifter_files.tasks.calculate_file_hash`
+  - Tasks are stored in the database and run by `python manage.py db_worker`
+  - entrypoint.sh starts the worker in the same container (restarting it if
+    it exits) unless RUN_TASK_WORKER=0 or TEST_MODE is set
+  - Enqueue with `transaction.on_commit` (see `schedule_file_hash`) so the
+    worker never runs before the row it needs is committed
+  - On startup entrypoint.sh runs `manage.py rescheduletasks`, which
+    re-queues work that may have been lost (e.g. a hash task interrupted
+    when the container stopped and left marked RUNNING)
+  - Finished task records are deleted from the Site Settings page
+    ("Prune Task History", `/api/prune-task-results`)
+  - Tests: `shifter_files.tests.helpers.immediate_tasks` plus
+    `self.captureOnCommitCallbacks(execute=True)` runs tasks inline
 - **django-crontab** handles scheduled tasks
 - Single cron job: delete expired files (settings.CRONJOBS)
 - Schedule via EXPIRED_FILE_CLEANUP_SCHEDULE env var (default: `*/15 * * * *`)
@@ -285,6 +302,7 @@ Key variables in `.env` or `.env.dev`:
 - EXPIRED_FILE_CLEANUP_SCHEDULE (cron format, default: `*/15 * * * *`)
 - DJANGO_SUPERUSER_EMAIL, DJANGO_SUPERUSER_PASSWORD (dev only)
 - TIMEZONE (default: UTC)
+- RUN_TASK_WORKER (default: 1; run the task worker in this container)
 
 ## Development Guidelines
 - Whenever you make a change, ensure there is proper test coverage for it.

@@ -15,6 +15,8 @@ from django.utils import timezone
 from shifter_files.models import ChunkedUpload, FileUpload
 from shifter_site_settings.models import SiteSetting
 
+from ..helpers import immediate_tasks
+
 TEST_USER_EMAIL = "iama@test.com"
 TEST_USER_PASSWORD = "mytemporarypassword"
 OTHER_USER_EMAIL = "someone@else.com"
@@ -321,9 +323,8 @@ class ChunkedUploadCompleteTests(ChunkedUploadApiTestCase):
         self.assertEqual(file_upload.owner, self.user)
         self.assertEqual(file_upload.filename, "hello.txt")
         self.assertEqual(file_upload.expiry_datetime, upload.expiry_datetime)
-        self.assertEqual(
-            file_upload.file_hash, hashlib.md5(content).hexdigest()
-        )
+        # Hashing happens in a background task after the response.
+        self.assertIsNone(file_upload.file_hash)
         self.assertTrue(
             file_upload.file_content.name.startswith(
                 f"uploads/hello.txt_{file_upload.file_hex}"
@@ -333,6 +334,21 @@ class ChunkedUploadCompleteTests(ChunkedUploadApiTestCase):
             self.assertEqual(f.read(), content)
         self.assertFalse(ChunkedUpload.objects.exists())
         self.assertFalse(os.path.exists(temp_path))
+
+    @immediate_tasks
+    def test_hash_is_calculated_by_background_task(self):
+        content = b"0123456789abcdef!"
+        session = self.start_upload(size=len(content))
+        self.upload_all(session, content)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.complete(session)
+
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(
+            FileUpload.objects.get().file_hash,
+            hashlib.md5(content).hexdigest(),
+        )
 
     def test_completed_file_is_downloadable(self):
         content = b"0123456789abcdef!"
@@ -348,10 +364,12 @@ class ChunkedUploadCompleteTests(ChunkedUploadApiTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(b"".join(response.streaming_content), content)
 
+    @immediate_tasks
     def test_empty_file(self):
         session = self.start_upload(size=0)
 
-        response = self.complete(session)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.complete(session)
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(

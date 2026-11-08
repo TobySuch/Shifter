@@ -17,6 +17,8 @@ from django.utils import timezone
 from shifter_files.models import FileUpload
 from shifter_site_settings.models import SiteSetting
 
+from ..helpers import immediate_tasks
+
 TEST_USER_EMAIL = "iama@test.com"
 TEST_USER_PASSWORD = "mytemporarypassword"
 
@@ -213,6 +215,29 @@ class IndexViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_file_upload_hash_is_calculated_after_response(self):
+        """The hash is left to a background task, not the upload request."""
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        expiry_datetime = timezone.now() + datetime.timedelta(days=1)
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+
+        with self.captureOnCommitCallbacks() as callbacks:
+            response = client.post(
+                reverse("shifter_files:index"),
+                {
+                    "expiry_datetime": expiry_datetime.isoformat(
+                        sep=" ", timespec="minutes"
+                    ),
+                    "file_content": test_file,
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(FileUpload.objects.get().file_hash)
+        self.assertEqual(len(callbacks), 1)
+
+    @immediate_tasks
     def test_file_upload_calculates_hash(self):
         """Test that file upload automatically calculates MD5 hash."""
         client = Client()
@@ -221,15 +246,16 @@ class IndexViewTest(TestCase):
         expiry_datetime = current_datetime + datetime.timedelta(days=1)
         test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
 
-        response = client.post(
-            reverse("shifter_files:index"),
-            {
-                "expiry_datetime": expiry_datetime.isoformat(
-                    sep=" ", timespec="minutes"
-                ),
-                "file_content": test_file,
-            },
-        )
+        with self.captureOnCommitCallbacks(execute=True):
+            response = client.post(
+                reverse("shifter_files:index"),
+                {
+                    "expiry_datetime": expiry_datetime.isoformat(
+                        sep=" ", timespec="minutes"
+                    ),
+                    "file_content": test_file,
+                },
+            )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(FileUpload.objects.count(), 1)
@@ -244,6 +270,7 @@ class IndexViewTest(TestCase):
         expected_hash = hashlib.md5(TEST_FILE_CONTENT).hexdigest()
         self.assertEqual(file_upload.file_hash, expected_hash)
 
+    @immediate_tasks
     def test_file_upload_hash_different_files(self):
         """Test that different files produce different hashes."""
         client = Client()
@@ -253,27 +280,29 @@ class IndexViewTest(TestCase):
 
         # Upload first file
         test_file1 = SimpleUploadedFile("file1.txt", b"Content 1")
-        client.post(
-            reverse("shifter_files:index"),
-            {
-                "expiry_datetime": expiry_datetime.isoformat(
-                    sep=" ", timespec="minutes"
-                ),
-                "file_content": test_file1,
-            },
-        )
+        with self.captureOnCommitCallbacks(execute=True):
+            client.post(
+                reverse("shifter_files:index"),
+                {
+                    "expiry_datetime": expiry_datetime.isoformat(
+                        sep=" ", timespec="minutes"
+                    ),
+                    "file_content": test_file1,
+                },
+            )
 
         # Upload second file with different content
         test_file2 = SimpleUploadedFile("file2.txt", b"Content 2")
-        client.post(
-            reverse("shifter_files:index"),
-            {
-                "expiry_datetime": expiry_datetime.isoformat(
-                    sep=" ", timespec="minutes"
-                ),
-                "file_content": test_file2,
-            },
-        )
+        with self.captureOnCommitCallbacks(execute=True):
+            client.post(
+                reverse("shifter_files:index"),
+                {
+                    "expiry_datetime": expiry_datetime.isoformat(
+                        sep=" ", timespec="minutes"
+                    ),
+                    "file_content": test_file2,
+                },
+            )
 
         self.assertEqual(FileUpload.objects.count(), 2)
 
@@ -400,6 +429,7 @@ class IndexViewTest(TestCase):
         props = self._get_rendered_upload_props(response)
         self.assertIsNone(props["expiry"]["max"])
 
+    @immediate_tasks
     def test_file_upload_hash_large_file(self):
         """Test that hash is calculated correctly for large files."""
         client = Client()
@@ -411,15 +441,16 @@ class IndexViewTest(TestCase):
         large_content = b"X" * 10240
         test_file = SimpleUploadedFile("largefile.bin", large_content)
 
-        response = client.post(
-            reverse("shifter_files:index"),
-            {
-                "expiry_datetime": expiry_datetime.isoformat(
-                    sep=" ", timespec="minutes"
-                ),
-                "file_content": test_file,
-            },
-        )
+        with self.captureOnCommitCallbacks(execute=True):
+            response = client.post(
+                reverse("shifter_files:index"),
+                {
+                    "expiry_datetime": expiry_datetime.isoformat(
+                        sep=" ", timespec="minutes"
+                    ),
+                    "file_content": test_file,
+                },
+            )
 
         self.assertEqual(response.status_code, 200)
         file_upload = FileUpload.objects.first()

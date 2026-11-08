@@ -18,6 +18,7 @@ from django.views import View
 
 from .forms import ChunkedUploadInitForm
 from .models import ChunkedUpload, ChunkedUploadError
+from .tasks import schedule_file_hash
 
 
 def error_response(message, status, field="__all__", **extra):
@@ -135,6 +136,7 @@ class ChunkedUploadCompleteView(ApiLoginRequiredMixin, View):
                     status=400,
                 )
             file_upload = upload.finalize()
+            schedule_file_hash(file_upload)
 
         return JsonResponse(
             {

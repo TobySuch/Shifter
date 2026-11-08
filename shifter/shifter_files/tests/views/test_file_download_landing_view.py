@@ -136,3 +136,36 @@ class FileDownloadLandingViewTest(TestCase):
         response = client.get(url)
 
         self.assertEqual(response.status_code, 404)
+
+    def get_page(self, file_hash):
+        client = Client()
+        file_upload = FileUpload.objects.create(
+            owner=self.user,
+            file_content=SimpleUploadedFile(
+                TEST_FILE_NAME, TEST_FILE_CONTENT
+            ),
+            upload_datetime=timezone.now(),
+            expiry_datetime=timezone.now() + datetime.timedelta(weeks=1),
+            filename=TEST_FILE_NAME,
+            file_hash=file_hash,
+        )
+        return client.get(
+            reverse(
+                "shifter_files:file-download-landing",
+                args=[file_upload.file_hex],
+            )
+        )
+
+    def test_shows_checksum_when_hashed(self):
+        response = self.get_page("a" * 32)
+
+        self.assertContains(response, "Show Checksum")
+        self.assertContains(response, "a" * 32)
+        self.assertNotContains(response, "Calculating hash")
+
+    def test_shows_calculating_while_hash_pending(self):
+        response = self.get_page(None)
+
+        self.assertContains(response, "Calculating hash")
+        self.assertContains(response, 'role="status"')
+        self.assertNotContains(response, "Show Checksum")
