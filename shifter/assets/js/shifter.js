@@ -4,6 +4,8 @@ import "../css/style.css";
 import "flowbite";
 import Alpine from "alpinejs";
 
+import { convertDateToFormFieldFormat } from "./dates.js";
+
 window.Alpine = Alpine;
 
 Alpine.data("clipboardNotification", (downloadUrl, filename = null) => ({
@@ -139,23 +141,6 @@ let dtFormat = new Intl.DateTimeFormat(undefined, {
   hour: "2-digit",
   minute: "2-digit",
 });
-
-// This converts a date object to a string in the format "YYYY-MM-DD HH:MM"
-// This is like an ISO format, but we don't want the timezone, we need it in the
-// users local time.
-function convertDateToFormFieldFormat(date) {
-  return (
-    date.getFullYear() +
-    "-" +
-    ("0" + (date.getMonth() + 1)).slice(-2) +
-    "-" +
-    ("0" + date.getDate()).slice(-2) +
-    " " +
-    ("0" + date.getHours()).slice(-2) +
-    ":" +
-    ("0" + date.getMinutes()).slice(-2)
-  );
-}
 
 export function convertTextElementToLocalTime(element) {
   const isoValue =

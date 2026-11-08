@@ -1,10 +1,11 @@
 import { defineConfig } from "vite";
 import path from "path";
 import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig(({ command }) => {
   return {
-    plugins: [tailwindcss()],
+    plugins: [react(), tailwindcss()],
     base: "/static/",
     server: {
       origin: "http://localhost:5173",
@@ -27,7 +28,7 @@ export default defineConfig(({ command }) => {
       rollupOptions: {
         input: {
           shifter: path.resolve(__dirname, "./assets/js/shifter.js"),
-          filepond: path.resolve(__dirname, "./assets/js/filepond.js"),
+          upload: path.resolve(__dirname, "./assets/js/upload.jsx"),
           sitesettings: path.resolve(__dirname, "./assets/js/site-settings.js"),
         },
         output: {
