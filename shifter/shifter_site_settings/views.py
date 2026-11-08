@@ -5,6 +5,7 @@ from django.utils import timesince
 from django.views.generic import FormView
 
 from shifter_files.models import FileUpload
+from shifter_files.tasks import TASK_LOG_LIMIT, count_tasks, get_task_log
 
 from .forms import SiteSettingsForm
 from .models import SiteSetting
@@ -51,6 +52,9 @@ class SiteSettingsView(UserPassesTestMixin, FormView):
             FileUpload.get_non_expired_files().count()
         )
         context["num_expired_files"] = FileUpload.get_expired_files().count()
+        context["task_log"] = get_task_log()
+        context["task_count"] = count_tasks()
+        context["task_log_limit"] = TASK_LOG_LIMIT
 
         site_information_lines = [
             "## Site Information",

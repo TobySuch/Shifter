@@ -4,9 +4,12 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
+from django.tasks import TaskResultStatus
 from django.test import Client, TestCase
 from django.urls import reverse
+from django_tasks_db.models import DBTaskResult
 
+from shifter_files.tasks import calculate_file_hash
 from shifter_site_settings.forms import SiteSettingsForm
 from shifter_site_settings.models import SiteSetting
 
@@ -104,6 +107,46 @@ class SiteSettingsViewTest(TestCase):
         )
         self.assertEqual(SiteSetting.get_setting("default_expiry_offset"), "1")
         self.assertEqual(SiteSetting.get_setting("max_expiry_offset"), "2")
+
+    def get_settings_page(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        return client.get(reverse("shifter_site_settings:site-settings"))
+
+    def test_task_log_is_collapsed_and_lists_tasks(self):
+        result = calculate_file_hash.enqueue(999)
+        DBTaskResult.objects.filter(id=result.id).update(
+            status=TaskResultStatus.FAILED,
+            exception_class_path="builtins.PermissionError",
+        )
+
+        response = self.get_settings_page()
+
+        self.assertContains(response, '<details id="task-log"')
+        content = response.content.decode()
+        details_tag = content.split('<details id="task-log"')[1].split(">")[0]
+        self.assertNotIn(" open", details_tag)
+        self.assertContains(response, "1 task")
+        self.assertContains(response, "Calculate file hash")
+        self.assertContains(response, "File #999 (deleted)")
+        self.assertContains(response, "Failed")
+        self.assertContains(response, "PermissionError")
+
+    def test_task_log_empty(self):
+        response = self.get_settings_page()
+
+        self.assertContains(response, "No background tasks have run yet.")
+
+    def test_task_log_says_when_only_latest_are_shown(self):
+        for _ in range(51):
+            calculate_file_hash.enqueue(999)
+
+        response = self.get_settings_page()
+
+        self.assertContains(response, "latest 50 of 51 tasks")
+        self.assertEqual(
+            response.content.decode().count("Calculate file hash"), 50
+        )
 
     def test_maintenance_buttons_rendered(self):
         client = Client()
