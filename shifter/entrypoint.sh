@@ -56,4 +56,24 @@ else
     fi
     python manage.py collectstatic --no-input --clear > /dev/null
 fi
+
+# Run the background task worker (e.g. file hashing) in this container.
+# Set RUN_TASK_WORKER=0 to run `python manage.py db_worker` elsewhere, such
+# as a separate container using the same image.
+if [ -z "$TEST_MODE" ] && [ "${RUN_TASK_WORKER:-1}" = "1" ]
+then
+    echo "Starting task worker."
+    # Restart the worker if it ever exits; nothing else would notice.
+    (
+        while true
+        do
+            python manage.py db_worker
+            echo "Task worker exited with status $?. Restarting in 5 seconds."
+            sleep 5
+        done
+    ) &
+else
+    echo "Not starting task worker."
+fi
+
 exec "$@"
