@@ -34,6 +34,13 @@ python manage.py migrate --no-input
 
 python manage.py createsettings
 
+# Queue background work that may have been lost while the worker was down,
+# e.g. hashes for files whose task was interrupted.
+if [ -z "$TEST_MODE" ]
+then
+    python manage.py rescheduletasks
+fi
+
 # If debug mode and env vars are set, create an admin user
 if [ "$DEBUG" = "1" ]
 then
