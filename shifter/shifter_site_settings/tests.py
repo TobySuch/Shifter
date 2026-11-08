@@ -109,8 +109,19 @@ class SiteSettingsViewTest(TestCase):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         response = client.get(reverse("shifter_site_settings:site-settings"))
-        self.assertContains(response, 'id="cleanup-expired-files-btn"')
-        self.assertContains(response, 'id="prune-task-results-btn"')
+        content = response.content.decode()
+        # They live in their own Maintenance section below the settings
+        # form, above Site Information.
+        form_end = content.index("</form>")
+        maintenance = content.index("<h2", form_end)
+        site_info = content.index("Site Information")
+        self.assertIn("Maintenance", content[maintenance:site_info])
+        for button_id in (
+            "prune-task-results-btn",
+            "cleanup-expired-files-btn",
+        ):
+            position = content.index(f'id="{button_id}" type="button"')
+            self.assertTrue(maintenance < position < site_info, button_id)
 
     def test_standard_user_cannot_access(self):
         # Test that a standard user cannot access the site settings page
