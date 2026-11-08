@@ -109,7 +109,7 @@ All the source code is contained within the `shifter/` directory. The project is
 
 - Vite 7.3 with three entry points (vite.config.js):
   - `shifter.js` - Global scripts (Alpine.js, datetime handling, clipboard)
-  - `upload.jsx` - Upload page React island (FilePond + JSZip, see `assets/js/upload/`)
+  - `upload.jsx` - Upload page React island (FilePond picker + chunked uploader, see `assets/js/upload/`)
   - `site-settings.js` - Admin settings interface
 - Dev mode: Vite HMR on localhost:5173, Django on localhost:8000
 - Production: Vite builds to `./static/` (preserves existing files with emptyOutDir: false)
@@ -130,21 +130,29 @@ All the source code is contained within the `shifter/` directory. The project is
 - **Alpine.js 3.15** - Lightweight reactive framework for UI interactions
   - Custom Alpine components: `clipboardNotification`, `localizedTime`, `localizedDateTimeInput`
 - **FilePond 4.32** - Drag-and-drop file uploads with size validation
-- **JSZip 3.10** - Client-side multi-file compression (automatic)
+- **client-zip** - Streaming client-side zip of multiple files
 - **Tailwind CSS 4.1** + **Flowbite 4.0** - Styling and components
 - **django-vite** - Template tags for HMR and asset loading: `{% vite_asset %}`, `{% vite_hmr_client %}`
 
 ### File Upload Flow
 
-1. FilePond dropzone with client-side validation (size from settings, expiry bounds)
-2. Multiple files automatically combined into ZIP by JSZip
-3. POST to same URL with file + expiry datetime (ISO format) + CSRF token
-4. `FileUploadView.form_valid()` validates and stores:
-   - Generates 32-char hex UUID for unique file reference
-   - Saves to `media/uploads/` with hex appended to filename
-   - Creates FileUpload model instance with owner FK
-5. Returns JSON redirect to file details page
-6. User receives shareable download link at `/download/<hex>/`
+1. FilePond is used only as the file picker (client-side size validation)
+2. Multiple files are zipped on the fly with client-zip (streamed, never
+   held in memory; `predictLength` gives the exact size up front)
+3. Chunked upload API (`shifter_files/api.py`, session auth + CSRF header):
+   - `POST /api/uploads` validates filename, size and expiry
+     (`ChunkedUploadInitForm`) and creates a `ChunkedUpload`
+   - `PUT /api/uploads/<id>/chunk` appends one chunk (`X-Upload-Offset`
+     header, at most `UPLOAD_CHUNK_SIZE` bytes) to a temp file under
+     `media/chunked_uploads/`; out-of-order offsets get 409 with `received`
+   - `POST /api/uploads/<id>/complete` moves the file into `media/uploads/`,
+     computes the MD5, creates the FileUpload and returns `redirect_url`
+   - `DELETE /api/uploads/<id>` aborts
+4. The browser retries failed chunks with backoff and shows progress
+5. Abandoned uploads are removed by the cleanup cron job after
+   `CHUNKED_UPLOAD_MAX_AGE_HOURS`
+6. The legacy single-request POST to `/` (`FileUploadView`) still works
+7. User receives shareable download link at `/download/<hex>/`
 
 ### File Download and Expiry
 
