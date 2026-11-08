@@ -305,6 +305,17 @@ DJANGO_VITE_MANIFEST_PATH = BASE_DIR / "static" / "manifest.json"
 
 # Timeout configuration
 UPLOAD_TIMEOUT = int(os.environ.get("UPLOAD_TIMEOUT", "300"))  # seconds
+
+# Chunked uploads: the browser sends files in pieces of at most this many
+# bytes, so each request stays well under proxy body limits and timeouts.
+UPLOAD_CHUNK_SIZE = int(
+    os.environ.get("UPLOAD_CHUNK_SIZE", str(8 * 1024 * 1024))
+)
+# Unfinished chunked uploads untouched for this long are deleted by the
+# expired file cleanup job.
+CHUNKED_UPLOAD_MAX_AGE_HOURS = int(
+    os.environ.get("CHUNKED_UPLOAD_MAX_AGE_HOURS", "24")
+)
 GUNICORN_TIMEOUT = int(os.environ.get("GUNICORN_TIMEOUT", "600"))  # seconds
 
 # Environment information

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import api, views
 
 app_name = "shifter_files"
 urlpatterns = [
@@ -30,6 +30,26 @@ urlpatterns = [
         "files/<str:file_hex>/edit-expiry",
         views.FileEditExpiryView.as_view(),
         name="file-edit-expiry",
+    ),
+    path(
+        "api/uploads",
+        api.ChunkedUploadInitView.as_view(),
+        name="chunked-upload-init",
+    ),
+    path(
+        "api/uploads/<str:upload_id>",
+        api.ChunkedUploadAbortView.as_view(),
+        name="chunked-upload-abort",
+    ),
+    path(
+        "api/uploads/<str:upload_id>/chunk",
+        api.ChunkedUploadChunkView.as_view(),
+        name="chunked-upload-chunk",
+    ),
+    path(
+        "api/uploads/<str:upload_id>/complete",
+        api.ChunkedUploadCompleteView.as_view(),
+        name="chunked-upload-complete",
     ),
     path(
         "api/cleanup-files",

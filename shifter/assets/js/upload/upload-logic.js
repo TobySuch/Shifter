@@ -1,14 +1,8 @@
-// Framework-free pieces of the upload flow, kept separate from the React
-// component so they can be unit tested directly.
-
-import JSZip from "jszip";
-
-import { flattenErrors } from "../react/api.js";
+// Small framework-free helpers for the upload page.
 
 export const STAY_ON_PAGE_MESSAGE =
   "Stay on this page until upload is finished.";
 export const GENERIC_UPLOAD_ERROR = "Error during upload.";
-export const GENERIC_SERVER_ERROR = "Upload failed. Please try again.";
 export const DEFAULT_ZIP_NAME = "combined";
 
 export function zipFileName(name) {
@@ -16,78 +10,26 @@ export function zipFileName(name) {
   return `${trimmed || DEFAULT_ZIP_NAME}.zip`;
 }
 
-// If more than one file is queued, replace them with a single zip archive so
-// the backend always receives one file.
-export async function combineFiles(pond, zipName) {
-  const files = pond.getFiles();
-
-  if (files.length === 0) {
-    throw new Error("Select at least one file to upload");
+// expiryValue is a datetime-local value in the user's timezone; the server
+// gets an unambiguous UTC ISO string, or null when there is no expiry.
+export function expiryToIso(enableExpiry, expiryValue) {
+  if (!enableExpiry || !expiryValue) {
+    return null;
   }
-
-  if (files.length === 1) {
-    return;
-  }
-
-  const zip = new JSZip();
-  files.forEach((item) => {
-    zip.file(item.filename, item.file, { binary: true });
-  });
-  const blob = await zip.generateAsync({ type: "blob" });
-
-  await pond.removeFiles();
-  await pond.addFile(
-    new File([blob], zipFileName(zipName), { type: "application/zip" }),
-  );
+  const expiry = new Date(expiryValue);
+  return Number.isNaN(expiry.getTime()) ? null : expiry.toISOString();
 }
 
-// Adds the non-file form fields FileUploadForm expects to FilePond's request.
-export function appendUploadFields(
-  formData,
-  { enableExpiry, expiryValue, csrfToken },
-) {
-  if (enableExpiry && expiryValue) {
-    // expiryValue is a datetime-local value in the user's timezone; send it
-    // to the server as an unambiguous UTC ISO string.
-    const expiry = new Date(expiryValue);
-    if (!Number.isNaN(expiry.getTime())) {
-      formData.append("expiry_datetime", expiry.toISOString());
-    }
+// Which input a server-side validation error belongs to, so the alert can be
+// cleared once the user fixes that input.
+export function errorSource(errors) {
+  if (errors?.expiry_datetime) {
+    return "expiry";
   }
-
-  formData.append("csrfmiddlewaretoken", csrfToken ?? "");
-  formData.append("enable_expiry", enableExpiry ? "on" : "");
-  return formData;
-}
-
-export function parseUploadResponse(responseText) {
-  return JSON.parse(responseText).redirect_url;
-}
-
-// Turns FileUploadView's JSON error payload into alert messages, noting which
-// input caused the error so it can be cleared when that input is fixed.
-export function parseUploadError(responseText) {
-  let data;
-  try {
-    data = JSON.parse(responseText);
-  } catch {
-    return { messages: [GENERIC_SERVER_ERROR], source: "server" };
+  if (errors?.size || errors?.filename) {
+    return "file";
   }
-
-  const errors = data?.errors;
-  const messages = flattenErrors(errors);
-  if (messages.length === 0) {
-    return { messages: [GENERIC_SERVER_ERROR], source: "server" };
-  }
-
-  let source = "server";
-  if (errors.expiry_datetime) {
-    source = "expiry";
-  } else if (errors.file_content) {
-    source = "file";
-  }
-
-  return { messages, source };
+  return "server";
 }
 
 // FilePond reports add-file errors as a string or as {main, sub}.
@@ -96,4 +38,15 @@ export function describeAddFileError(error) {
     return error;
   }
   return error?.main || error?.message || "File could not be added.";
+}
+
+export function formatBytes(bytes) {
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = bytes;
+  let unit = 0;
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit += 1;
+  }
+  return `${unit === 0 ? value : value.toFixed(1)} ${units[unit]}`;
 }

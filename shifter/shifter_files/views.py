@@ -13,7 +13,7 @@ from django.views.generic.edit import DeleteView, FormView
 from shifter_site_settings.models import SiteSetting
 
 from .forms import FileExpiryEditForm, FileSearchForm, FileUploadForm
-from .models import FileUpload, generate_hex_uuid
+from .models import ChunkedUpload, FileUpload, generate_hex_uuid
 
 
 class FileUploadView(LoginRequiredMixin, FormView):
@@ -66,7 +66,7 @@ class FileUploadView(LoginRequiredMixin, FormView):
     def get_upload_props(self, form):
         """Props for the UploadPage React island (rendered via json_script)."""
         return {
-            "uploadUrl": reverse("shifter_files:index"),
+            "initUrl": reverse("shifter_files:chunked-upload-init"),
             "fileFieldName": form["file_content"].html_name,
             "maxFileSize": SiteSetting.get_setting("max_file_size"),
             "uploadTimeout": settings.UPLOAD_TIMEOUT,
@@ -248,6 +248,7 @@ class CleanupExpiredFilesView(UserPassesTestMixin, View):
 
     def post(self, request, *args, **kwargs):
         num_files_deleted = FileUpload.delete_expired_files()
+        ChunkedUpload.delete_stale()
         return JsonResponse(
             {"success": True, "num_files_deleted": num_files_deleted}
         )
