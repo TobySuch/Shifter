@@ -64,6 +64,7 @@ class FileUploadForm(forms.ModelForm):
             f"{json.dumps(exp_date.isoformat())}, "
             f"{json.dumps(exp_date_min.isoformat())}"
         )
+        exp_date_max = None
         try:
             exp_date_max = timezone.now() + timedelta(
                 hours=int(SiteSetting.get_setting("max_expiry_offset"))
@@ -81,6 +82,14 @@ class FileUploadForm(forms.ModelForm):
             x_data += ", null)"
 
         self.fields["expiry_datetime"].widget.attrs["x-data"] = x_data
+
+        # ISO bounds for the React upload island, which renders its own
+        # expiry input and converts these to the browser's local time.
+        self.expiry_bounds = {
+            "initial": exp_date.isoformat(),
+            "min": exp_date_min.isoformat(),
+            "max": exp_date_max.isoformat() if exp_date_max else None,
+        }
 
     def clean_expiry_datetime(self):
         expiry_datetime = self.cleaned_data.get("expiry_datetime")

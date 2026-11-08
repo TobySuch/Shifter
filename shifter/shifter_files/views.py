@@ -60,7 +60,21 @@ class FileUploadView(LoginRequiredMixin, FormView):
             "max_file_size"
         )
         context["setting_upload_timeout"] = settings.UPLOAD_TIMEOUT
+        context["upload_props"] = self.get_upload_props(context["form"])
         return context
+
+    def get_upload_props(self, form):
+        """Props for the UploadPage React island (rendered via json_script)."""
+        return {
+            "uploadUrl": reverse("shifter_files:index"),
+            "fileFieldName": form["file_content"].html_name,
+            "maxFileSize": SiteSetting.get_setting("max_file_size"),
+            "uploadTimeout": settings.UPLOAD_TIMEOUT,
+            "allowOptionalExpiry": SiteSetting.get_setting(
+                "allow_optional_expiry"
+            ),
+            "expiry": form.expiry_bounds,
+        }
 
 
 class FileListView(LoginRequiredMixin, ListView):

@@ -2,8 +2,10 @@ import datetime
 import hashlib
 import json
 import pathlib
+import re
 import tempfile
 from shutil import rmtree
+from unittest import mock
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -306,15 +308,97 @@ class IndexViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["setting_upload_timeout"], 900)
 
+    def _get_rendered_upload_props(self, response):
+        match = re.search(
+            r'<script id="upload-props" type="application/json">'
+            r"(.*?)</script>",
+            response.content.decode(),
+            re.DOTALL,
+        )
+        self.assertIsNotNone(match, "upload-props json_script not rendered")
+        return json.loads(match.group(1))
+
     def test_upload_timeout_in_template(self):
-        """Test that the upload timeout is rendered in data attr."""
+        """Test that the upload timeout is rendered in the island props."""
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_files:index"))
+        props = self._get_rendered_upload_props(response)
+        self.assertEqual(props["uploadTimeout"], settings.UPLOAD_TIMEOUT)
+
+    def test_upload_island_mount_point_in_template(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         response = client.get(reverse("shifter_files:index"))
         self.assertContains(
             response,
-            f'data-upload-timeout="{settings.UPLOAD_TIMEOUT}"',
+            'data-react-island="UploadPage" data-props-id="upload-props"',
         )
+        # The CSRF token input is still rendered for the island to read.
+        self.assertContains(response, 'name="csrfmiddlewaretoken"')
+
+    @mock.patch(
+        "django.utils.timezone.now",
+        return_value=datetime.datetime(2026, 1, 1, 12, 0, tzinfo=datetime.UTC),
+    )
+    def test_upload_props_defaults(self, _mock_now):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_files:index"))
+        props = self._get_rendered_upload_props(response)
+
+        default_offset = int(
+            settings.SITE_SETTINGS["default_expiry_offset"]["default"]
+        )
+        max_offset = int(
+            settings.SITE_SETTINGS["max_expiry_offset"]["default"]
+        )
+        now = timezone.now()
+        self.assertEqual(
+            props,
+            {
+                "uploadUrl": reverse("shifter_files:index"),
+                "fileFieldName": "file_content",
+                "maxFileSize": settings.SITE_SETTINGS["max_file_size"][
+                    "default"
+                ],
+                "uploadTimeout": settings.UPLOAD_TIMEOUT,
+                # A real boolean: the "False" default string would be
+                # truthy in JavaScript.
+                "allowOptionalExpiry": False,
+                "expiry": {
+                    "initial": (
+                        now + datetime.timedelta(hours=default_offset)
+                    ).isoformat(),
+                    "min": now.isoformat(),
+                    "max": (
+                        now + datetime.timedelta(hours=max_offset)
+                    ).isoformat(),
+                },
+            },
+        )
+        self.assertEqual(response.context["upload_props"], props)
+
+    def test_upload_props_reflect_site_settings(self):
+        SiteSetting.objects.create(name="max_file_size", value="12MB")
+        SiteSetting.objects.create(name="allow_optional_expiry", value="True")
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_files:index"))
+        props = self._get_rendered_upload_props(response)
+        self.assertEqual(props["maxFileSize"], "12MB")
+        self.assertIs(props["allowOptionalExpiry"], True)
+
+    def test_upload_props_max_expiry_none_when_offset_overflows(self):
+        SiteSetting.objects.create(
+            name="max_expiry_offset",
+            value="2147483647",
+        )
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_files:index"))
+        props = self._get_rendered_upload_props(response)
+        self.assertIsNone(props["expiry"]["max"])
 
     def test_file_upload_hash_large_file(self):
         """Test that hash is calculated correctly for large files."""
