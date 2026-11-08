@@ -15,6 +15,7 @@ from django_tasks_db.models import DBTaskResult
 from shifter_files.models import FileUpload
 from shifter_files.tasks import (
     calculate_file_hash,
+    prune_task_results,
     requeue_missing_hashes,
     schedule_file_hash,
 )
@@ -165,3 +166,21 @@ class RequeueMissingHashesTest(TestCase):
         self.assertIn("Queued 1 file hash task(s).", out.getvalue())
         self.assertEqual(len(queued_hash_ids()), 1)
 
+
+class PruneTaskResultsTest(TestCase):
+    def test_deletes_finished_results_only(self):
+        statuses = [
+            TaskResultStatus.SUCCESSFUL,
+            TaskResultStatus.FAILED,
+            TaskResultStatus.READY,
+            TaskResultStatus.RUNNING,
+        ]
+        for status in statuses:
+            result = calculate_file_hash.enqueue(0)
+            DBTaskResult.objects.filter(id=result.id).update(status=status)
+
+        self.assertEqual(prune_task_results(), 2)
+        self.assertCountEqual(
+            DBTaskResult.objects.values_list("status", flat=True),
+            [TaskResultStatus.READY, TaskResultStatus.RUNNING],
+        )

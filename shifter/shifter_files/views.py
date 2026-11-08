@@ -14,7 +14,7 @@ from shifter_site_settings.models import SiteSetting
 
 from .forms import FileExpiryEditForm, FileSearchForm, FileUploadForm
 from .models import ChunkedUpload, FileUpload, generate_hex_uuid
-from .tasks import schedule_file_hash
+from .tasks import prune_task_results, schedule_file_hash
 
 
 class FileUploadView(LoginRequiredMixin, FormView):
@@ -249,4 +249,17 @@ class CleanupExpiredFilesView(UserPassesTestMixin, View):
         ChunkedUpload.delete_stale()
         return JsonResponse(
             {"success": True, "num_files_deleted": num_files_deleted}
+        )
+
+
+class PruneTaskResultsView(UserPassesTestMixin, View):
+    http_method_names: ClassVar[list[str]] = ["post"]
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def post(self, request, *args, **kwargs):
+        num_results_deleted = prune_task_results()
+        return JsonResponse(
+            {"success": True, "num_results_deleted": num_results_deleted}
         )

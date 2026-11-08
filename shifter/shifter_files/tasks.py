@@ -58,3 +58,8 @@ def requeue_missing_hashes():
         count += 1
     return count
 
+
+def prune_task_results():
+    """Delete the records of finished (successful or failed) tasks."""
+    deleted, _ = DBTaskResult.objects.finished().delete()
+    return deleted
