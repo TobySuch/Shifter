@@ -196,6 +196,7 @@ SiteSetting (shifter_site_settings)
 | `/f/<hex>`            | Public   | Direct file download                            |
 | `/files/<hex>/delete` | Required | Soft-delete file                                |
 | `/api/cleanup-files`  | Staff    | Manual cleanup trigger                          |
+| `/api/prune-task-results` | Staff | Delete finished background task records    |
 | `/auth/setup`         | Special  | First-time admin setup (only if no users exist) |
 | `/auth/new-user`      | Staff    | Create new user                                 |
 | `/site-settings`      | Staff    | Admin configuration                             |
@@ -217,6 +218,11 @@ SiteSetting (shifter_site_settings)
     it exits) unless RUN_TASK_WORKER=0 or TEST_MODE is set
   - Enqueue with `transaction.on_commit` (see `schedule_file_hash`) so the
     worker never runs before the row it needs is committed
+  - On startup entrypoint.sh runs `manage.py rescheduletasks`, which
+    re-queues work that may have been lost (e.g. a hash task interrupted
+    when the container stopped and left marked RUNNING)
+  - Finished task records are deleted from the Site Settings page
+    ("Prune Task History", `/api/prune-task-results`)
   - Tests: `shifter_files.tests.helpers.immediate_tasks` plus
     `self.captureOnCommitCallbacks(execute=True)` runs tasks inline
 - **django-crontab** handles scheduled tasks

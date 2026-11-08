@@ -14,36 +14,54 @@ function getCookie(name) {
   return cookieValue;
 }
 
-export async function cleanupExpiredFiles() {
-  const button = this instanceof HTMLElement ? this : null;
+// POST to a staff-only maintenance endpoint from a button, showing
+// describe(responseJson) in the info alert when it succeeds.
+async function runAdminAction(button, url, describe) {
   const alertsStore = window.Alpine?.store("siteSettingsAlerts") || null;
   if (button) {
     button.disabled = true;
   }
 
-  const result = await fetch("/api/cleanup-files", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": getCookie("csrftoken"),
-    },
-    mode: "same-origin",
-  });
+  try {
+    const result = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      mode: "same-origin",
+    });
 
-  let resultJson = await result.json();
-  if (resultJson.success) {
-    if (alertsStore) {
-      const message =
-        resultJson.num_files_deleted === 1
-          ? "Successfully deleted 1 file."
-          : `Successfully deleted ${resultJson.num_files_deleted} files.`;
-      alertsStore.setExpiredInfo(message);
+    const resultJson = await result.json();
+    if (resultJson.success && alertsStore) {
+      alertsStore.setExpiredInfo(describe(resultJson));
+    }
+  } finally {
+    if (button) {
+      button.disabled = false;
     }
   }
+}
 
-  if (button) {
-    button.disabled = false;
-  }
+export async function cleanupExpiredFiles() {
+  const button = this instanceof HTMLElement ? this : null;
+  await runAdminAction(button, "/api/cleanup-files", ({ num_files_deleted }) =>
+    num_files_deleted === 1
+      ? "Successfully deleted 1 file."
+      : `Successfully deleted ${num_files_deleted} files.`,
+  );
+}
+
+export async function pruneTaskResults() {
+  const button = this instanceof HTMLElement ? this : null;
+  await runAdminAction(
+    button,
+    "/api/prune-task-results",
+    ({ num_results_deleted }) =>
+      num_results_deleted === 1
+        ? "Deleted 1 finished task record."
+        : `Deleted ${num_results_deleted} finished task records.`,
+  );
 }
 
 export async function copySiteInformation() {
@@ -172,6 +190,13 @@ function initSiteSettings() {
   if (cleanupButton) {
     cleanupButton.addEventListener("click", function () {
       cleanupExpiredFiles.call(this);
+    });
+  }
+
+  const pruneButton = document.getElementById("prune-task-results-btn");
+  if (pruneButton) {
+    pruneButton.addEventListener("click", function () {
+      pruneTaskResults.call(this);
     });
   }
 

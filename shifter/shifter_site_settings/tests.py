@@ -105,6 +105,13 @@ class SiteSettingsViewTest(TestCase):
         self.assertEqual(SiteSetting.get_setting("default_expiry_offset"), "1")
         self.assertEqual(SiteSetting.get_setting("max_expiry_offset"), "2")
 
+    def test_maintenance_buttons_rendered(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_site_settings:site-settings"))
+        self.assertContains(response, 'id="cleanup-expired-files-btn"')
+        self.assertContains(response, 'id="prune-task-results-btn"')
+
     def test_standard_user_cannot_access(self):
         # Test that a standard user cannot access the site settings page
         client = Client()
