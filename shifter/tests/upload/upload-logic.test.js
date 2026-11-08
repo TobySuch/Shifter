@@ -1,16 +1,12 @@
-import JSZip from "jszip";
 import { describe, expect, it } from "vitest";
 
 import {
-  appendUploadFields,
-  combineFiles,
   describeAddFileError,
-  GENERIC_SERVER_ERROR,
-  parseUploadError,
-  parseUploadResponse,
+  errorSource,
+  expiryToIso,
+  formatBytes,
   zipFileName,
 } from "../../assets/js/upload/upload-logic.js";
-import { createFakePond } from "./fake-pond.js";
 
 describe("zipFileName", () => {
   it.each([
@@ -24,111 +20,33 @@ describe("zipFileName", () => {
   });
 });
 
-describe("combineFiles", () => {
-  it("rejects when there are no files", async () => {
-    const { pond } = createFakePond();
-    await expect(combineFiles(pond, "x")).rejects.toThrow(/at least one/);
-  });
-
-  it("leaves a single file untouched", async () => {
-    const { pond } = createFakePond();
-    pond.files = [{ filename: "a.txt", file: new File(["a"], "a.txt") }];
-
-    await combineFiles(pond, "x");
-
-    expect(pond.removeFiles).not.toHaveBeenCalled();
-    expect(pond.addFile).not.toHaveBeenCalled();
-  });
-
-  it("replaces multiple files with a single named zip", async () => {
-    const { pond } = createFakePond();
-    pond.files = [
-      { filename: "a.txt", file: new File(["alpha"], "a.txt") },
-      { filename: "b.txt", file: new File(["bravo"], "b.txt") },
-    ];
-
-    await combineFiles(pond, "bundle");
-
-    expect(pond.removeFiles).toHaveBeenCalledOnce();
-    const zipFile = pond.addFile.mock.calls[0][0];
-    expect(zipFile.name).toBe("bundle.zip");
-    expect(zipFile.type).toBe("application/zip");
-
-    const zip = await JSZip.loadAsync(await zipFile.arrayBuffer());
-    expect(Object.keys(zip.files).sort()).toEqual(["a.txt", "b.txt"]);
-    expect(await zip.file("b.txt").async("string")).toBe("bravo");
-  });
-});
-
-describe("appendUploadFields", () => {
-  it("sends expiry as UTC ISO when enabled", () => {
-    const formData = appendUploadFields(new FormData(), {
-      enableExpiry: true,
-      expiryValue: "2030-01-02T03:04",
-      csrfToken: "tok",
-    });
-
+describe("expiryToIso", () => {
+  it("converts a local datetime-local value to UTC ISO", () => {
     // Tests run with TZ=UTC (see tests/setup.js).
-    expect(formData.get("expiry_datetime")).toBe("2030-01-02T03:04:00.000Z");
-    expect(formData.get("enable_expiry")).toBe("on");
-    expect(formData.get("csrfmiddlewaretoken")).toBe("tok");
-  });
-
-  it("omits expiry when disabled", () => {
-    const formData = appendUploadFields(new FormData(), {
-      enableExpiry: false,
-      expiryValue: "2030-01-02T03:04",
-      csrfToken: "tok",
-    });
-
-    expect(formData.has("expiry_datetime")).toBe(false);
-    expect(formData.get("enable_expiry")).toBe("");
-  });
-
-  it("omits an unparseable expiry", () => {
-    const formData = appendUploadFields(new FormData(), {
-      enableExpiry: true,
-      expiryValue: "not a date",
-      csrfToken: "tok",
-    });
-
-    expect(formData.has("expiry_datetime")).toBe(false);
-  });
-});
-
-describe("parseUploadResponse", () => {
-  it("returns the redirect url", () => {
-    expect(parseUploadResponse('{"redirect_url": "/files/abc"}')).toBe(
-      "/files/abc",
+    expect(expiryToIso(true, "2030-01-02T03:04")).toBe(
+      "2030-01-02T03:04:00.000Z",
     );
   });
+
+  it("returns null when expiry is disabled", () => {
+    expect(expiryToIso(false, "2030-01-02T03:04")).toBeNull();
+  });
+
+  it("returns null for an empty or invalid value", () => {
+    expect(expiryToIso(true, "")).toBeNull();
+    expect(expiryToIso(true, "not a date")).toBeNull();
+  });
 });
 
-describe("parseUploadError", () => {
-  it("attributes expiry errors to the expiry input", () => {
-    expect(
-      parseUploadError('{"errors": {"expiry_datetime": ["Too far"]}}'),
-    ).toEqual({ messages: ["Too far"], source: "expiry" });
-  });
-
-  it("attributes file errors to the file input", () => {
-    expect(
-      parseUploadError('{"errors": {"file_content": ["Too big"]}}'),
-    ).toEqual({ messages: ["Too big"], source: "file" });
-  });
-
-  it("treats other errors as server errors", () => {
-    expect(parseUploadError('{"errors": {"__all__": ["Nope"]}}')).toEqual({
-      messages: ["Nope"],
-      source: "server",
-    });
-  });
-
-  it("falls back to a generic message for non-JSON responses", () => {
-    expect(parseUploadError("<html>502 Bad Gateway</html>")).toEqual({
-      messages: [GENERIC_SERVER_ERROR],
-      source: "server",
-    });
+describe("errorSource", () => {
+  it.each([
+    [{ expiry_datetime: ["x"] }, "expiry"],
+    [{ size: ["x"] }, "file"],
+    [{ filename: ["x"] }, "file"],
+    [{ __all__: ["x"] }, "server"],
+    [null, "server"],
+  ])("%j -> %s", (errors, expected) => {
+    expect(errorSource(errors)).toBe(expected);
   });
 });
 
@@ -140,5 +58,16 @@ describe("describeAddFileError", () => {
     [{}, "File could not be added."],
   ])("%j -> %s", (input, expected) => {
     expect(describeAddFileError(input)).toBe(expected);
+  });
+});
+
+describe("formatBytes", () => {
+  it.each([
+    [0, "0 B"],
+    [1023, "1023 B"],
+    [1024, "1.0 KB"],
+    [5 * 1024 * 1024 * 1024, "5.0 GB"],
+  ])("%d -> %s", (input, expected) => {
+    expect(formatBytes(input)).toBe(expected);
   });
 });

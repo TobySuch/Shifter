@@ -66,7 +66,7 @@ class FileUploadView(LoginRequiredMixin, FormView):
     def get_upload_props(self, form):
         """Props for the UploadPage React island (rendered via json_script)."""
         return {
-            "uploadUrl": reverse("shifter_files:index"),
+            "initUrl": reverse("shifter_files:chunked-upload-init"),
             "fileFieldName": form["file_content"].html_name,
             "maxFileSize": SiteSetting.get_setting("max_file_size"),
             "uploadTimeout": settings.UPLOAD_TIMEOUT,

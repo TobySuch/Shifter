@@ -357,7 +357,7 @@ class IndexViewTest(TestCase):
         self.assertEqual(
             props,
             {
-                "uploadUrl": reverse("shifter_files:index"),
+                "initUrl": reverse("shifter_files:chunked-upload-init"),
                 "fileFieldName": "file_content",
                 "maxFileSize": settings.SITE_SETTINGS["max_file_size"][
                     "default"

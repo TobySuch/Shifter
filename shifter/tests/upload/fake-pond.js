@@ -22,7 +22,7 @@ export function createFakePond() {
       pond.emit("addfile", null);
       pond.emit("updatefiles");
     }),
-    processFiles: vi.fn(),
+    setOptions: vi.fn(),
     destroy: vi.fn(),
     // Test helpers
     simulateAdd(file, error = null) {

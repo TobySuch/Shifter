@@ -1,27 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 
 import { toDateTimeLocalValue } from "../dates.js";
-import { getCsrfToken } from "../react/api.js";
 import AlertBox from "./AlertBox.jsx";
+import { uploadStream } from "./chunked-upload.js";
 import ExpiryPicker from "./ExpiryPicker.jsx";
 import { createFilePond } from "./pond.js";
+import UploadProgress from "./UploadProgress.jsx";
 import {
-  appendUploadFields,
-  combineFiles,
   DEFAULT_ZIP_NAME,
   describeAddFileError,
+  errorSource,
+  expiryToIso,
   GENERIC_UPLOAD_ERROR,
-  parseUploadError,
-  parseUploadResponse,
   STAY_ON_PAGE_MESSAGE,
 } from "./upload-logic.js";
+import { buildUploadSource } from "./upload-source.js";
 
 function navigateTo(url) {
   window.location.assign(url);
 }
 
 export default function UploadPage({
-  uploadUrl,
+  initUrl,
   fileFieldName,
   maxFileSize,
   uploadTimeout,
@@ -29,6 +29,7 @@ export default function UploadPage({
   expiry,
   // Injectable for tests; FilePond itself is not usable under jsdom.
   createPond = createFilePond,
+  upload = uploadStream,
   navigate = navigateTo,
 }) {
   const hostRef = useRef(null);
@@ -39,6 +40,8 @@ export default function UploadPage({
   const [fileCount, setFileCount] = useState(0);
   const [hasValidationError, setHasValidationError] = useState(false);
   const [uploading, setUploading] = useState(false);
+  // progress: null | { sent, total } in bytes
+  const [progress, setProgress] = useState(null);
   // When optional expiry is disabled there is no checkbox and expiry is
   // always sent.
   const [enableExpiry, setEnableExpiry] = useState(!allowOptionalExpiry);
@@ -47,11 +50,6 @@ export default function UploadPage({
   );
   const [zipName, setZipName] = useState(DEFAULT_ZIP_NAME);
 
-  // FilePond callbacks are registered once, so they read form state from a
-  // ref that is refreshed on every render.
-  const latest = useRef({});
-  latest.current = { enableExpiry, expiryValue };
-
   const clearErrorFrom = (source) =>
     setAlert((current) =>
       current?.kind === "error" && (source === null || current.source === source)
@@ -59,6 +57,8 @@ export default function UploadPage({
         : current,
     );
 
+  // FilePond is only the file picker: it validates sizes and lists the
+  // selected files. Uploading is done by uploadStream below.
   useEffect(() => {
     const pond = createPond({
       name: fileFieldName,
@@ -68,30 +68,6 @@ export default function UploadPage({
       allowRevert: false,
       credits: false,
       instantUpload: false,
-      server: {
-        process: {
-          url: uploadUrl,
-          method: "POST",
-          withCredentials: false,
-          headers: { "X-CSRFToken": getCsrfToken() },
-          timeout: uploadTimeout * 1000,
-          ondata: (formData) =>
-            appendUploadFields(formData, {
-              ...latest.current,
-              csrfToken: getCsrfToken(),
-            }),
-          onload: (responseText) => {
-            navigate(parseUploadResponse(responseText));
-          },
-          onerror: (responseText) => {
-            const { messages, source } = parseUploadError(responseText);
-            setAlert({ kind: "error", messages, source });
-            setUploading(false);
-          },
-        },
-        fetch: null,
-        revert: null,
-      },
     });
     pondRef.current = pond;
     hostRef.current.appendChild(pond.element);
@@ -135,23 +111,35 @@ export default function UploadPage({
   const handleUpload = async () => {
     const pond = pondRef.current;
     setUploading(true);
+    pond.setOptions({ disabled: true });
+    setAlert({ kind: "info", messages: [STAY_ON_PAGE_MESSAGE], source: null });
+
     try {
-      await combineFiles(pond, zipName);
+      const source = buildUploadSource(pond.getFiles(), zipName);
+      setProgress({ sent: 0, total: source.size });
+      const redirectUrl = await upload({
+        initUrl,
+        ...source,
+        enableExpiry,
+        expiryDatetime: expiryToIso(enableExpiry, expiryValue),
+        timeoutMs: uploadTimeout * 1000,
+        onProgress: (sent, total) => setProgress({ sent, total }),
+      });
+      navigate(redirectUrl);
     } catch (error) {
       console.error(error);
+      const messages = error?.errors
+        ? Object.values(error.errors).flat().map(String)
+        : [error?.message || GENERIC_UPLOAD_ERROR];
       setAlert({
         kind: "error",
-        messages: [error?.main || GENERIC_UPLOAD_ERROR],
-        source: error?.main ? "file" : "server",
+        messages,
+        source: errorSource(error?.errors),
       });
+      setProgress(null);
       setUploading(false);
-      return;
+      pond.setOptions({ disabled: false });
     }
-
-    setAlert({ kind: "info", messages: [STAY_ON_PAGE_MESSAGE], source: null });
-    // FilePond also rejects this promise on server errors; those are already
-    // reported to the user through the process.onerror callback.
-    Promise.resolve(pond.processFiles()).catch(() => {});
   };
 
   const handleEnableExpiryChange = (checked) => {
@@ -177,6 +165,8 @@ export default function UploadPage({
 
       <div ref={hostRef} data-testid="filepond-host" />
 
+      {progress && <UploadProgress {...progress} />}
+
       <div className="flex flex-col py-2">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between w-full">
           <ExpiryPicker
@@ -199,6 +189,7 @@ export default function UploadPage({
                 name="zip-file-name"
                 className="rounded-l-lg p-2 border-2 bg-sky-100 border-sky-200 focus:outline-none focus:border-primary focus:ring-0 focus:rounded-l-lg grow"
                 value={zipName}
+                disabled={uploading}
                 onChange={(event) => setZipName(event.target.value)}
               />
               <span className="rounded-r-lg p-2 border-y-2 border-r-2 bg-gray-100 border-gray-200">
