@@ -104,3 +104,89 @@ class FileDownloadViewTest(TestCase):
         url = reverse("shifter_files:file-download", args=["0" * 32])
         response = client.get(url)
         self.assertEqual(response.status_code, 404)
+
+    def test_download_expired(self):
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        file_upload = FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=timezone.now() - datetime.timedelta(weeks=1),
+            expiry_datetime=timezone.now() - datetime.timedelta(hours=1),
+            filename=TEST_FILE_NAME,
+        )
+        url = reverse(
+            "shifter_files:file-download", args=[file_upload.file_hex]
+        )
+        response = Client().get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_download_expired_head(self):
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        file_upload = FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=timezone.now() - datetime.timedelta(weeks=1),
+            expiry_datetime=timezone.now() - datetime.timedelta(hours=1),
+            filename=TEST_FILE_NAME,
+        )
+        url = reverse(
+            "shifter_files:file-download", args=[file_upload.file_hex]
+        )
+        response = Client().head(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_download_after_delete(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        file_upload = FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=timezone.now(),
+            expiry_datetime=timezone.now() + datetime.timedelta(weeks=1),
+            filename=TEST_FILE_NAME,
+        )
+        url = reverse(
+            "shifter_files:file-download", args=[file_upload.file_hex]
+        )
+        self.assertEqual(Client().get(url).status_code, 200)
+
+        client.post(
+            reverse("shifter_files:file-delete", args=[file_upload.file_hex])
+        )
+        response = Client().get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_download_after_owner_deleted(self):
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        file_upload = FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=timezone.now(),
+            expiry_datetime=timezone.now() + datetime.timedelta(weeks=1),
+            filename=TEST_FILE_NAME,
+        )
+        # Mirror what UserDeleteView does before deleting the user
+        FileUpload.objects.filter(owner=self.user).update(
+            expiry_datetime=timezone.now()
+        )
+        url = reverse(
+            "shifter_files:file-download", args=[file_upload.file_hex]
+        )
+        response = Client().get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_download_no_expiry(self):
+        test_file = SimpleUploadedFile(TEST_FILE_NAME, TEST_FILE_CONTENT)
+        file_upload = FileUpload.objects.create(
+            owner=self.user,
+            file_content=test_file,
+            upload_datetime=timezone.now(),
+            expiry_datetime=None,
+            filename=TEST_FILE_NAME,
+        )
+        url = reverse(
+            "shifter_files:file-download", args=[file_upload.file_hex]
+        )
+        response = Client().get(url)
+        self.assertEqual(response.status_code, 200)

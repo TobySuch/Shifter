@@ -122,6 +122,13 @@ class FileDownloadView(View):
 
     def setup(self, request, *args, **kwargs):
         self.obj = get_object_or_404(FileUpload, file_hex=kwargs["file_hex"])
+
+        # Only check expiry if expiry_datetime is set
+        if (
+            self.obj.expiry_datetime is not None
+            and self.obj.expiry_datetime <= timezone.now()
+        ):
+            raise Http404
         return super().setup(request, args, kwargs)
 
     def get(self, request, *args, **kwargs):
