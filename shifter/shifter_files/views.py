@@ -14,6 +14,7 @@ from shifter_site_settings.models import SiteSetting
 
 from .forms import FileExpiryEditForm, FileSearchForm, FileUploadForm
 from .models import ChunkedUpload, FileUpload, generate_hex_uuid
+from .tasks import schedule_file_hash
 
 
 class FileUploadView(LoginRequiredMixin, FormView):
@@ -27,9 +28,6 @@ class FileUploadView(LoginRequiredMixin, FormView):
         file_hex = generate_hex_uuid()
         file._name = file.name + "_" + file_hex
 
-        # Calculate MD5 hash
-        file_hash = FileUpload.calculate_file_hash(file)
-
         upload_datetime = timezone.now()
         expiry_datetime = form.cleaned_data["expiry_datetime"]
         file_upload = FileUpload(
@@ -39,9 +37,9 @@ class FileUploadView(LoginRequiredMixin, FormView):
             expiry_datetime=expiry_datetime,
             filename=filename,
             file_hex=file_hex,
-            file_hash=file_hash,
         )
         file_upload.save()
+        schedule_file_hash(file_upload)
         self.file_hex = file_upload.file_hex
 
         response = {"redirect_url": self.get_success_url()}

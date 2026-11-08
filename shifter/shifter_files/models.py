@@ -167,16 +167,14 @@ class ChunkedUpload(models.Model):
         os.replace(self.temp_path, final_path)
 
         try:
-            with open(final_path, "rb") as f:
-                file_hash = FileUpload.calculate_file_hash(f)
-
+            # The hash is calculated afterwards by a background task (see
+            # shifter_files.tasks), so completing a large upload is quick.
             file_upload = FileUpload(
                 owner=self.owner,
                 filename=self.filename,
                 upload_datetime=timezone.now(),
                 expiry_datetime=self.expiry_datetime,
                 file_hex=file_hex,
-                file_hash=file_hash,
             )
             file_upload.file_content.name = name
             file_upload.save()

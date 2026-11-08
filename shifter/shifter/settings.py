@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_crontab",
+    "django_tasks_db",
     "django_vite",
     "shifter_auth",
     "shifter_files",
@@ -296,6 +297,15 @@ CRONJOBS = [
         "shifter_files.cron.delete_expired_files",
     )
 ]
+
+# Background tasks (django.tasks) are stored in the database and run by
+# `manage.py db_worker`, which entrypoint.sh starts alongside the web server.
+TASKS = {
+    "default": {
+        "BACKEND": "django_tasks_db.DatabaseBackend",
+        "QUEUES": ["default"],
+    }
+}
 
 # Django Vite
 DJANGO_VITE_DEV_MODE = DEBUG
