@@ -13,44 +13,17 @@ from django.views.generic.edit import DeleteView, FormView
 from shifter_site_settings.models import SiteSetting
 
 from .forms import FileExpiryEditForm, FileSearchForm, FileUploadForm
-from .models import ChunkedUpload, FileUpload, generate_hex_uuid
-from .tasks import prune_task_results, schedule_file_hash
+from .models import ChunkedUpload, FileUpload
+from .tasks import prune_task_results
 
 
 class FileUploadView(LoginRequiredMixin, FormView):
+    """The upload page. Uploads themselves go through the chunked upload API
+    (shifter_files.api); the form only supplies the island's props."""
+
     template_name = "shifter_files/file_upload.html"
     form_class = FileUploadForm
-
-    def form_valid(self, form):
-        owner = self.request.user
-        file = form.cleaned_data["file_content"]
-        filename = file.name
-        file_hex = generate_hex_uuid()
-        file._name = file.name + "_" + file_hex
-
-        upload_datetime = timezone.now()
-        expiry_datetime = form.cleaned_data["expiry_datetime"]
-        file_upload = FileUpload(
-            owner=owner,
-            file_content=file,
-            upload_datetime=upload_datetime,
-            expiry_datetime=expiry_datetime,
-            filename=filename,
-            file_hex=file_hex,
-        )
-        file_upload.save()
-        schedule_file_hash(file_upload)
-        self.file_hex = file_upload.file_hex
-
-        response = {"redirect_url": self.get_success_url()}
-        return JsonResponse(response)
-
-    def form_invalid(self, form):
-        response = {"errors": form.errors}
-        return JsonResponse(response, status=400)
-
-    def get_success_url(self):
-        return reverse("shifter_files:file-details", args=[self.file_hex])
+    http_method_names: ClassVar[list[str]] = ["get"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
