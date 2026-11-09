@@ -326,6 +326,10 @@ UPLOAD_CHUNK_SIZE = int(
 CHUNKED_UPLOAD_MAX_AGE_HOURS = int(
     os.environ.get("CHUNKED_UPLOAD_MAX_AGE_HOURS", "24")
 )
+
+# Finished background task records are deleted after this many days by the
+# daily prune task.
+TASK_RESULT_MAX_AGE_DAYS = int(os.environ.get("TASK_RESULT_MAX_AGE_DAYS", "7"))
 GUNICORN_TIMEOUT = int(os.environ.get("GUNICORN_TIMEOUT", "600"))  # seconds
 
 # Environment information

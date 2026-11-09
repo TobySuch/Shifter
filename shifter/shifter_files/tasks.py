@@ -1,13 +1,14 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Count, Max, Q
 from django.tasks import TaskResultStatus, task
 from django.utils import timezone
 from django_tasks_db.models import DBTaskResult, get_date_max
 
-from .models import FileUpload
+from .models import ChunkedUpload, FileUpload
 
 
 @task
@@ -91,14 +92,15 @@ def cancel_file_expiry(file_upload_id):
     _waiting_deletions(file_upload_id).delete()
 
 
-def _enqueue_deletion(file_upload_id, run_after):
-    if not delete_expired_file.get_backend().supports_defer:
+def _enqueue_at(task_obj, run_after, *args):
+    """Queue ``task_obj`` to run at ``run_after``."""
+    if not task_obj.get_backend().supports_defer:
         # Backends that can't defer (e.g. the immediate backend used in
-        # tests) only run deletions that are already due.
+        # tests) only run tasks that are already due.
         if run_after <= timezone.now():
-            delete_expired_file.enqueue(file_upload_id)
+            task_obj.enqueue(*args)
         return
-    delete_expired_file.using(run_after=run_after).enqueue(file_upload_id)
+    task_obj.using(run_after=run_after).enqueue(*args)
 
 
 def _ensure_deletion(file_upload_id, run_after):
@@ -109,7 +111,7 @@ def _ensure_deletion(file_upload_id, run_after):
         return
     waiting.exclude(run_after=run_after).delete()
     if not waiting.filter(run_after=run_after).exists():
-        _enqueue_deletion(file_upload_id, run_after)
+        _enqueue_at(delete_expired_file, run_after, file_upload_id)
 
 
 def schedule_file_expiry(file_upload):
@@ -139,9 +141,109 @@ def requeue_missing_expiry_tasks():
     files = FileUpload.objects.filter(expiry_datetime__isnull=False)
     for pk, expiry in files.values_list("pk", "expiry_datetime"):
         if (pk, expiry) not in scheduled:
-            _enqueue_deletion(pk, expiry)
+            _enqueue_at(delete_expired_file, expiry, pk)
             count += 1
     return count
+
+
+def _stale_after(chunked_upload):
+    return chunked_upload.updated_at + timedelta(
+        hours=settings.CHUNKED_UPLOAD_MAX_AGE_HOURS
+    )
+
+
+@task
+def delete_stale_chunked_upload(chunked_upload_id):
+    """Delete an unfinished upload nobody has added to for a while.
+
+    Scheduled for when a new upload would go stale. If chunks have
+    arrived since, the check is scheduled again for the new deadline.
+    """
+    upload = ChunkedUpload.objects.filter(pk=chunked_upload_id).first()
+    if upload is None:
+        return
+    stale_after = _stale_after(upload)
+    if stale_after > timezone.now():
+        _enqueue_at(delete_stale_chunked_upload, stale_after, upload.pk)
+        return
+    # The pre_delete signal removes the temp file.
+    upload.delete()
+
+
+def _waiting_chunked_upload_checks(chunked_upload_id):
+    return DBTaskResult.objects.filter(
+        task_path=delete_stale_chunked_upload.module_path,
+        status=TaskResultStatus.READY,
+        args_kwargs__args__0=chunked_upload_id,
+    )
+
+
+def schedule_chunked_upload_cleanup(chunked_upload):
+    pk, stale_after = chunked_upload.pk, _stale_after(chunked_upload)
+    transaction.on_commit(
+        lambda: _enqueue_at(delete_stale_chunked_upload, stale_after, pk)
+    )
+
+
+def cancel_chunked_upload_cleanup(chunked_upload_id):
+    _waiting_chunked_upload_checks(chunked_upload_id).delete()
+
+
+def requeue_missing_chunked_upload_cleanup():
+    """Schedule a stale check for every unfinished upload without one."""
+    checked = {
+        args_kwargs["args"][0]
+        for args_kwargs in DBTaskResult.objects.filter(
+            task_path=delete_stale_chunked_upload.module_path,
+            status=TaskResultStatus.READY,
+        ).values_list("args_kwargs", flat=True)
+    }
+    count = 0
+    for upload in ChunkedUpload.objects.exclude(pk__in=checked):
+        _enqueue_at(
+            delete_stale_chunked_upload, _stale_after(upload), upload.pk
+        )
+        count += 1
+    return count
+
+
+# A task left RUNNING this long was interrupted (e.g. the container
+# stopped) and will never finish.
+STUCK_TASK_AGE = timedelta(days=1)
+PRUNE_INTERVAL = timedelta(days=1)
+
+
+@task
+def prune_old_task_results():
+    """Delete old task records, then run again tomorrow.
+
+    Removes finished tasks older than TASK_RESULT_MAX_AGE_DAYS and tasks
+    stuck as RUNNING for over a day. The next run is queued first so a
+    failure here doesn't stop pruning.
+    """
+    now = timezone.now()
+    _enqueue_at(prune_old_task_results, now + PRUNE_INTERVAL)
+    DBTaskResult.objects.finished().filter(
+        finished_at__lt=now - timedelta(days=settings.TASK_RESULT_MAX_AGE_DAYS)
+    ).delete()
+    DBTaskResult.objects.running().filter(
+        started_at__lt=now - STUCK_TASK_AGE
+    ).delete()
+
+
+def ensure_prune_scheduled():
+    """Queue the pruning task unless a run is already waiting.
+
+    Returns True if it was queued.
+    """
+    already = DBTaskResult.objects.filter(
+        task_path=prune_old_task_results.module_path,
+        status=TaskResultStatus.READY,
+    ).exists()
+    if already:
+        return False
+    prune_old_task_results.enqueue()
+    return True
 
 
 def prune_task_results():
