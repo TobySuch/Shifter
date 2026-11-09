@@ -11,7 +11,9 @@ import calendar
 import re
 from datetime import datetime, timedelta
 
-_VALUE_RE = re.compile(r"^\s*(\d+)\s*([A-Za-z]*)\s*$")
+# Matched against the stripped value: a single \s* keeps matching linear
+# (two \s* around an optional unit backtrack quadratically).
+_VALUE_RE = re.compile(r"(\d+)\s*([A-Za-z]*)")
 
 FILE_SIZE_UNITS = {
     "": 1,
@@ -32,7 +34,7 @@ DEFAULT_EXPIRY_OFFSET_UNIT = "H"
 
 
 def _split(value, units, kind):
-    match = _VALUE_RE.match(str(value))
+    match = _VALUE_RE.fullmatch(str(value).strip())
     if not match:
         raise ValueError(f"Invalid {kind}: {value!r}")
     amount, unit = int(match.group(1)), match.group(2).upper()

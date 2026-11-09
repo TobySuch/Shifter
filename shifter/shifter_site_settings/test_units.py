@@ -1,3 +1,4 @@
+import time
 from datetime import UTC, datetime, timedelta
 
 from django.core.exceptions import ValidationError
@@ -28,6 +29,13 @@ class ParseFileSizeTests(SimpleTestCase):
     def test_case_and_spaces_ignored(self):
         self.assertEqual(parse_file_size(" 2 gb "), 2 * 1024**3)
         self.assertEqual(normalize_file_size(" 2 gb "), "2GB")
+
+    def test_long_whitespace_input_rejected_quickly(self):
+        # CodeQL: two \s* around the unit made this quadratic.
+        start = time.monotonic()
+        with self.assertRaises(ValueError):
+            parse_file_size("9" + " " * 100_000 + "!")
+        self.assertLess(time.monotonic() - start, 1)
 
     def test_invalid(self):
         for value in ["", "GB", "1.5GB", "5TB", "-1MB", "5 G B"]:
