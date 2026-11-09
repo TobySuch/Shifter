@@ -83,6 +83,7 @@ class SiteSettingsView(UserPassesTestMixin, FormView):
             f"Expired Files Pending Cleanup: {context['num_expired_files']}",
             f"Tasks Waiting: {task_stats.waiting}",
             f"Tasks Running: {task_stats.running}",
+            f"Tasks Scheduled: {task_stats.scheduled}",
             f"Failed Tasks: {task_stats.failed}",
             f"Files Awaiting Hash: {task_stats.files_awaiting_hash}",
             f"Last Task Finished: {last_finished}",

@@ -117,11 +117,13 @@
                             <td class="whitespace-nowrap px-3 py-2">{{ entry.name }}</td>
                             <td class="max-w-xs truncate px-3 py-2" title="{{ entry.target }}">{{ entry.target }}</td>
                             <td class="whitespace-nowrap px-3 py-2">
-                                {% if entry.status == "SUCCESSFUL" %}<span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+                                {% if entry.run_after %}<span class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">
+                                {% elif entry.status == "SUCCESSFUL" %}<span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
                                 {% elif entry.status == "FAILED" %}<span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
                                 {% elif entry.status == "RUNNING" %}<span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
                                 {% else %}<span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">{% endif %}{{ entry.status_label }}</span>
                                 {% if entry.error %}<span class="mt-1 block font-mono text-xs text-red-700">{{ entry.error }}</span>{% endif %}
+                                {% if entry.run_after %}<span class="mt-1 block text-xs text-gray-500">at <time class="localized-time" x-data="localizedTime('{{ entry.run_after|date:"c" }}')">{{ entry.run_after|date:"M j, Y, g:i A T" }}</time></span>{% endif %}
                             </td>
                             <td class="whitespace-nowrap px-3 py-2">{{ entry.duration|default:"&ndash;" }}</td>
                         </tr>
@@ -191,7 +193,7 @@
             <div class="tooltip-arrow" data-popper-arrow></div>
         </div>
         <div id="tooltip-task-queue" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
-            {{ task_stats.running }} running, {{ task_stats.files_awaiting_hash }} file(s) awaiting a hash.
+            {{ task_stats.running }} running, {{ task_stats.scheduled }} scheduled, {{ task_stats.files_awaiting_hash }} file(s) awaiting a hash.
             <div class="tooltip-arrow" data-popper-arrow></div>
         </div>
         <div id="tooltip-failed-tasks" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">

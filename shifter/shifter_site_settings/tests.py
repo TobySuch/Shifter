@@ -1,3 +1,4 @@
+from datetime import timedelta
 from io import StringIO
 
 from django import forms
@@ -174,6 +175,21 @@ class SiteSettingsViewTest(TestCase):
         self.assertIn("Failed Tasks: 1", clipboard)
         self.assertIn("Files Awaiting Hash: 0", clipboard)
         self.assertIn("Last Task Finished: ", clipboard)
+
+    def test_scheduled_tasks_are_shown_as_scheduled(self):
+        run_after = timezone.now() + timedelta(days=3)
+        calculate_file_hash.using(run_after=run_after).enqueue(999)
+
+        response = self.get_settings_page()
+
+        self.assertContains(response, "Scheduled")
+        self.assertContains(response, run_after.isoformat()[:16])
+        self.assertContains(response, "1 scheduled")
+        self.assertEqual(response.context["task_stats"].waiting, 0)
+        self.assertIn(
+            "Tasks Scheduled: 1",
+            response.context["site_information_clipboard"],
+        )
 
     def test_site_information_when_no_tasks_have_finished(self):
         response = self.get_settings_page()
