@@ -171,6 +171,16 @@
                 <p class="font-semibold">Active Files</p>
                 <p class="font-black text-4xl text-primary">{{ num_active_files }}</p>
             </div>
+            <div class="relative flex flex-col justify-between rounded-lg p-2 border-2 border-sky-200 bg-sky-100 w-full text-center space-y-2" data-tooltip-target="tooltip-task-queue">
+                <span class="absolute top-0 right-0 mt-1 mr-1 w-2 h-2 bg-primary rounded-full"></span>
+                <p class="font-semibold">Queued Tasks</p>
+                <p class="font-black text-4xl text-primary">{{ task_stats.waiting }}</p>
+            </div>
+            <div class="relative flex flex-col justify-between rounded-lg p-2 border-2 border-sky-200 bg-sky-100 w-full text-center space-y-2" data-tooltip-target="tooltip-failed-tasks">
+                <span class="absolute top-0 right-0 mt-1 mr-1 w-2 h-2 bg-primary rounded-full"></span>
+                <p class="font-semibold">Failed Tasks</p>
+                <p class="font-black text-4xl {% if task_stats.failed %}text-red-600{% else %}text-primary{% endif %}">{{ task_stats.failed }}</p>
+            </div>
         </div>
         <div id="tooltip-uptime" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
             Started at: {{ startup_time }}
@@ -178,6 +188,14 @@
         </div>
         <div id="tooltip-expired-files" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
             {{ num_expired_files }} file(s) to be cleaned up.
+            <div class="tooltip-arrow" data-popper-arrow></div>
+        </div>
+        <div id="tooltip-task-queue" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
+            {{ task_stats.running }} running, {{ task_stats.files_awaiting_hash }} file(s) awaiting a hash.
+            <div class="tooltip-arrow" data-popper-arrow></div>
+        </div>
+        <div id="tooltip-failed-tasks" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
+            {% if task_stats.last_finished_at %}Last task finished {{ task_stats.last_finished_at|timesince }} ago.{% else %}No task has finished yet.{% endif %}
             <div class="tooltip-arrow" data-popper-arrow></div>
         </div>
     </div>

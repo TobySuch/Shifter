@@ -18,6 +18,7 @@ from shifter_files.tasks import (
     calculate_file_hash,
     format_duration,
     get_task_log,
+    get_task_stats,
     prune_task_results,
     requeue_missing_hashes,
     schedule_file_hash,
@@ -278,3 +279,57 @@ class TaskLogTest(TestCase):
         self.assertEqual(format_duration(timedelta(seconds=59.9)), "59.9 s")
         self.assertEqual(format_duration(timedelta(seconds=75)), "1 min 15 s")
         self.assertEqual(format_duration(timedelta(hours=2)), "120 min 0 s")
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class TaskStatsTest(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            "iama@test.com", "mytemporarypassword"
+        )
+
+    def tearDown(self):
+        rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+
+    def make_file(self, file_hash=None):
+        return FileUpload.objects.create(
+            owner=self.user,
+            file_content=SimpleUploadedFile("a.txt", TEST_FILE_CONTENT),
+            upload_datetime=timezone.now(),
+            filename="a.txt",
+            file_hash=file_hash,
+        )
+
+    def add_result(self, status, finished_at=None):
+        result = calculate_file_hash.enqueue(0)
+        DBTaskResult.objects.filter(id=result.id).update(
+            status=status, finished_at=finished_at
+        )
+
+    def test_counts_tasks_by_status_and_files_awaiting_hash(self):
+        older = timezone.now() - timedelta(hours=2)
+        newer = timezone.now() - timedelta(minutes=5)
+        self.add_result(TaskResultStatus.READY)
+        self.add_result(TaskResultStatus.READY)
+        self.add_result(TaskResultStatus.RUNNING)
+        self.add_result(TaskResultStatus.FAILED, finished_at=older)
+        self.add_result(TaskResultStatus.SUCCESSFUL, finished_at=newer)
+        self.make_file()
+        self.make_file(file_hash="a" * 32)
+
+        stats = get_task_stats()
+
+        self.assertEqual(stats.waiting, 2)
+        self.assertEqual(stats.running, 1)
+        self.assertEqual(stats.failed, 1)
+        self.assertEqual(stats.files_awaiting_hash, 1)
+        self.assertEqual(stats.last_finished_at, newer)
+
+    def test_empty(self):
+        stats = get_task_stats()
+
+        self.assertEqual(
+            (stats.waiting, stats.running, stats.failed), (0, 0, 0)
+        )
+        self.assertEqual(stats.files_awaiting_hash, 0)
+        self.assertIsNone(stats.last_finished_at)

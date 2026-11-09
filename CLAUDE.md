@@ -225,6 +225,8 @@ SiteSetting (shifter_site_settings)
     ("Prune Task History", `/api/prune-task-results`)
   - Site Settings > Maintenance has a collapsed Task Log of the latest 50
     tasks (`shifter_files.tasks.get_task_log`)
+  - Site Information shows Queued Tasks and Failed Tasks tiles, and Copy Site
+    Info includes task counts (`shifter_files.tasks.get_task_stats`)
   - Tests: `shifter_files.tests.helpers.immediate_tasks` plus
     `self.captureOnCommitCallbacks(execute=True)` runs tasks inline
 - **django-crontab** handles scheduled tasks

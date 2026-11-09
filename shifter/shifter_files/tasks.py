@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from django.db import transaction
+from django.db.models import Count, Max, Q
 from django.tasks import TaskResultStatus, task
 from django_tasks_db.models import DBTaskResult
 
@@ -154,3 +155,28 @@ def get_task_log(limit=TASK_LOG_LIMIT):
 
 def count_tasks():
     return DBTaskResult.objects.count()
+
+
+@dataclass(frozen=True)
+class TaskStats:
+    waiting: int
+    running: int
+    failed: int
+    files_awaiting_hash: int
+    last_finished_at: datetime | None
+
+
+def get_task_stats():
+    """Counts for the Site Information panel."""
+    totals = DBTaskResult.objects.aggregate(
+        waiting=Count("id", filter=Q(status=TaskResultStatus.READY)),
+        running=Count("id", filter=Q(status=TaskResultStatus.RUNNING)),
+        failed=Count("id", filter=Q(status=TaskResultStatus.FAILED)),
+        last_finished_at=Max("finished_at"),
+    )
+    return TaskStats(
+        files_awaiting_hash=FileUpload.objects.filter(
+            file_hash__isnull=True
+        ).count(),
+        **totals,
+    )

@@ -7,6 +7,7 @@ from django.core.management import call_command
 from django.tasks import TaskResultStatus
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils import timezone
 from django_tasks_db.models import DBTaskResult
 
 from shifter_files.tasks import calculate_file_hash
@@ -146,6 +147,41 @@ class SiteSettingsViewTest(TestCase):
         self.assertContains(response, "latest 50 of 51 tasks")
         self.assertEqual(
             response.content.decode().count("Calculate file hash"), 50
+        )
+
+    def test_site_information_shows_task_stats(self):
+        for status in (
+            TaskResultStatus.READY,
+            TaskResultStatus.READY,
+            TaskResultStatus.RUNNING,
+            TaskResultStatus.FAILED,
+        ):
+            result = calculate_file_hash.enqueue(999)
+            DBTaskResult.objects.filter(id=result.id).update(
+                status=status, finished_at=timezone.now()
+            )
+
+        response = self.get_settings_page()
+
+        self.assertEqual(response.context["task_stats"].waiting, 2)
+        self.assertContains(response, "Queued Tasks")
+        self.assertContains(response, "Failed Tasks")
+        self.assertContains(response, "1 running")
+        self.assertContains(response, "Last task finished")
+        clipboard = response.context["site_information_clipboard"]
+        self.assertIn("Tasks Waiting: 2", clipboard)
+        self.assertIn("Tasks Running: 1", clipboard)
+        self.assertIn("Failed Tasks: 1", clipboard)
+        self.assertIn("Files Awaiting Hash: 0", clipboard)
+        self.assertIn("Last Task Finished: ", clipboard)
+
+    def test_site_information_when_no_tasks_have_finished(self):
+        response = self.get_settings_page()
+
+        self.assertContains(response, "No task has finished yet.")
+        self.assertIn(
+            "Last Task Finished: Never",
+            response.context["site_information_clipboard"],
         )
 
     def test_maintenance_buttons_rendered(self):
