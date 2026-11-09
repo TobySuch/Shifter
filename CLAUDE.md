@@ -95,7 +95,7 @@ All the source code is contained within the `shifter/` directory. The project is
 
    - File upload with expiry date validation
    - Public download landing pages (no auth required)
-   - Background cron job cleanup every 15 minutes (configurable via EXPIRED_FILE_CLEANUP_SCHEDULE)
+   - Expired files and abandoned uploads are deleted by scheduled background tasks
    - Files stored in media/uploads/ with unique hex identifiers
 
 3. **shifter_site_settings** - Dynamic site configuration
@@ -150,8 +150,8 @@ All the source code is contained within the `shifter/` directory. The project is
      afterwards by the `calculate_file_hash` background task
    - `DELETE /api/uploads/<id>` aborts
 4. The browser retries failed chunks with backoff and shows progress
-5. Abandoned uploads are removed by the cleanup cron job after
-   `CHUNKED_UPLOAD_MAX_AGE_HOURS`
+5. Abandoned uploads are removed by the `delete_stale_chunked_upload` task
+   once untouched for `CHUNKED_UPLOAD_MAX_AGE_HOURS`
 6. User receives shareable download link at `/download/<hex>/`
 
 ### File Download and Expiry
@@ -165,7 +165,6 @@ All the source code is contained within the `shifter/` directory. The project is
   its `expiry_datetime`; changing or clearing the expiry, or deleting the file,
   replaces or cancels it. The task re-checks `is_expired()` before deleting
   - Pre-delete signal removes actual file from storage
-  - The cron job (every 15 minutes) still runs as a backup for now
   - Can be triggered manually via `/api/cleanup-files` (staff only) or `manage.py cleanupexpired`
 
 ### Database Models
@@ -224,7 +223,9 @@ SiteSetting (shifter_site_settings)
   - On startup entrypoint.sh runs `manage.py rescheduletasks`, which
     re-queues work that may have been lost (e.g. a hash task interrupted
     when the container stopped and left marked RUNNING) and schedules a
-    deletion for any file with an expiry but no waiting deletion
+    deletion for any file with an expiry but no waiting deletion, a stale
+    check for any unfinished upload without one, and the daily prune if
+    none is waiting
   - Tasks queued with `.using(run_after=...)` show as "Scheduled" in the
     Task Log and aren't counted as Queued Tasks
   - Finished task records are deleted from the Site Settings page
@@ -235,10 +236,12 @@ SiteSetting (shifter_site_settings)
     Info includes task counts (`shifter_files.tasks.get_task_stats`)
   - Tests: `shifter_files.tests.helpers.immediate_tasks` plus
     `self.captureOnCommitCallbacks(execute=True)` runs tasks inline
-- **django-crontab** handles scheduled tasks
-- Single cron job: delete expired files (settings.CRONJOBS)
-- Schedule via EXPIRED_FILE_CLEANUP_SCHEDULE env var (default: `*/15 * * * *`)
-- Crontab added and crond started in Docker entrypoint.sh
+- Scheduled work also uses tasks (there is no cron):
+  - `delete_expired_file` runs at each file's expiry
+  - `delete_stale_chunked_upload` runs when an unfinished upload would go
+    stale and reschedules itself if chunks arrived since
+  - `prune_old_task_results` runs daily, deleting finished task records older
+    than TASK_RESULT_MAX_AGE_DAYS and records stuck RUNNING for over a day
 
 ### Static Files and Asset Pipeline
 
@@ -309,7 +312,7 @@ Key variables in `.env` or `.env.dev`:
 - SECRET_KEY
 - SHIFTER_URL (sets ALLOWED_HOSTS and CSRF_TRUSTED_ORIGINS)
 - DATABASE (sqlite/postgres)
-- EXPIRED_FILE_CLEANUP_SCHEDULE (cron format, default: `*/15 * * * *`)
+- TASK_RESULT_MAX_AGE_DAYS (default: 7; finished task records are pruned after this)
 - DJANGO_SUPERUSER_EMAIL, DJANGO_SUPERUSER_PASSWORD (dev only)
 - TIMEZONE (default: UTC)
 - RUN_TASK_WORKER (default: 1; run the task worker in this container)

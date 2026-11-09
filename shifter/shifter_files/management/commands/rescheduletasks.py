@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 
 from shifter_files.tasks import (
+    ensure_prune_scheduled,
+    requeue_missing_chunked_upload_cleanup,
     requeue_missing_expiry_tasks,
     requeue_missing_hashes,
 )
@@ -21,3 +23,15 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(f"Queued {count} file expiry task(s).")
         )
+        count = requeue_missing_chunked_upload_cleanup()
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Queued {count} chunked upload cleanup task(s)."
+            )
+        )
+        if ensure_prune_scheduled():
+            self.stdout.write(
+                self.style.SUCCESS("Scheduled task history pruning.")
+            )
+        else:
+            self.stdout.write("Task history pruning already scheduled.")

@@ -9,7 +9,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from shifter_files.cron import delete_expired_files
 from shifter_files.models import ChunkedUpload, FileUpload
 
 TEST_USER_EMAIL = "iama@test.com"
@@ -42,8 +41,7 @@ class DeleteExpiredFilesTest(TestCase):
 
         path = pathlib.Path("media/uploads/" + TEST_FILE_NAME)
 
-        # Run cron job
-        delete_expired_files()
+        FileUpload.delete_expired_files()
 
         # Ensure file has been deleted from db && uploads folder
         self.assertEqual(FileUpload.objects.count(), 0)
@@ -89,10 +87,3 @@ class DeleteStaleChunkedUploadsTest(TestCase):
         pathlib.Path(stale.temp_path).unlink()
 
         self.assertEqual(ChunkedUpload.delete_stale(), 1)
-
-    def test_cron_job_deletes_stale_uploads(self):
-        stale = self.make_upload(age_hours=48)
-
-        delete_expired_files()
-
-        self.assertFalse(ChunkedUpload.objects.filter(pk=stale.pk).exists())

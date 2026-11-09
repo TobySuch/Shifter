@@ -51,16 +51,6 @@ then
         python manage.py createsuperuser --no-input
     fi
 else
-    # If not debug mode or test mode, set up cron.
-    if [[ -z "$TEST_MODE" ]]
-    then
-        echo "Setting up cron."
-        env >> /etc/environment  # Export environment variables for cron
-        python manage.py crontab add
-        crond -b
-    else
-        echo "In testing mode - not setting up cron."
-    fi
     python manage.py collectstatic --no-input --clear > /dev/null
 fi
 

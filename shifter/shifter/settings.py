@@ -66,7 +66,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_crontab",
     "django_tasks_db",
     "django_vite",
     "shifter_auth",
@@ -291,13 +290,6 @@ SITE_SETTINGS = {
 DEFAULT_EXPIRY_OFFSET = timedelta(weeks=2)
 
 
-CRONJOBS = [
-    (
-        os.environ.get("EXPIRED_FILE_CLEANUP_SCHEDULE", "*/15 * * * *"),
-        "shifter_files.cron.delete_expired_files",
-    )
-]
-
 # Background tasks (django.tasks) are stored in the database and run by
 # `manage.py db_worker`, which entrypoint.sh starts alongside the web server.
 TASKS = {
@@ -326,6 +318,10 @@ UPLOAD_CHUNK_SIZE = int(
 CHUNKED_UPLOAD_MAX_AGE_HOURS = int(
     os.environ.get("CHUNKED_UPLOAD_MAX_AGE_HOURS", "24")
 )
+
+# Finished background task records are deleted after this many days by the
+# daily prune task.
+TASK_RESULT_MAX_AGE_DAYS = int(os.environ.get("TASK_RESULT_MAX_AGE_DAYS", "7"))
 GUNICORN_TIMEOUT = int(os.environ.get("GUNICORN_TIMEOUT", "600"))  # seconds
 
 # Environment information
