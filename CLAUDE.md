@@ -160,8 +160,12 @@ All the source code is contained within the `shifter/` directory. The project is
 - **Direct download:** `/f/<hex>/` - Sends file as attachment
 - Both check `FileUpload.is_expired()` before serving (404 if expired)
 - **Deletion:** Users can soft-delete by setting expiry_datetime to now
-- **Cron cleanup:** `shifter_files.cron.delete_expired_files` runs every 15 minutes
+- **Expiry deletion:** saving a FileUpload (post_save signal in
+  `shifter_files/signals.py`) schedules a `delete_expired_file` task to run at
+  its `expiry_datetime`; changing or clearing the expiry, or deleting the file,
+  replaces or cancels it. The task re-checks `is_expired()` before deleting
   - Pre-delete signal removes actual file from storage
+  - The cron job (every 15 minutes) still runs as a backup for now
   - Can be triggered manually via `/api/cleanup-files` (staff only) or `manage.py cleanupexpired`
 
 ### Database Models
@@ -219,7 +223,10 @@ SiteSetting (shifter_site_settings)
     worker never runs before the row it needs is committed
   - On startup entrypoint.sh runs `manage.py rescheduletasks`, which
     re-queues work that may have been lost (e.g. a hash task interrupted
-    when the container stopped and left marked RUNNING)
+    when the container stopped and left marked RUNNING) and schedules a
+    deletion for any file with an expiry but no waiting deletion
+  - Tasks queued with `.using(run_after=...)` show as "Scheduled" in the
+    Task Log and aren't counted as Queued Tasks
   - Finished task records are deleted from the Site Settings page
     ("Prune Task History", `/api/prune-task-results`)
   - Site Settings > Maintenance has a collapsed Task Log of the latest 50
