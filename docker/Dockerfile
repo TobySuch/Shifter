@@ -83,4 +83,6 @@ ENV APP_VERSION=${APP_VERSION}
 RUN chown -R app:app $APP_HOME
 
 ENTRYPOINT [ "/home/app/web/entrypoint.sh" ]
-CMD ["sh", "-c", "exec gunicorn shifter.wsgi:application --bind 0.0.0.0:8000 --timeout ${GUNICORN_TIMEOUT:-600}"]
+# gthread workers keep serving other requests while a slow download is in
+# progress, and long downloads aren't killed by the worker timeout.
+CMD ["sh", "-c", "exec gunicorn shifter.wsgi:application --bind 0.0.0.0:8000 --worker-class gthread --workers ${GUNICORN_WORKERS:-2} --threads ${GUNICORN_THREADS:-8} --timeout ${GUNICORN_TIMEOUT:-600}"]
