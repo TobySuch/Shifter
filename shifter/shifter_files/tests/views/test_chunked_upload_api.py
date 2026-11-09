@@ -166,6 +166,18 @@ class ChunkedUploadInitTests(ChunkedUploadApiTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("expiry_datetime", response.json()["errors"])
 
+    # #427 - a very large max expiry setting used to cause a 500 error.
+    def test_accepts_far_future_expiry_with_huge_max_expiry_setting(self):
+        SiteSetting.objects.create(
+            name="max_expiry_offset", value="2147483647"
+        )
+        response = self.init_upload(
+            expiry_datetime=datetime.datetime(
+                5000, 1, 1, tzinfo=datetime.UTC
+            ).isoformat()
+        )
+        self.assertEqual(response.status_code, 201, response.content)
+
     def test_requires_expiry_when_optional_expiry_disabled(self):
         response = self.init_upload(enable_expiry=False, expiry_datetime=None)
         self.assertEqual(response.status_code, 400)
