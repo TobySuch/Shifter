@@ -1,6 +1,9 @@
 from django.core.management.base import BaseCommand
 
-from shifter_files.tasks import requeue_missing_hashes
+from shifter_files.tasks import (
+    requeue_missing_expiry_tasks,
+    requeue_missing_hashes,
+)
 
 
 class Command(BaseCommand):
@@ -13,4 +16,8 @@ class Command(BaseCommand):
         count = requeue_missing_hashes()
         self.stdout.write(
             self.style.SUCCESS(f"Queued {count} file hash task(s).")
+        )
+        count = requeue_missing_expiry_tasks()
+        self.stdout.write(
+            self.style.SUCCESS(f"Queued {count} file expiry task(s).")
         )
