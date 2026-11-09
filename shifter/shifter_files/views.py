@@ -14,6 +14,7 @@ from django.views.generic.base import View
 from django.views.generic.edit import DeleteView, FormView
 
 from shifter_site_settings.models import SiteSetting
+from shifter_site_settings.units import parse_file_size
 
 from .forms import FileExpiryEditForm, FileSearchForm, FileUploadForm
 from .models import ChunkedUpload, FileUpload
@@ -42,7 +43,11 @@ class FileUploadView(LoginRequiredMixin, FormView):
         return {
             "initUrl": reverse("shifter_files:chunked-upload-init"),
             "fileFieldName": form["file_content"].html_name,
-            "maxFileSize": SiteSetting.get_setting("max_file_size"),
+            # In bytes: FilePond can't parse "GB" sizes, and this also keeps
+            # its limit identical to the server's (1KB = 1024 bytes).
+            "maxFileSize": parse_file_size(
+                SiteSetting.get_setting("max_file_size")
+            ),
             "uploadTimeout": settings.UPLOAD_TIMEOUT,
             "allowOptionalExpiry": SiteSetting.get_setting(
                 "allow_optional_expiry"

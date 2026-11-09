@@ -166,6 +166,57 @@ class ChunkedUploadInitTests(ChunkedUploadApiTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("expiry_datetime", response.json()["errors"])
 
+    def test_accepts_file_within_gb_max_size(self):
+        SiteSetting.objects.create(name="max_file_size", value="1GB")
+        response = self.init_upload(size=1024**3)
+        self.assertEqual(response.status_code, 201, response.content)
+
+    def test_rejects_file_larger_than_gb_max_size(self):
+        SiteSetting.objects.create(name="max_file_size", value="1GB")
+        response = self.init_upload(size=1024**3 + 1)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json()["errors"]["size"],
+            ["You can't upload a file larger than 1GB"],
+        )
+
+    def test_max_expiry_offset_with_units(self):
+        SiteSetting.objects.create(name="max_expiry_offset", value="2W")
+        response = self.init_upload(expiry_datetime=self.future_expiry(13))
+        self.assertEqual(response.status_code, 201, response.content)
+
+        response = self.init_upload(expiry_datetime=self.future_expiry(15))
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json()["errors"]["expiry_datetime"],
+            [
+                (
+                    "You can't upload a file with an expiry time more than "
+                    "2 weeks in the future."
+                )
+            ],
+        )
+
+    def test_max_expiry_offset_without_unit_is_hours(self):
+        SiteSetting.objects.create(name="max_expiry_offset", value="48")
+        response = self.init_upload(expiry_datetime=self.future_expiry(3))
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json()["errors"]["expiry_datetime"],
+            [
+                (
+                    "You can't upload a file with an expiry time more than "
+                    "48 hours in the future."
+                )
+            ],
+        )
+
+    def test_default_max_expiry_is_one_month(self):
+        response = self.init_upload(expiry_datetime=self.future_expiry(27))
+        self.assertEqual(response.status_code, 201, response.content)
+        response = self.init_upload(expiry_datetime=self.future_expiry(32))
+        self.assertEqual(response.status_code, 400)
+
     # #427 - a very large max expiry setting used to cause a 500 error.
     def test_accepts_far_future_expiry_with_huge_max_expiry_setting(self):
         SiteSetting.objects.create(

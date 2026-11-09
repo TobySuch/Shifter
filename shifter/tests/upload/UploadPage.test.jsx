@@ -23,7 +23,7 @@ function buildProps(overrides = {}) {
   return {
     initUrl: "/api/uploads",
     fileFieldName: "file_content",
-    maxFileSize: "5MB",
+    maxFileSize: 5 * 1024 * 1024,
     uploadTimeout: 300,
     allowOptionalExpiry: false,
     expiry: {
@@ -88,7 +88,8 @@ describe("UploadPage", () => {
     expect(factory).toHaveBeenCalledOnce();
     const options = factory.mock.calls[0][0];
     expect(options.name).toBe("file_content");
-    expect(options.maxFileSize).toBe("5MB");
+    expect(options.maxFileSize).toBe(5 * 1024 * 1024);
+    expect(options.fileSizeBase).toBe(1024);
     expect(options.allowMultiple).toBe(true);
     expect(options.instantUpload).toBe(false);
     expect(options.server).toBeUndefined();

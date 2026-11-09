@@ -1,8 +1,11 @@
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils import timezone
 
 from .models import SiteSetting
+from .units import add_expiry_offset
 
 
 class SiteSettingsForm(forms.Form):
@@ -47,3 +50,16 @@ class SiteSettingsForm(forms.Form):
                         "Maximum value: %(limit_value)s",
                     )
                 )
+
+    def clean_setting_default_expiry_offset(self):
+        # The default expiry is shown on every upload, so unlike the
+        # maximum it must be a date that can be represented.
+        value = self.cleaned_data["setting_default_expiry_offset"]
+        try:
+            add_expiry_offset(timezone.now(), value)
+        except OverflowError:
+            raise ValidationError(
+                "This offset is too far in the future.",
+                code="expiry-offset-too-far",
+            ) from None
+        return value
