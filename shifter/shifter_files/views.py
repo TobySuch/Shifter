@@ -1,11 +1,14 @@
+import mimetypes
 from typing import ClassVar
+from urllib.parse import quote
 
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import FileResponse, Http404, JsonResponse
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.http import content_disposition_header
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView, FormView
@@ -116,12 +119,44 @@ class FileDownloadView(View):
             raise Http404
         return super().setup(request, args, kwargs)
 
+    # Same mapping as FileResponse, so e.g. a .tar.gz downloads as gzip
+    # rather than as a tar the browser might decompress.
+    ENCODING_CONTENT_TYPES: ClassVar[dict[str, str]] = {
+        "br": "application/x-brotli",
+        "bzip2": "application/x-bzip",
+        "compress": "application/x-compress",
+        "gzip": "application/gzip",
+        "xz": "application/x-xz",
+    }
+
     def get(self, request, *args, **kwargs):
+        if settings.X_ACCEL_REDIRECT_PREFIX:
+            return self.accel_redirect_response()
         return FileResponse(
             self.obj.file_content,
             as_attachment=True,
             filename=self.obj.filename,
         )
+
+    def accel_redirect_response(self):
+        """Let the reverse proxy send the file (nginx X-Accel-Redirect).
+
+        The proxy serves the stored file from an internal location, with
+        Range requests and without tying up an app server thread.
+        """
+        content_type, encoding = mimetypes.guess_type(self.obj.filename)
+        content_type = self.ENCODING_CONTENT_TYPES.get(encoding, content_type)
+        response = HttpResponse(
+            content_type=content_type or "application/octet-stream"
+        )
+        response["Content-Disposition"] = content_disposition_header(
+            True, self.obj.filename
+        )
+        prefix = settings.X_ACCEL_REDIRECT_PREFIX.strip("/")
+        response["X-Accel-Redirect"] = (
+            f"/{prefix}/{quote(self.obj.file_content.name)}"
+        )
+        return response
 
 
 class FileDownloadLandingView(DetailView):

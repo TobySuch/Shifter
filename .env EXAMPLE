@@ -16,6 +16,7 @@ GUNICORN_TIMEOUT=600  # Gunicorn worker timeout in seconds. Default is 600 (10 m
 GUNICORN_WORKERS=2  # Number of Gunicorn worker processes. Default is 2.
 GUNICORN_THREADS=8  # Threads per Gunicorn worker. Each request in progress (e.g. a download) uses one thread, so workers x threads is how many can run at once. Default is 8.
 RUN_TASK_WORKER=1  # Run the background task worker (file hashing) inside this container. Set to 0 if you run `python manage.py db_worker` in a separate container. Default is 1.
+# X_ACCEL_REDIRECT_PREFIX=/protected-media/  # Uncomment to let your reverse proxy send downloaded files. Only set this once the proxy is configured, see docs/PROXY_DOWNLOADS.md.
 
 ### Database settings ###
 DATABASE=sqlite  # Possible values: sqlite, postgres

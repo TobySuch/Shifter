@@ -159,6 +159,9 @@ All the source code is contained within the `shifter/` directory. The project is
 - **Public landing page:** `/download/<hex>/` - Shows filename/size, no auth required
 - **Direct download:** `/f/<hex>/` - Sends file as attachment
 - Both check `FileUpload.is_expired()` before serving (404 if expired)
+- With `X_ACCEL_REDIRECT_PREFIX` set, `/f/<hex>/` returns an empty response
+  with an `X-Accel-Redirect` header and the proxy sends the file (see
+  `docs/PROXY_DOWNLOADS.md`)
 - **Deletion:** Users can soft-delete by setting expiry_datetime to now
 - **Expiry deletion:** saving a FileUpload (post_save signal in
   `shifter_files/signals.py`) schedules a `delete_expired_file` task to run at
@@ -316,6 +319,7 @@ Key variables in `.env` or `.env.dev`:
 - DJANGO_SUPERUSER_EMAIL, DJANGO_SUPERUSER_PASSWORD (dev only)
 - TIMEZONE (default: UTC)
 - RUN_TASK_WORKER (default: 1; run the task worker in this container)
+- X_ACCEL_REDIRECT_PREFIX (default: empty; hand downloads to the reverse proxy)
 
 ## Development Guidelines
 - Whenever you make a change, ensure there is proper test coverage for it.

@@ -324,6 +324,11 @@ CHUNKED_UPLOAD_MAX_AGE_HOURS = int(
 TASK_RESULT_MAX_AGE_DAYS = int(os.environ.get("TASK_RESULT_MAX_AGE_DAYS", "7"))
 GUNICORN_TIMEOUT = int(os.environ.get("GUNICORN_TIMEOUT", "600"))  # seconds
 
+# When set, downloads are handed to the reverse proxy with an
+# X-Accel-Redirect header pointing at this internal URL prefix plus the
+# file's path under MEDIA_ROOT, instead of being streamed by Django.
+X_ACCEL_REDIRECT_PREFIX = os.environ.get("X_ACCEL_REDIRECT_PREFIX", "").strip()
+
 # Environment information
 SHIFTER_VERSION = os.environ.get("APP_VERSION", "Unknown")
 PYTHON_VERSION = os.environ.get("PYTHON_VERSION", "Unknown")

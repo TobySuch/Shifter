@@ -60,6 +60,10 @@ docker compose up
 
 5. Access the site on the configured port. You will be asked to setup an admin user when you first visit the site.
 
+### Serving downloads from a reverse proxy
+
+If you run Shifter behind nginx, Caddy or Traefik, you can let the proxy send downloaded files instead of Django. This is faster, and supports resuming interrupted downloads. See [Serving downloads from your reverse proxy](docs/PROXY_DOWNLOADS.md).
+
 ### Using Postgresql
 
 By default, Shifter uses SQLite for its database. If you would like to use Postgresql instead, you can do so by following these steps:
