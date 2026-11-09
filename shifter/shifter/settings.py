@@ -66,7 +66,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_crontab",
     "django_tasks_db",
     "django_vite",
     "shifter_auth",
@@ -290,13 +289,6 @@ SITE_SETTINGS = {
 
 DEFAULT_EXPIRY_OFFSET = timedelta(weeks=2)
 
-
-CRONJOBS = [
-    (
-        os.environ.get("EXPIRED_FILE_CLEANUP_SCHEDULE", "*/15 * * * *"),
-        "shifter_files.cron.delete_expired_files",
-    )
-]
 
 # Background tasks (django.tasks) are stored in the database and run by
 # `manage.py db_worker`, which entrypoint.sh starts alongside the web server.
