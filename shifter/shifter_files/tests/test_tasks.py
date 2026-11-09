@@ -1,5 +1,6 @@
 import hashlib
 import tempfile
+from datetime import timedelta
 from io import StringIO
 from shutil import rmtree
 
@@ -15,6 +16,9 @@ from django_tasks_db.models import DBTaskResult
 from shifter_files.models import FileUpload
 from shifter_files.tasks import (
     calculate_file_hash,
+    format_duration,
+    get_task_log,
+    get_task_stats,
     prune_task_results,
     requeue_missing_hashes,
     schedule_file_hash,
@@ -184,3 +188,148 @@ class PruneTaskResultsTest(TestCase):
             DBTaskResult.objects.values_list("status", flat=True),
             [TaskResultStatus.READY, TaskResultStatus.RUNNING],
         )
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class TaskLogTest(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            "iama@test.com", "mytemporarypassword"
+        )
+        self.file_upload = FileUpload.objects.create(
+            owner=self.user,
+            file_content=SimpleUploadedFile("report.pdf", TEST_FILE_CONTENT),
+            upload_datetime=timezone.now(),
+            filename="report.pdf",
+        )
+
+    def tearDown(self):
+        rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+
+    def enqueue(self, file_upload_id, **fields):
+        result = calculate_file_hash.enqueue(file_upload_id)
+        DBTaskResult.objects.filter(id=result.id).update(**fields)
+        return DBTaskResult.objects.get(id=result.id)
+
+    def test_describes_a_finished_task(self):
+        started = timezone.now() - timedelta(seconds=10)
+        result = self.enqueue(
+            self.file_upload.pk,
+            status=TaskResultStatus.SUCCESSFUL,
+            started_at=started,
+            finished_at=started + timedelta(seconds=2.5),
+        )
+
+        (entry,) = get_task_log()
+
+        self.assertEqual(entry.name, "Calculate file hash")
+        self.assertEqual(entry.target, "report.pdf")
+        self.assertEqual(entry.status, TaskResultStatus.SUCCESSFUL)
+        self.assertEqual(entry.status_label, "Succeeded")
+        self.assertEqual(entry.enqueued_at, result.enqueued_at)
+        self.assertEqual(entry.duration, "2.5 s")
+        self.assertEqual(entry.error, "")
+
+    def test_describes_failed_task_with_its_exception(self):
+        self.enqueue(
+            self.file_upload.pk,
+            status=TaskResultStatus.FAILED,
+            exception_class_path="builtins.PermissionError",
+        )
+
+        (entry,) = get_task_log()
+
+        self.assertEqual(entry.status_label, "Failed")
+        self.assertEqual(entry.error, "PermissionError")
+
+    def test_waiting_and_running_tasks_have_no_duration(self):
+        self.enqueue(self.file_upload.pk)
+        self.enqueue(
+            self.file_upload.pk,
+            status=TaskResultStatus.RUNNING,
+            started_at=timezone.now(),
+        )
+
+        entries = get_task_log()
+
+        self.assertEqual(
+            [entry.status_label for entry in entries], ["Running", "Waiting"]
+        )
+        self.assertEqual([entry.duration for entry in entries], ["", ""])
+
+    def test_deleted_file_is_marked(self):
+        self.enqueue(12345)
+
+        (entry,) = get_task_log()
+
+        self.assertEqual(entry.target, "File #12345 (deleted)")
+
+    def test_newest_first_and_limited(self):
+        for _ in range(3):
+            self.enqueue(self.file_upload.pk)
+        newest = self.enqueue(self.file_upload.pk)
+
+        entries = get_task_log(limit=2)
+
+        self.assertEqual(len(entries), 2)
+        self.assertEqual(entries[0].enqueued_at, newest.enqueued_at)
+
+    def test_formats_longer_durations(self):
+        self.assertEqual(format_duration(timedelta(seconds=0.04)), "0.0 s")
+        self.assertEqual(format_duration(timedelta(seconds=59.9)), "59.9 s")
+        self.assertEqual(format_duration(timedelta(seconds=75)), "1 min 15 s")
+        self.assertEqual(format_duration(timedelta(hours=2)), "120 min 0 s")
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class TaskStatsTest(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            "iama@test.com", "mytemporarypassword"
+        )
+
+    def tearDown(self):
+        rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+
+    def make_file(self, file_hash=None):
+        return FileUpload.objects.create(
+            owner=self.user,
+            file_content=SimpleUploadedFile("a.txt", TEST_FILE_CONTENT),
+            upload_datetime=timezone.now(),
+            filename="a.txt",
+            file_hash=file_hash,
+        )
+
+    def add_result(self, status, finished_at=None):
+        result = calculate_file_hash.enqueue(0)
+        DBTaskResult.objects.filter(id=result.id).update(
+            status=status, finished_at=finished_at
+        )
+
+    def test_counts_tasks_by_status_and_files_awaiting_hash(self):
+        older = timezone.now() - timedelta(hours=2)
+        newer = timezone.now() - timedelta(minutes=5)
+        self.add_result(TaskResultStatus.READY)
+        self.add_result(TaskResultStatus.READY)
+        self.add_result(TaskResultStatus.RUNNING)
+        self.add_result(TaskResultStatus.FAILED, finished_at=older)
+        self.add_result(TaskResultStatus.SUCCESSFUL, finished_at=newer)
+        self.make_file()
+        self.make_file(file_hash="a" * 32)
+
+        stats = get_task_stats()
+
+        self.assertEqual(stats.waiting, 2)
+        self.assertEqual(stats.running, 1)
+        self.assertEqual(stats.failed, 1)
+        self.assertEqual(stats.files_awaiting_hash, 1)
+        self.assertEqual(stats.last_finished_at, newer)
+
+    def test_empty(self):
+        stats = get_task_stats()
+
+        self.assertEqual(
+            (stats.waiting, stats.running, stats.failed), (0, 0, 0)
+        )
+        self.assertEqual(stats.files_awaiting_hash, 0)
+        self.assertIsNone(stats.last_finished_at)

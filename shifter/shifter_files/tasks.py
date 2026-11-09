@@ -1,4 +1,8 @@
+from dataclasses import dataclass
+from datetime import datetime
+
 from django.db import transaction
+from django.db.models import Count, Max, Q
 from django.tasks import TaskResultStatus, task
 from django_tasks_db.models import DBTaskResult
 
@@ -63,3 +67,116 @@ def prune_task_results():
     """Delete the records of finished (successful or failed) tasks."""
     deleted, _ = DBTaskResult.objects.finished().delete()
     return deleted
+
+
+TASK_LOG_LIMIT = 50
+
+STATUS_LABELS = {
+    TaskResultStatus.READY: "Waiting",
+    TaskResultStatus.RUNNING: "Running",
+    TaskResultStatus.SUCCESSFUL: "Succeeded",
+    TaskResultStatus.FAILED: "Failed",
+}
+
+
+@dataclass(frozen=True)
+class TaskLogEntry:
+    name: str
+    target: str
+    status: str
+    status_label: str
+    enqueued_at: datetime
+    started_at: datetime | None
+    finished_at: datetime | None
+    duration: str
+    error: str
+
+
+def format_duration(duration):
+    seconds = duration.total_seconds()
+    if seconds < 60:
+        return f"{seconds:.1f} s"
+    minutes, seconds = divmod(round(seconds), 60)
+    return f"{minutes} min {seconds} s"
+
+
+def _task_name(task_path):
+    """calculate_file_hash -> "Calculate file hash"."""
+    return task_path.rsplit(".", 1)[-1].replace("_", " ").capitalize()
+
+
+def _hash_targets(results):
+    """File names for the hash tasks in ``results``, keyed by FileUpload pk."""
+    ids = {
+        result.args_kwargs["args"][0]
+        for result in results
+        if result.task_path == calculate_file_hash.module_path
+    }
+    return dict(
+        FileUpload.objects.filter(pk__in=ids).values_list("pk", "filename")
+    )
+
+
+def _target(result, hash_targets):
+    args = result.args_kwargs.get("args", [])
+    if result.task_path == calculate_file_hash.module_path:
+        pk = args[0]
+        return hash_targets.get(pk, f"File #{pk} (deleted)")
+    return ", ".join(str(arg) for arg in args)
+
+
+def get_task_log(limit=TASK_LOG_LIMIT):
+    """The most recently queued background tasks, newest first."""
+    results = list(DBTaskResult.objects.order_by("-enqueued_at")[:limit])
+    hash_targets = _hash_targets(results)
+    entries = []
+    for result in results:
+        duration = ""
+        if result.started_at and result.finished_at:
+            duration = format_duration(result.finished_at - result.started_at)
+        error = ""
+        if result.status == TaskResultStatus.FAILED:
+            error = result.exception_class_path.rsplit(".", 1)[-1]
+        entries.append(
+            TaskLogEntry(
+                name=_task_name(result.task_path),
+                target=_target(result, hash_targets),
+                status=result.status,
+                status_label=STATUS_LABELS.get(result.status, result.status),
+                enqueued_at=result.enqueued_at,
+                started_at=result.started_at,
+                finished_at=result.finished_at,
+                duration=duration,
+                error=error,
+            )
+        )
+    return entries
+
+
+def count_tasks():
+    return DBTaskResult.objects.count()
+
+
+@dataclass(frozen=True)
+class TaskStats:
+    waiting: int
+    running: int
+    failed: int
+    files_awaiting_hash: int
+    last_finished_at: datetime | None
+
+
+def get_task_stats():
+    """Counts for the Site Information panel."""
+    totals = DBTaskResult.objects.aggregate(
+        waiting=Count("id", filter=Q(status=TaskResultStatus.READY)),
+        running=Count("id", filter=Q(status=TaskResultStatus.RUNNING)),
+        failed=Count("id", filter=Q(status=TaskResultStatus.FAILED)),
+        last_finished_at=Max("finished_at"),
+    )
+    return TaskStats(
+        files_awaiting_hash=FileUpload.objects.filter(
+            file_hash__isnull=True
+        ).count(),
+        **totals,
+    )

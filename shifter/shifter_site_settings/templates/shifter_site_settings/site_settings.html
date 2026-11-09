@@ -90,6 +90,49 @@
                 <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
             </button>
         </div>
+        <details id="task-log" class="group mt-4 rounded-lg border-2 border-sky-200">
+            <summary class="flex cursor-pointer items-center gap-2 px-3 py-2 font-medium text-gray-800">
+                <svg class="w-4 h-4 transition-transform group-open:rotate-90" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                <span>Task Log</span>
+                <span class="text-sm font-normal text-gray-500">
+                    {% if task_count > task_log|length %}(latest {{ task_log|length }} of {{ task_count }} tasks){% else %}({{ task_count }} task{{ task_count|pluralize }}){% endif %}
+                </span>
+            </summary>
+            {% if task_log %}
+            <div class="overflow-x-auto border-t-2 border-sky-200">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-sky-100 text-gray-700">
+                        <tr>
+                            <th scope="col" class="px-3 py-2 font-semibold">Queued</th>
+                            <th scope="col" class="px-3 py-2 font-semibold">Task</th>
+                            <th scope="col" class="px-3 py-2 font-semibold">Target</th>
+                            <th scope="col" class="px-3 py-2 font-semibold">Status</th>
+                            <th scope="col" class="px-3 py-2 font-semibold">Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-sky-100">
+                        {% for entry in task_log %}
+                        <tr>
+                            <td class="whitespace-nowrap px-3 py-2"><time class="localized-time" x-data="localizedTime('{{ entry.enqueued_at|date:"c" }}')">{{ entry.enqueued_at|date:"M j, Y, g:i A T" }}</time></td>
+                            <td class="whitespace-nowrap px-3 py-2">{{ entry.name }}</td>
+                            <td class="max-w-xs truncate px-3 py-2" title="{{ entry.target }}">{{ entry.target }}</td>
+                            <td class="whitespace-nowrap px-3 py-2">
+                                {% if entry.status == "SUCCESSFUL" %}<span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+                                {% elif entry.status == "FAILED" %}<span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+                                {% elif entry.status == "RUNNING" %}<span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                                {% else %}<span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">{% endif %}{{ entry.status_label }}</span>
+                                {% if entry.error %}<span class="mt-1 block font-mono text-xs text-red-700">{{ entry.error }}</span>{% endif %}
+                            </td>
+                            <td class="whitespace-nowrap px-3 py-2">{{ entry.duration|default:"&ndash;" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="border-t-2 border-sky-200 px-3 py-2 text-sm text-gray-500">No background tasks have run yet.</p>
+            {% endif %}
+        </details>
     </div>
     <div>
         <div class="flex items-center justify-between border-t-2 border-gray-400 py-4">
@@ -128,6 +171,16 @@
                 <p class="font-semibold">Active Files</p>
                 <p class="font-black text-4xl text-primary">{{ num_active_files }}</p>
             </div>
+            <div class="relative flex flex-col justify-between rounded-lg p-2 border-2 border-sky-200 bg-sky-100 w-full text-center space-y-2" data-tooltip-target="tooltip-task-queue">
+                <span class="absolute top-0 right-0 mt-1 mr-1 w-2 h-2 bg-primary rounded-full"></span>
+                <p class="font-semibold">Queued Tasks</p>
+                <p class="font-black text-4xl text-primary">{{ task_stats.waiting }}</p>
+            </div>
+            <div class="relative flex flex-col justify-between rounded-lg p-2 border-2 border-sky-200 bg-sky-100 w-full text-center space-y-2" data-tooltip-target="tooltip-failed-tasks">
+                <span class="absolute top-0 right-0 mt-1 mr-1 w-2 h-2 bg-primary rounded-full"></span>
+                <p class="font-semibold">Failed Tasks</p>
+                <p class="font-black text-4xl {% if task_stats.failed %}text-red-600{% else %}text-primary{% endif %}">{{ task_stats.failed }}</p>
+            </div>
         </div>
         <div id="tooltip-uptime" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
             Started at: {{ startup_time }}
@@ -135,6 +188,14 @@
         </div>
         <div id="tooltip-expired-files" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
             {{ num_expired_files }} file(s) to be cleaned up.
+            <div class="tooltip-arrow" data-popper-arrow></div>
+        </div>
+        <div id="tooltip-task-queue" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
+            {{ task_stats.running }} running, {{ task_stats.files_awaiting_hash }} file(s) awaiting a hash.
+            <div class="tooltip-arrow" data-popper-arrow></div>
+        </div>
+        <div id="tooltip-failed-tasks" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-primary rounded-lg opacity-0 tooltip dark:bg-gray-700">
+            {% if task_stats.last_finished_at %}Last task finished {{ task_stats.last_finished_at|timesince }} ago.{% else %}No task has finished yet.{% endif %}
             <div class="tooltip-arrow" data-popper-arrow></div>
         </div>
     </div>

@@ -5,6 +5,12 @@ from django.utils import timesince
 from django.views.generic import FormView
 
 from shifter_files.models import FileUpload
+from shifter_files.tasks import (
+    TASK_LOG_LIMIT,
+    count_tasks,
+    get_task_log,
+    get_task_stats,
+)
 
 from .forms import SiteSettingsForm
 from .models import SiteSetting
@@ -51,6 +57,17 @@ class SiteSettingsView(UserPassesTestMixin, FormView):
             FileUpload.get_non_expired_files().count()
         )
         context["num_expired_files"] = FileUpload.get_expired_files().count()
+        context["task_log"] = get_task_log()
+        context["task_count"] = count_tasks()
+        context["task_log_limit"] = TASK_LOG_LIMIT
+        task_stats = get_task_stats()
+        context["task_stats"] = task_stats
+        if task_stats.last_finished_at:
+            last_finished = task_stats.last_finished_at.strftime(
+                "%Y-%m-%d %H:%M:%S %Z"
+            )
+        else:
+            last_finished = "Never"
 
         site_information_lines = [
             "## Site Information",
@@ -64,6 +81,11 @@ class SiteSettingsView(UserPassesTestMixin, FormView):
             f"Startup Time: {context['startup_time']}",
             f"Active Files: {context['num_active_files']}",
             f"Expired Files Pending Cleanup: {context['num_expired_files']}",
+            f"Tasks Waiting: {task_stats.waiting}",
+            f"Tasks Running: {task_stats.running}",
+            f"Failed Tasks: {task_stats.failed}",
+            f"Files Awaiting Hash: {task_stats.files_awaiting_hash}",
+            f"Last Task Finished: {last_finished}",
         ]
 
         context["site_information_clipboard"] = "\n".join(
