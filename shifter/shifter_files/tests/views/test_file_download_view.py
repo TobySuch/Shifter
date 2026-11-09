@@ -190,3 +190,122 @@ class FileDownloadViewTest(TestCase):
         )
         response = Client().get(url)
         self.assertEqual(response.status_code, 200)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class FileDownloadAccelRedirectTest(TestCase):
+    """With X_ACCEL_REDIRECT_PREFIX set, the reverse proxy sends the file."""
+
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(
+            TEST_USER_EMAIL, TEST_USER_PASSWORD
+        )
+
+    def tearDown(self):
+        rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+
+    def create_file(self, filename=TEST_FILE_NAME, **kwargs):
+        kwargs.setdefault(
+            "expiry_datetime", timezone.now() + datetime.timedelta(weeks=1)
+        )
+        return FileUpload.objects.create(
+            owner=self.user,
+            file_content=SimpleUploadedFile(filename, TEST_FILE_CONTENT),
+            upload_datetime=timezone.now(),
+            filename=filename,
+            **kwargs,
+        )
+
+    def download(self, file_upload, method="get"):
+        url = reverse(
+            "shifter_files:file-download", args=[file_upload.file_hex]
+        )
+        return getattr(Client(), method)(url)
+
+    def test_disabled_by_default(self):
+        response = self.download(self.create_file())
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("X-Accel-Redirect", response)
+        self.assertEqual(
+            b"".join(response.streaming_content), TEST_FILE_CONTENT
+        )
+
+    @override_settings(X_ACCEL_REDIRECT_PREFIX="/protected-media/")
+    def test_redirects_to_stored_file(self):
+        file_upload = self.create_file()
+        response = self.download(file_upload)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response["X-Accel-Redirect"],
+            "/protected-media/" + file_upload.file_content.name,
+        )
+        self.assertEqual(response.content, b"")
+
+    @override_settings(X_ACCEL_REDIRECT_PREFIX="/protected-media/")
+    def test_sets_attachment_filename_and_type(self):
+        response = self.download(self.create_file())
+        self.assertEqual(
+            response["Content-Disposition"],
+            f'attachment; filename="{TEST_FILE_NAME}"',
+        )
+        self.assertEqual(response["Content-Type"], "text/plain")
+
+    @override_settings(X_ACCEL_REDIRECT_PREFIX="/protected-media/")
+    def test_non_ascii_filename(self):
+        response = self.download(self.create_file("résumé.pdf"))
+        self.assertEqual(
+            response["Content-Disposition"],
+            "attachment; filename*=utf-8''r%C3%A9sum%C3%A9.pdf",
+        )
+        self.assertEqual(response["Content-Type"], "application/pdf")
+
+    @override_settings(X_ACCEL_REDIRECT_PREFIX="/protected-media/")
+    def test_unknown_type_is_octet_stream(self):
+        response = self.download(self.create_file("data.unknownext"))
+        self.assertEqual(response["Content-Type"], "application/octet-stream")
+
+    @override_settings(X_ACCEL_REDIRECT_PREFIX="/protected-media/")
+    def test_compressed_file_type(self):
+        # Like FileResponse, a .tar.gz is sent as gzip, not as a tar the
+        # browser might decompress.
+        response = self.download(self.create_file("archive.tar.gz"))
+        self.assertEqual(response["Content-Type"], "application/gzip")
+
+    @override_settings(X_ACCEL_REDIRECT_PREFIX="protected-media")
+    def test_prefix_slashes_are_normalised(self):
+        file_upload = self.create_file()
+        response = self.download(file_upload)
+        self.assertEqual(
+            response["X-Accel-Redirect"],
+            "/protected-media/" + file_upload.file_content.name,
+        )
+
+    @override_settings(X_ACCEL_REDIRECT_PREFIX="/protected-media/")
+    def test_stored_name_is_url_quoted(self):
+        # Storage keeps non-ASCII characters in names, and the header must
+        # be a URL path the proxy can decode.
+        file_upload = self.create_file()
+        FileUpload.objects.filter(pk=file_upload.pk).update(
+            file_content="uploads/résumé #1.txt"
+        )
+        response = self.download(file_upload)
+        self.assertEqual(
+            response["X-Accel-Redirect"],
+            "/protected-media/uploads/r%C3%A9sum%C3%A9%20%231.txt",
+        )
+
+    @override_settings(X_ACCEL_REDIRECT_PREFIX="/protected-media/")
+    def test_head(self):
+        response = self.download(self.create_file(), method="head")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("X-Accel-Redirect", response)
+
+    @override_settings(X_ACCEL_REDIRECT_PREFIX="/protected-media/")
+    def test_expired_file_not_redirected(self):
+        file_upload = self.create_file(
+            expiry_datetime=timezone.now() - datetime.timedelta(hours=1)
+        )
+        response = self.download(file_upload)
+        self.assertEqual(response.status_code, 404)
+        self.assertNotIn("X-Accel-Redirect", response)
