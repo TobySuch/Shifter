@@ -30,8 +30,9 @@ class SiteSettingsView(UserPassesTestMixin, FormView):
             setting_name = field.name.split("_", maxsplit=1)[1]
             setting = SiteSetting.objects.get(name=setting_name)
 
-            # Convert boolean values to strings for storage
-            value = field.value()
+            # Save the cleaned value (e.g. "5GB" rather than " 5 gb") and
+            # convert booleans to strings for storage.
+            value = form.cleaned_data[field.name]
             if isinstance(value, bool):
                 value = str(value)  # "True" or "False"
 

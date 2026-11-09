@@ -62,7 +62,10 @@ export default function UploadPage({
   useEffect(() => {
     const pond = createPond({
       name: fileFieldName,
+      // maxFileSize is in bytes; a 1024 base matches the server's limit
+      // and shows sizes the same way as the site settings.
       maxFileSize,
+      fileSizeBase: 1024,
       allowMultiple: true,
       allowProcess: false,
       allowRevert: false,

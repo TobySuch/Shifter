@@ -144,33 +144,23 @@ class IndexViewTest(TestCase):
         response = client.get(reverse("shifter_files:index"))
         props = self._get_rendered_upload_props(response)
 
-        default_offset = int(
-            settings.SITE_SETTINGS["default_expiry_offset"]["default"]
-        )
-        max_offset = int(
-            settings.SITE_SETTINGS["max_expiry_offset"]["default"]
-        )
         now = timezone.now()
         self.assertEqual(
             props,
             {
                 "initUrl": reverse("shifter_files:chunked-upload-init"),
                 "fileFieldName": "file_content",
-                "maxFileSize": settings.SITE_SETTINGS["max_file_size"][
-                    "default"
-                ],
+                # 5GB, in bytes
+                "maxFileSize": 5 * 1024**3,
                 "uploadTimeout": settings.UPLOAD_TIMEOUT,
                 # A real boolean: the "False" default string would be
                 # truthy in JavaScript.
                 "allowOptionalExpiry": False,
                 "expiry": {
-                    "initial": (
-                        now + datetime.timedelta(hours=default_offset)
-                    ).isoformat(),
+                    # Defaults: 2 weeks, with a maximum of 1 month.
+                    "initial": "2026-01-15T12:00:00+00:00",
                     "min": now.isoformat(),
-                    "max": (
-                        now + datetime.timedelta(hours=max_offset)
-                    ).isoformat(),
+                    "max": "2026-02-01T12:00:00+00:00",
                 },
             },
         )
@@ -183,8 +173,46 @@ class IndexViewTest(TestCase):
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
         response = client.get(reverse("shifter_files:index"))
         props = self._get_rendered_upload_props(response)
-        self.assertEqual(props["maxFileSize"], "12MB")
+        self.assertEqual(props["maxFileSize"], 12 * 1024**2)
         self.assertIs(props["allowOptionalExpiry"], True)
+
+    @mock.patch(
+        "django.utils.timezone.now",
+        return_value=datetime.datetime(2026, 1, 31, 9, 0, tzinfo=datetime.UTC),
+    )
+    def test_upload_props_use_expiry_offset_units(self, _mock_now):
+        SiteSetting.objects.create(name="default_expiry_offset", value="3D")
+        SiteSetting.objects.create(name="max_expiry_offset", value="1M")
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_files:index"))
+        props = self._get_rendered_upload_props(response)
+        self.assertEqual(
+            props["expiry"]["initial"], "2026-02-03T09:00:00+00:00"
+        )
+        # A calendar month, clamped to the end of February.
+        self.assertEqual(props["expiry"]["max"], "2026-02-28T09:00:00+00:00")
+
+    def test_upload_props_offset_without_unit_is_hours(self):
+        SiteSetting.objects.create(name="default_expiry_offset", value="5")
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        before = timezone.now()
+        response = client.get(reverse("shifter_files:index"))
+        props = self._get_rendered_upload_props(response)
+        initial = datetime.datetime.fromisoformat(props["expiry"]["initial"])
+        self.assertGreaterEqual(initial, before + datetime.timedelta(hours=5))
+        self.assertLess(
+            initial, before + datetime.timedelta(hours=5, minutes=1)
+        )
+
+    def test_upload_props_max_file_size_in_gb_is_bytes(self):
+        SiteSetting.objects.create(name="max_file_size", value="2GB")
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.get(reverse("shifter_files:index"))
+        props = self._get_rendered_upload_props(response)
+        self.assertEqual(props["maxFileSize"], 2 * 1024**3)
 
     def test_upload_props_max_expiry_none_when_offset_overflows(self):
         SiteSetting.objects.create(

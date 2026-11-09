@@ -19,6 +19,8 @@ from urllib.parse import urlparse
 from django import forms
 from django.utils import timezone
 
+from shifter_site_settings.fields import ExpiryOffsetField, FileSizeField
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -256,26 +258,31 @@ DATETIME_INPUT_FORMATS = [
     "%Y-%m-%d %H:%M",  # '2006-10-25 14:30'
 ]
 
+EXPIRY_OFFSET_TOOLTIP = (
+    "Enter a whole number followed by H for hours, D for days, W for "
+    "weeks, M for months or Y for years, e.g. 2W. A number without a unit "
+    "is hours."
+)
+
 SITE_SETTINGS = {
     "max_file_size": {
-        "default": "5120MB",  # 5GB
+        "default": "5GB",
         "label": "Maximum File Size",
-        "tooltip": "Enter max size as a number value, followed by either KB \
-            for Kilobytes or MB for Megabytes.",
+        "field_type": FileSizeField,
+        "tooltip": "Enter max size as a whole number followed by KB for \
+            Kilobytes, MB for Megabytes or GB for Gigabytes, e.g. 5GB.",
     },
     "default_expiry_offset": {
-        "default": 24 * 14,  # 2 weeks
-        "label": "Default Expiry Offset (hours)",
-        "field_type": forms.IntegerField,
-        "min_value": 0,
-        "max_value": 2147483647,
+        "default": "2W",
+        "label": "Default Expiry Offset",
+        "field_type": ExpiryOffsetField,
+        "tooltip": EXPIRY_OFFSET_TOOLTIP,
     },
     "max_expiry_offset": {
-        "default": 24 * 365 * 5,  # 5 years
-        "label": "Maximum Expiry Offset (hours)",
-        "field_type": forms.IntegerField,
-        "min_value": 0,
-        "max_value": 2147483647,
+        "default": "1M",
+        "label": "Maximum Expiry Offset",
+        "field_type": ExpiryOffsetField,
+        "tooltip": EXPIRY_OFFSET_TOOLTIP,
     },
     "allow_optional_expiry": {
         "default": "False",  # Must be string since DB stores as CharField

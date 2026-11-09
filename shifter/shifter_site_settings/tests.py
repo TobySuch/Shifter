@@ -110,6 +110,98 @@ class SiteSettingsViewTest(TestCase):
         self.assertEqual(SiteSetting.get_setting("default_expiry_offset"), "1")
         self.assertEqual(SiteSetting.get_setting("max_expiry_offset"), "2")
 
+    def test_new_setup_defaults(self):
+        self.assertEqual(SiteSetting.get_setting("max_file_size"), "5GB")
+        self.assertEqual(
+            SiteSetting.get_setting("default_expiry_offset"), "2W"
+        )
+        self.assertEqual(SiteSetting.get_setting("max_expiry_offset"), "1M")
+
+    def test_createsettings_keeps_existing_values(self):
+        setting = SiteSetting.objects.get(name="max_expiry_offset")
+        setting.value = "87600"
+        setting.save()
+        call_command("createsettings", stdout=StringIO())
+        self.assertEqual(
+            SiteSetting.get_setting("max_expiry_offset"), "87600"
+        )
+
+    def test_site_settings_view_saves_units_normalized(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.post(
+            reverse("shifter_site_settings:site-settings"),
+            {
+                "setting_max_file_size": " 2 gb",
+                "setting_default_expiry_offset": "3d",
+                "setting_max_expiry_offset": "1 y",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Settings Saved!")
+        self.assertEqual(SiteSetting.get_setting("max_file_size"), "2GB")
+        self.assertEqual(
+            SiteSetting.get_setting("default_expiry_offset"), "3D"
+        )
+        self.assertEqual(SiteSetting.get_setting("max_expiry_offset"), "1Y")
+
+    def test_site_settings_view_accepts_every_offset_unit(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        for unit in ["H", "D", "W", "M", "Y"]:
+            with self.subTest(unit=unit):
+                response = client.post(
+                    reverse("shifter_site_settings:site-settings"),
+                    {
+                        "setting_max_file_size": "5GB",
+                        "setting_default_expiry_offset": f"1{unit}",
+                        "setting_max_expiry_offset": f"2{unit}",
+                    },
+                )
+                self.assertContains(response, "Settings Saved!")
+                self.assertEqual(
+                    SiteSetting.get_setting("default_expiry_offset"),
+                    f"1{unit}",
+                )
+
+    def test_site_settings_view_rejects_invalid_units(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.post(
+            reverse("shifter_site_settings:site-settings"),
+            {
+                "setting_max_file_size": "5TB",
+                "setting_default_expiry_offset": "2 fortnights",
+                "setting_max_expiry_offset": "1M",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Settings Saved!")
+        self.assertContains(
+            response, "Enter a whole number followed by KB, MB or GB"
+        )
+        self.assertContains(response, "W (weeks), M (months) or Y (years)")
+        self.assertEqual(SiteSetting.get_setting("max_file_size"), "5GB")
+        self.assertEqual(
+            SiteSetting.get_setting("default_expiry_offset"), "2W"
+        )
+
+    def test_site_settings_view_rejects_unrepresentable_default(self):
+        client = Client()
+        client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
+        response = client.post(
+            reverse("shifter_site_settings:site-settings"),
+            {
+                "setting_max_file_size": "5GB",
+                "setting_default_expiry_offset": "100000Y",
+                "setting_max_expiry_offset": "1M",
+            },
+        )
+        self.assertContains(response, "This offset is too far in the future.")
+        self.assertEqual(
+            SiteSetting.get_setting("default_expiry_offset"), "2W"
+        )
+
     def get_settings_page(self):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
@@ -253,10 +345,7 @@ class SiteSettingsViewTest(TestCase):
         # Check response contains error
         self.assertContains(
             response,
-            (
-                "Maximum value: "
-                f"{settings.SITE_SETTINGS['max_expiry_offset']['max_value']}"
-            ),
+"Maximum value: 2147483647",
         )
 
         # Check that the setting was not changed
@@ -349,16 +438,14 @@ class SiteSettingFieldTypesTestCase(TestCase):
         """Test that CharField setting returns string value."""
         result = SiteSetting.get_setting("max_file_size")
         self.assertIsInstance(result, str)
-        self.assertEqual(result, "5120MB")
+        self.assertEqual(result, "5GB")
 
-    def test_int_field_returns_string(self):
-        """Test that IntegerField setting returns string."""
-        # Note: IntegerField values are stored as strings
-        # Conversion happens in the consuming code
+    def test_expiry_offset_field_returns_string(self):
+        """Test that an expiry offset setting returns its string value."""
+        # Units are parsed by the consuming code (add_expiry_offset)
         result = SiteSetting.get_setting("default_expiry_offset")
         self.assertIsInstance(result, str)
-        # Verify it can be converted to int
-        self.assertEqual(int(result), 24 * 14)
+        self.assertEqual(result, "2W")
 
     def test_boolean_form_field_initial_true(self):
         """Test boolean form field initializes with True."""
@@ -457,8 +544,8 @@ class SiteSettingFieldTypesTestCase(TestCase):
             reverse("shifter_site_settings:site-settings"),
             {
                 "setting_max_file_size": "10240MB",  # CharField
-                "setting_default_expiry_offset": "720",  # IntegerField
-                "setting_max_expiry_offset": "87600",  # IntegerField
+                "setting_default_expiry_offset": "720",  # ExpiryOffsetField
+                "setting_max_expiry_offset": "87600",  # ExpiryOffsetField
                 "setting_allow_optional_expiry": "on",  # BooleanField
             },
         )
@@ -468,7 +555,7 @@ class SiteSettingFieldTypesTestCase(TestCase):
         # Verify CharField
         self.assertEqual(SiteSetting.get_setting("max_file_size"), "10240MB")
 
-        # Verify IntegerField (returns string)
+        # Verify ExpiryOffsetField (a bare number is kept as hours)
         self.assertEqual(
             SiteSetting.get_setting("default_expiry_offset"), "720"
         )
