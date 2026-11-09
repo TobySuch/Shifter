@@ -152,8 +152,7 @@ All the source code is contained within the `shifter/` directory. The project is
 4. The browser retries failed chunks with backoff and shows progress
 5. Abandoned uploads are removed by the cleanup cron job after
    `CHUNKED_UPLOAD_MAX_AGE_HOURS`
-6. The legacy single-request POST to `/` (`FileUploadView`) still works
-7. User receives shareable download link at `/download/<hex>/`
+6. User receives shareable download link at `/download/<hex>/`
 
 ### File Download and Expiry
 
@@ -189,7 +188,7 @@ SiteSetting (shifter_site_settings)
 
 | Endpoint              | Auth     | Purpose                                         |
 | --------------------- | -------- | ----------------------------------------------- |
-| `/`                   | Required | Upload form (GET) and submission (POST)         |
+| `/`                   | Required | Upload page (uploads use `/api/uploads`)        |
 | `/files`              | Required | User's file list (paginated by 10) with search  |
 | `/files/<hex>`        | Required | File details with shareable link                |
 | `/download/<hex>`     | Public   | Download landing page                           |
