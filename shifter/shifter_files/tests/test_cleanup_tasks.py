@@ -19,6 +19,7 @@ from shifter_files.tasks import (
     prune_old_task_results,
     requeue_missing_chunked_upload_cleanup,
 )
+from shifter_site_settings.models import SiteSetting
 
 
 def waiting(task):
@@ -112,8 +113,12 @@ class StaleChunkedUploadTaskTest(TestCase):
         )
 
 
-@override_settings(TASK_RESULT_MAX_AGE_DAYS=7)
 class PruneOldTaskResultsTest(TestCase):
+    def set_retention(self, days):
+        SiteSetting.objects.update_or_create(
+            name="task_history_retention_days", defaults={"value": str(days)}
+        )
+
     def add_result(self, status, finished_days_ago=None, started_hours_ago=0):
         result = delete_stale_chunked_upload.enqueue(0)
         now = timezone.now()
@@ -134,6 +139,7 @@ class PruneOldTaskResultsTest(TestCase):
         }
 
     def test_deletes_old_finished_and_stuck_running_results(self):
+        self.set_retention(7)
         old_success = self.add_result(TaskResultStatus.SUCCESSFUL, 8)
         old_failure = self.add_result(TaskResultStatus.FAILED, 8)
         recent = self.add_result(TaskResultStatus.SUCCESSFUL, 1)
@@ -149,6 +155,24 @@ class PruneOldTaskResultsTest(TestCase):
         remaining = self.remaining()
         self.assertTrue({recent, running} <= remaining)
         self.assertFalse({old_success, old_failure, stuck} & remaining)
+
+    def test_keeps_everything_by_default(self):
+        old_success = self.add_result(TaskResultStatus.SUCCESSFUL, 400)
+        stuck = self.add_result(
+            TaskResultStatus.RUNNING, started_hours_ago=25
+        )
+
+        prune_old_task_results.call()
+
+        self.assertTrue({old_success, stuck} <= self.remaining())
+
+    def test_keeps_everything_when_retention_is_zero(self):
+        self.set_retention(0)
+        old_failure = self.add_result(TaskResultStatus.FAILED, 400)
+
+        prune_old_task_results.call()
+
+        self.assertIn(old_failure, self.remaining())
 
     def test_schedules_its_next_run_a_day_later(self):
         before = timezone.now()

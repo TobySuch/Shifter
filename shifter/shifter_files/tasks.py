@@ -8,6 +8,8 @@ from django.tasks import TaskResultStatus, task
 from django.utils import timezone
 from django_tasks_db.models import DBTaskResult, get_date_max
 
+from shifter_site_settings.models import SiteSetting
+
 from .models import ChunkedUpload, FileUpload
 
 
@@ -213,18 +215,28 @@ STUCK_TASK_AGE = timedelta(days=1)
 PRUNE_INTERVAL = timedelta(days=1)
 
 
+def task_history_retention_days():
+    """Days to keep finished task records for; 0 keeps them forever."""
+    return int(SiteSetting.get_setting("task_history_retention_days"))
+
+
 @task
 def prune_old_task_results():
-    """Delete old task records, then run again tomorrow.
+    """Delete old task records, if enabled, then run again tomorrow.
 
-    Removes finished tasks older than TASK_RESULT_MAX_AGE_DAYS and tasks
-    stuck as RUNNING for over a day. The next run is queued first so a
-    failure here doesn't stop pruning.
+    When the Task History Retention site setting is above 0, removes
+    finished tasks older than that many days and tasks stuck as RUNNING
+    for over a day. The next run is queued first so a failure here
+    doesn't stop pruning, and so turning the setting on later takes
+    effect without a restart.
     """
     now = timezone.now()
     _enqueue_at(prune_old_task_results, now + PRUNE_INTERVAL)
+    days = task_history_retention_days()
+    if days <= 0:
+        return
     DBTaskResult.objects.finished().filter(
-        finished_at__lt=now - timedelta(days=settings.TASK_RESULT_MAX_AGE_DAYS)
+        finished_at__lt=now - timedelta(days=days)
     ).delete()
     DBTaskResult.objects.running().filter(
         started_at__lt=now - STUCK_TASK_AGE
