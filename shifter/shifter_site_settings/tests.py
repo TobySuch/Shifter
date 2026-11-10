@@ -101,6 +101,7 @@ class SiteSettingsViewTest(TestCase):
                 "setting_max_file_size": new_max_file_size,
                 "setting_default_expiry_offset": "1",
                 "setting_max_expiry_offset": "2",
+                "setting_task_history_retention_days": "0",
             },
         )
         self.assertEqual(response.status_code, 200)
@@ -135,6 +136,7 @@ class SiteSettingsViewTest(TestCase):
                 "setting_max_file_size": " 2 gb",
                 "setting_default_expiry_offset": "3d",
                 "setting_max_expiry_offset": "1 y",
+                "setting_task_history_retention_days": "0",
             },
         )
         self.assertEqual(response.status_code, 200)
@@ -156,6 +158,7 @@ class SiteSettingsViewTest(TestCase):
                         "setting_max_file_size": "5GB",
                         "setting_default_expiry_offset": f"1{unit}",
                         "setting_max_expiry_offset": f"2{unit}",
+                        "setting_task_history_retention_days": "0",
                     },
                 )
                 self.assertContains(response, "Settings Saved!")
@@ -173,6 +176,7 @@ class SiteSettingsViewTest(TestCase):
                 "setting_max_file_size": "5TB",
                 "setting_default_expiry_offset": "2 fortnights",
                 "setting_max_expiry_offset": "1M",
+                "setting_task_history_retention_days": "0",
             },
         )
         self.assertEqual(response.status_code, 200)
@@ -195,6 +199,7 @@ class SiteSettingsViewTest(TestCase):
                 "setting_max_file_size": "5GB",
                 "setting_default_expiry_offset": "100000Y",
                 "setting_max_expiry_offset": "1M",
+                "setting_task_history_retention_days": "0",
             },
         )
         self.assertContains(response, "This offset is too far in the future.")
@@ -354,6 +359,7 @@ class SiteSettingsViewTest(TestCase):
                 "setting_max_file_size": "5120MB",
                 "setting_default_expiry_offset": "336",
                 "setting_max_expiry_offset": setting_max_expiry_offset,
+                "setting_task_history_retention_days": "0",
             },
         )
         self.assertEqual(response.status_code, 200)
@@ -498,6 +504,7 @@ class SiteSettingFieldTypesTestCase(TestCase):
                 "setting_max_file_size": "5120MB",
                 "setting_default_expiry_offset": str(24 * 14),
                 "setting_max_expiry_offset": str(24 * 365 * 5),
+                "setting_task_history_retention_days": "0",
                 "setting_allow_optional_expiry": "on",
             },
         )
@@ -528,6 +535,7 @@ class SiteSettingFieldTypesTestCase(TestCase):
                 "setting_max_file_size": "5120MB",
                 "setting_default_expiry_offset": str(24 * 14),
                 "setting_max_expiry_offset": str(24 * 365 * 5),
+                "setting_task_history_retention_days": "0",
                 # setting_allow_optional_expiry omitted = unchecked
             },
         )
@@ -561,6 +569,7 @@ class SiteSettingFieldTypesTestCase(TestCase):
                 "setting_max_file_size": "10240MB",  # CharField
                 "setting_default_expiry_offset": "720",  # ExpiryOffsetField
                 "setting_max_expiry_offset": "87600",  # ExpiryOffsetField
+                "setting_task_history_retention_days": "0",
                 "setting_allow_optional_expiry": "on",  # BooleanField
             },
         )

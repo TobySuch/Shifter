@@ -292,6 +292,15 @@ SITE_SETTINGS = {
             expiry date. Files without expiry will never be automatically \
             deleted.",
     },
+    "task_history_retention_days": {
+        "default": "0",
+        "label": "Task History Retention (Days)",
+        "field_type": forms.IntegerField,
+        "min_value": 0,
+        "tooltip": "Finished background task records older than this many \
+            days are deleted once a day. Enter 0 to keep them until you \
+            prune them by hand.",
+    },
 }
 
 DEFAULT_EXPIRY_OFFSET = timedelta(weeks=2)
@@ -326,9 +335,6 @@ CHUNKED_UPLOAD_MAX_AGE_HOURS = int(
     os.environ.get("CHUNKED_UPLOAD_MAX_AGE_HOURS", "24")
 )
 
-# Finished background task records are deleted after this many days by the
-# daily prune task.
-TASK_RESULT_MAX_AGE_DAYS = int(os.environ.get("TASK_RESULT_MAX_AGE_DAYS", "7"))
 GUNICORN_TIMEOUT = int(os.environ.get("GUNICORN_TIMEOUT", "600"))  # seconds
 
 # When set, downloads are handed to the reverse proxy with an

@@ -100,7 +100,8 @@ All the source code is contained within the `shifter/` directory. The project is
 
 3. **shifter_site_settings** - Dynamic site configuration
    - Settings stored in database with defaults from settings.SITE_SETTINGS
-   - Configurable: max file size, default/max expiry offsets
+   - Configurable: max file size, default/max expiry offsets, optional
+     expiry, task history retention
    - System information dashboard (uptime, active files, storage)
 
 ### Frontend Architecture (Vite + Django Integration)
@@ -243,8 +244,10 @@ SiteSetting (shifter_site_settings)
   - `delete_expired_file` runs at each file's expiry
   - `delete_stale_chunked_upload` runs when an unfinished upload would go
     stale and reschedules itself if chunks arrived since
-  - `prune_old_task_results` runs daily, deleting finished task records older
-    than TASK_RESULT_MAX_AGE_DAYS and records stuck RUNNING for over a day
+  - `prune_old_task_results` runs daily. When the Task History Retention
+    (Days) site setting is above 0 (default 0, keep forever) it deletes
+    finished task records older than that and records stuck RUNNING for
+    over a day
 
 ### Static Files and Asset Pipeline
 
@@ -315,7 +318,6 @@ Key variables in `.env` or `.env.dev`:
 - SECRET_KEY
 - SHIFTER_URL (sets ALLOWED_HOSTS and CSRF_TRUSTED_ORIGINS)
 - DATABASE (sqlite/postgres)
-- TASK_RESULT_MAX_AGE_DAYS (default: 7; finished task records are pruned after this)
 - DJANGO_SUPERUSER_EMAIL, DJANGO_SUPERUSER_PASSWORD (dev only)
 - TIMEZONE (default: UTC)
 - RUN_TASK_WORKER (default: 1; run the task worker in this container)

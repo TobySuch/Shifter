@@ -11,7 +11,6 @@ TIMEZONE=UTC
 UPLOAD_TIMEOUT=300  # Timeout in seconds for each upload request (one chunk) sent by the browser. Default is 300 (5 minutes).
 UPLOAD_CHUNK_SIZE=8388608  # Uploads are sent in chunks of this many bytes. Default is 8388608 (8MB). Keep it below any reverse proxy request body limit.
 CHUNKED_UPLOAD_MAX_AGE_HOURS=24  # Unfinished uploads not touched for this many hours are deleted by the cleanup job. Default is 24.
-TASK_RESULT_MAX_AGE_DAYS=7  # Finished background task records older than this many days are deleted daily. Default is 7.
 GUNICORN_TIMEOUT=600  # Gunicorn worker timeout in seconds. Default is 600 (10 minutes). Should be >= UPLOAD_TIMEOUT.
 GUNICORN_WORKERS=2  # Number of Gunicorn worker processes. Default is 2.
 GUNICORN_THREADS=8  # Threads per Gunicorn worker. Each request in progress (e.g. a download) uses one thread, so workers x threads is how many can run at once. Default is 8.
