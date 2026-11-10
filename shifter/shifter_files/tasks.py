@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Count, Max, Q
+from django.db.models import Case, Count, F, Max, Q, When
 from django.tasks import TaskResultStatus, task
 from django.utils import timezone
 from django_tasks_db.models import DBTaskResult, get_date_max
@@ -324,8 +324,21 @@ def _is_scheduled(result, now):
 
 
 def get_task_log(limit=TASK_LOG_LIMIT):
-    """The most recently queued background tasks, newest first."""
-    results = list(DBTaskResult.objects.order_by("-enqueued_at")[:limit])
+    """Background tasks, latest scheduled time first.
+
+    A task's scheduled time is when it was set to run, or when it was
+    queued if it was set to run straight away, so tasks scheduled for the
+    future come first.
+    """
+    scheduled_for = Case(
+        When(run_after=get_date_max(), then=F("enqueued_at")),
+        default=F("run_after"),
+    )
+    results = list(
+        DBTaskResult.objects.order_by(
+            scheduled_for.desc(), "-enqueued_at"
+        )[:limit]
+    )
     file_targets = _file_targets(results)
     now = timezone.now()
     entries = []
