@@ -234,8 +234,9 @@ SiteSetting (shifter_site_settings)
     Task Log and aren't counted as Queued Tasks
   - Finished task records are deleted from the Site Settings page
     ("Prune Task History", `/api/prune-task-results`)
-  - Site Settings > Maintenance has a collapsed Task Log of the latest 50
-    tasks by scheduled time, future ones first (`shifter_files.tasks.get_task_log`)
+  - Site Settings > Maintenance has a collapsed Task Log, 20 tasks per page
+    (`?task_page=`), sorted by scheduled time with future ones first
+    (`shifter_files.tasks.get_task_log_page`)
   - Site Information shows Queued Tasks and Failed Tasks tiles, and Copy Site
     Info includes task counts (`shifter_files.tasks.get_task_stats`)
   - Tests: `shifter_files.tests.helpers.immediate_tasks` plus
