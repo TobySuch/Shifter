@@ -207,10 +207,16 @@ class SiteSettingsViewTest(TestCase):
             SiteSetting.get_setting("default_expiry_offset"), "2W"
         )
 
-    def get_settings_page(self):
+    def get_settings_page(self, **params):
         client = Client()
         client.login(email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD)
-        return client.get(reverse("shifter_site_settings:site-settings"))
+        return client.get(
+            reverse("shifter_site_settings:site-settings"), params
+        )
+
+    def task_log_tag(self, response):
+        content = response.content.decode()
+        return content.split('<details id="task-log"')[1].split(">")[0]
 
     def test_task_log_is_collapsed_and_lists_tasks(self):
         result = calculate_file_hash.enqueue(999)
@@ -251,16 +257,42 @@ class SiteSettingsViewTest(TestCase):
 
         self.assertContains(response, "No background tasks have run yet.")
 
-    def test_task_log_says_when_only_latest_are_shown(self):
-        for _ in range(51):
+    def test_task_log_is_paginated_by_20(self):
+        for _ in range(45):
             calculate_file_hash.enqueue(999)
 
         response = self.get_settings_page()
 
-        self.assertContains(response, "latest 50 of 51 tasks")
+        self.assertContains(response, "45 tasks")
+        self.assertContains(response, "Page 1 of 3")
+        self.assertContains(response, 'href="?task_page=2#task-log"')
         self.assertEqual(
-            response.content.decode().count("Calculate file hash"), 50
+            response.content.decode().count("Calculate file hash"), 20
         )
+        self.assertNotIn("open", self.task_log_tag(response))
+
+    def test_task_log_last_page_opens_the_log(self):
+        for _ in range(45):
+            calculate_file_hash.enqueue(999)
+
+        response = self.get_settings_page(task_page=3)
+
+        self.assertContains(response, "Page 3 of 3")
+        self.assertContains(response, 'href="?task_page=2#task-log"')
+        self.assertNotContains(response, 'href="?task_page=4#task-log"')
+        self.assertEqual(
+            response.content.decode().count("Calculate file hash"), 5
+        )
+        self.assertIn("open", self.task_log_tag(response))
+
+    def test_task_log_ignores_invalid_page(self):
+        calculate_file_hash.enqueue(999)
+
+        response = self.get_settings_page(task_page="nope")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Calculate file hash")
+        self.assertNotContains(response, 'id="task-log-pages"')
 
     def test_site_information_shows_task_stats(self):
         for status in (

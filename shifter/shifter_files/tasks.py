@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Case, Count, F, Max, Q, When
 from django.tasks import TaskResultStatus, task
@@ -264,7 +265,7 @@ def prune_task_results():
     return deleted
 
 
-TASK_LOG_LIMIT = 50
+TASK_LOG_PAGE_SIZE = 20
 
 SCHEDULED_LABEL = "Scheduled"
 STATUS_LABELS = {
@@ -335,7 +336,7 @@ def _is_scheduled(result, now):
     )
 
 
-def get_task_log(limit=TASK_LOG_LIMIT):
+def _task_log_results():
     """Background tasks, latest scheduled time first.
 
     A task's scheduled time is when it was set to run, or when it was
@@ -346,11 +347,27 @@ def get_task_log(limit=TASK_LOG_LIMIT):
         When(run_after=get_date_max(), then=F("enqueued_at")),
         default=F("run_after"),
     )
-    results = list(
-        DBTaskResult.objects.order_by(
-            scheduled_for.desc(), "-enqueued_at"
-        )[:limit]
+    return DBTaskResult.objects.order_by(
+        scheduled_for.desc(), "-enqueued_at", "-id"
     )
+
+
+def get_task_log(limit=TASK_LOG_PAGE_SIZE):
+    """The first ``limit`` entries of the task log."""
+    return _task_log_entries(list(_task_log_results()[:limit]))
+
+
+def get_task_log_page(number, per_page=TASK_LOG_PAGE_SIZE):
+    """One page of the task log as (page, entries).
+
+    ``number`` comes from the query string; anything that isn't a valid
+    page number shows the first or last page.
+    """
+    page = Paginator(_task_log_results(), per_page).get_page(number)
+    return page, _task_log_entries(list(page.object_list))
+
+
+def _task_log_entries(results):
     file_targets = _file_targets(results)
     now = timezone.now()
     entries = []
@@ -381,10 +398,6 @@ def get_task_log(limit=TASK_LOG_LIMIT):
             )
         )
     return entries
-
-
-def count_tasks():
-    return DBTaskResult.objects.count()
 
 
 @dataclass(frozen=True)
