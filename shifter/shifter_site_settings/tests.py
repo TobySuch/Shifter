@@ -265,7 +265,7 @@ class SiteSettingsViewTest(TestCase):
         self.assertIn("Tasks Waiting: 2", clipboard)
         self.assertIn("Tasks Running: 1", clipboard)
         self.assertIn("Failed Tasks: 1", clipboard)
-        self.assertIn("Files Awaiting Hash: 0", clipboard)
+        self.assertNotIn("Awaiting Hash", clipboard)
         self.assertIn("Last Task Finished: ", clipboard)
 
     def test_scheduled_tasks_are_shown_as_scheduled(self):
