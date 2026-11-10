@@ -124,6 +124,7 @@
                                 {% else %}<span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">{% endif %}{{ entry.status_label }}</span>
                                 {% if entry.error %}<span class="mt-1 block font-mono text-xs text-red-700">{{ entry.error }}</span>{% endif %}
                                 {% if entry.run_after %}<span class="mt-1 block text-xs text-gray-500">at <time class="localized-time" x-data="localizedTime('{{ entry.run_after|date:"c" }}')">{{ entry.run_after|date:"M j, Y, g:i A T" }}</time></span>{% endif %}
+                                {% if entry.finished_at %}<span class="mt-1 block text-xs text-gray-500">at <time class="localized-time" x-data="localizedTime('{{ entry.finished_at|date:"c" }}')">{{ entry.finished_at|date:"M j, Y, g:i A T" }}</time></span>{% endif %}
                             </td>
                             <td class="whitespace-nowrap px-3 py-2">{{ entry.duration|default:"&ndash;" }}</td>
                         </tr>
