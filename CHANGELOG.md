@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.9.0](https://github.com/TobySuch/Shifter/compare/v0.8.0...v0.9.0) (2026-11-10)
+
+
+### Features
+
+* calculate file hashes in a background task ([#823](https://github.com/TobySuch/Shifter/issues/823)) ([9968a6c](https://github.com/TobySuch/Shifter/commit/9968a6c348261ee920954e59d9b0ab2860707bcf))
+* chunked uploads with streaming zips and a progress bar ([#822](https://github.com/TobySuch/Shifter/issues/822)) ([9531fe6](https://github.com/TobySuch/Shifter/commit/9531fe6b52c9d501a7dda06cf72b5996f60620a8))
+* delete expired files with tasks scheduled at their expiry ([#828](https://github.com/TobySuch/Shifter/issues/828)) ([43f1694](https://github.com/TobySuch/Shifter/commit/43f1694c9e969ebba1e57cd07ee2acc1d44a033c))
+* drop the files awaiting hash count from site information ([#834](https://github.com/TobySuch/Shifter/issues/834)) ([a9a23dd](https://github.com/TobySuch/Shifter/commit/a9a23ddea59598b4252e84678d3ebee413940c57))
+* make automatic task history pruning an optional site setting ([#837](https://github.com/TobySuch/Shifter/issues/837)) ([e3efedb](https://github.com/TobySuch/Shifter/commit/e3efedb72f1d052adfde2d59984a1e37d3a27bd8))
+* optionally hand downloads to the reverse proxy ([#832](https://github.com/TobySuch/Shifter/issues/832)) ([9df47da](https://github.com/TobySuch/Shifter/commit/9df47da3326b50d70911243641389130702ff6a6))
+* paginate the task log by 20 tasks ([#838](https://github.com/TobySuch/Shifter/issues/838)) ([bd961ca](https://github.com/TobySuch/Shifter/commit/bd961ca917ba7d23279188645fd1fd9b26adc407))
+* remove the single-request upload POST ([#827](https://github.com/TobySuch/Shifter/issues/827)) ([32ddec1](https://github.com/TobySuch/Shifter/commit/32ddec1ab2e56a794de4878c97bf110cda7af39f))
+* render the upload page as a React island ([#820](https://github.com/TobySuch/Shifter/issues/820)) ([d2105ae](https://github.com/TobySuch/Shifter/commit/d2105ae2f86de13de5fab3c92f77c8e5edf05474))
+* replace the cron job with scheduled tasks ([#829](https://github.com/TobySuch/Shifter/issues/829)) ([a087450](https://github.com/TobySuch/Shifter/commit/a08745037bdd9c6cc518adf2bf5991f499ee3f2a))
+* show a task log and task stats in site settings ([#824](https://github.com/TobySuch/Shifter/issues/824)) ([1539cef](https://github.com/TobySuch/Shifter/commit/1539cef0aaea2a90530bc758e9622e814cd08a80))
+* show when finished tasks completed in the task log ([#836](https://github.com/TobySuch/Shifter/issues/836)) ([cdb3925](https://github.com/TobySuch/Shifter/commit/cdb3925ebd8a912c992792c4e0250dbb60d630c4))
+* sort the task log by scheduled time ([#835](https://github.com/TobySuch/Shifter/issues/835)) ([15c5446](https://github.com/TobySuch/Shifter/commit/15c54464a9cdcbfd947251185809f7dd9ad694d2))
+* support units in site settings and default to 2W/1M expiry ([#833](https://github.com/TobySuch/Shifter/issues/833)) ([54b02fa](https://github.com/TobySuch/Shifter/commit/54b02fa3b6318ed4cd8ef7fa3103a16db971dc76))
+
+
+### Bug Fixes
+
+* serve requests with threaded gunicorn workers ([#831](https://github.com/TobySuch/Shifter/issues/831)) ([117aeb6](https://github.com/TobySuch/Shifter/commit/117aeb6ca969da3f5b7032c76f92692b049f7a0b))
+
 ## [0.8.0](https://github.com/TobySuch/Shifter/compare/v0.7.0...v0.8.0) (2026-11-08)
 
 
