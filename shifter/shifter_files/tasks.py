@@ -370,7 +370,6 @@ class TaskStats:
     scheduled: int
     running: int
     failed: int
-    files_awaiting_hash: int
     last_finished_at: datetime | None
 
 
@@ -386,9 +385,4 @@ def get_task_stats():
         failed=Count("id", filter=Q(status=TaskResultStatus.FAILED)),
         last_finished_at=Max("finished_at"),
     )
-    return TaskStats(
-        files_awaiting_hash=FileUpload.objects.filter(
-            file_hash__isnull=True
-        ).count(),
-        **totals,
-    )
+    return TaskStats(**totals)
