@@ -274,6 +274,39 @@ class TaskLogTest(TestCase):
         self.assertEqual(len(entries), 2)
         self.assertEqual(entries[0].enqueued_at, newest.enqueued_at)
 
+    def test_sorted_by_scheduled_time_with_future_tasks_first(self):
+        now = timezone.now()
+        # Queued last, but ran a while ago at its scheduled time.
+        self.enqueue(
+            self.file_upload.pk,
+            status=TaskResultStatus.SUCCESSFUL,
+            run_after=now - timedelta(hours=1),
+        )
+        self.enqueue(
+            self.file_upload.pk,
+            enqueued_at=now - timedelta(days=2),
+            run_after=now + timedelta(days=1),
+        )
+        self.enqueue(
+            self.file_upload.pk,
+            enqueued_at=now - timedelta(days=3),
+            run_after=now + timedelta(days=5),
+        )
+        # Queued to run straight away, so sorted by when it was queued.
+        self.enqueue(
+            self.file_upload.pk, enqueued_at=now - timedelta(minutes=5)
+        )
+
+        entries = get_task_log()
+
+        self.assertEqual(
+            [entry.status_label for entry in entries],
+            ["Scheduled", "Scheduled", "Waiting", "Succeeded"],
+        )
+        self.assertEqual(
+            entries[0].run_after - entries[1].run_after, timedelta(days=4)
+        )
+
     def test_formats_longer_durations(self):
         self.assertEqual(format_duration(timedelta(seconds=0.04)), "0.0 s")
         self.assertEqual(format_duration(timedelta(seconds=59.9)), "59.9 s")
