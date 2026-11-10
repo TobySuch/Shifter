@@ -226,6 +226,21 @@ class SiteSettingsViewTest(TestCase):
         self.assertContains(response, "Failed")
         self.assertContains(response, "PermissionError")
 
+    def test_task_log_shows_when_a_task_finished(self):
+        finished_at = timezone.now() - timedelta(hours=1)
+        result = calculate_file_hash.enqueue(999)
+        DBTaskResult.objects.filter(id=result.id).update(
+            status=TaskResultStatus.SUCCESSFUL,
+            started_at=finished_at - timedelta(seconds=1),
+            finished_at=finished_at,
+        )
+
+        response = self.get_settings_page()
+
+        self.assertContains(
+            response, f"localizedTime('{finished_at.isoformat()}')"
+        )
+
     def test_task_log_empty(self):
         response = self.get_settings_page()
 
