@@ -25,7 +25,7 @@
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
-    "@testing-library/user-event": "^14.6.10",
+    "@testing-library/user-event": "^14.6.12",
     "@vitejs/plugin-react": "^6.3.0",
     "jsdom": "^31.0.1",
     "jszip": "^3.10.2",
