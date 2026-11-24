@@ -23,14 +23,14 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
-    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/jest-dom": "^8.0.0",
     "@testing-library/react": "^16.3.3",
-    "@testing-library/user-event": "^14.6.12",
+    "@testing-library/user-event": "^14.6.13",
     "@vitejs/plugin-react": "^6.3.0",
     "jsdom": "^31.0.1",
     "jszip": "^3.10.2",
     "vite": "^8.3.8",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   },
   "dependencies": {
     "alpinejs": "^3.17.5",
