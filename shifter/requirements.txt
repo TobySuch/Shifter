@@ -4,7 +4,7 @@ django-stubs-ext==6.1.2
 django-tasks-db==0.13.0
 django-vite==3.2.0
 gunicorn==27.0.1
-packaging==26.3
+packaging==26.4
 psycopg==3.3.9
 psycopg-binary==3.3.9
 sqlparse==0.6.1
